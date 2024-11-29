@@ -38,7 +38,16 @@ function roomNameToXY(name) {
  *     representing the walkable status of the nodes(0 or false for walkable).
  *     If the matrix is not supplied, all the nodes will be walkable.  */
 class WorldMapGrid {
-    constructor(accessibleRooms, staticTerrainData) {
+	public width: any;
+	public height: any;
+	public nodes: any;
+	public gridData: any;
+	public startx: any;
+	public starty: any;
+	public dx: any;
+	public dy: any;
+
+    constructor(accessibleRooms?, staticTerrainData?) {
         /**
          * The size of the grid.
          * @type number
