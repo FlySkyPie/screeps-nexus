@@ -1,16 +1,16 @@
-const common = require('@screeps/common');
+import common from '@screeps/common';
 const db = common.storage.db;
 const env = common.storage.env;
 const pubsub = common.storage.pubsub;
 const config = common.configManager.config;
-const native = require('../../native/build/Release/native.node');
-const ivm = require('isolated-vm');
-const q = require('q');
-const _ = require('lodash');
-const driver = require('../index');
-const pathfinderFactory = require('../path-finder');
-const runtimeData = require('./data');
-const runtimeUserVm = require('./user-vm');
+import native from '../../native/build/Release/native.node';
+import ivm from 'isolated-vm';
+import q from 'q';
+import _ from 'lodash';
+import driver from '../index';
+import pathfinderFactory from '../path-finder';
+import runtimeData from './data';
+import runtimeUserVm from './user-vm';
 let staticTerrainData;
 let staticTerrainDataSize = 0;
 
@@ -272,7 +272,7 @@ async function make (scope, userId) {
     }
 }
 
-module.exports = userId => {
+export default userId => {
     const scope = {abort: false};
     let timeout;
     return new Promise((resolve, reject) => {

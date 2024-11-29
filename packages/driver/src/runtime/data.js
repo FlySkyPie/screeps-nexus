@@ -1,17 +1,17 @@
-const bulk = require('../bulk');
-const queue = require('../queue');
-const EventEmitter = require('events').EventEmitter;
-const common = require('@screeps/common');
+import bulk from '../bulk';
+import queue from '../queue';
+import {EventEmitter} from 'events';
+import common from '@screeps/common';
 const db = common.storage.db;
 const env = common.storage.env;
 const config = common.configManager.config;
-const q = require('q');
-const vm = require('vm');
-const _ = require('lodash');
-const child_process = require('child_process');
-const os = require('os');
-const util = require('util');
-const driver = require('../index');
+import q from 'q';
+import vm from 'vm';
+import _ from 'lodash';
+import child_process from 'child_process';
+import os from 'os';
+import util from 'util';
+import driver from '../index';
 
 const accessibleRoomsCache = {
     timestamp: 0
@@ -85,7 +85,7 @@ function getAccessibleRooms() {
 
 }
 
-exports.get = userId => {
+export function get(userId) {
     let userObjects;
     let runtimeData;
     const userIdsHash = {[userId]: true};
@@ -247,4 +247,4 @@ exports.get = userId => {
             }
             return runtimeData;
         });
-};
+}

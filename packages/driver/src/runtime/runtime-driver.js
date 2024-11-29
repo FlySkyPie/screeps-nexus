@@ -1,5 +1,5 @@
-const _ = require('lodash');
-const runtime = require('./runtime');
+import _ from 'lodash';
+import runtime from './runtime';
 
 function EvalCodeError(message) {
     this.toString = () => message;
@@ -8,17 +8,17 @@ function EvalCodeError(message) {
 const runtimeCache = {};
 const worldSize = global._worldSize;
 
-exports.constants = require('@screeps/common/lib/constants');
+export var constants = require('@screeps/common/lib/constants');
 
-exports.bufferFromBase64 = (base64) => {
+export function bufferFromBase64(base64) {
     return Buffer.from(base64, 'base64');
-};
+}
 
-exports.getWorldSize = () => {
+export function getWorldSize() {
     return worldSize;
-};
+}
 
-exports.evalCode = (module, globals, returnValue, timeout, scriptCachedData) => {
+export function evalCode(module, globals, returnValue, timeout, scriptCachedData) {
 
     const options = {filename: module.name};
 
@@ -108,7 +108,7 @@ exports.evalCode = (module, globals, returnValue, timeout, scriptCachedData) => 
         }
         throw new EvalCodeError(message);
     }
-};
+}
 
-const pathFinderFactory = require('../path-finder');
-exports.pathFinder = pathFinderFactory.create(global._nativeMod);
+import pathFinderFactory from '../path-finder';
+export var pathFinder = pathFinderFactory.create(global._nativeMod);

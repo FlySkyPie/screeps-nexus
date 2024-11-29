@@ -1,6 +1,6 @@
-const q = require('q');
-const _ = require('lodash');
-const common = require('@screeps/common');
+import q from 'q';
+import _ from 'lodash';
+import common from '@screeps/common';
 
 
 function removeHidden(obj) {
@@ -22,7 +22,7 @@ function removeHidden(obj) {
     }
 }
 
-module.exports = collectionName => {
+export default collectionName => {
     const bulk = [];
     let opsCnt = 0;
     const updates = {};

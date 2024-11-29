@@ -1,6 +1,6 @@
 'use strict';
 
-let _ = require('lodash');
+import _ from 'lodash';
 let globals;
 
 //
@@ -20,7 +20,7 @@ function parseRoomName(roomName) {
     return { xx: rx, yy: ry };
 }
 
-exports.init = function init(mod, rooms) {
+export function init(mod, rooms) {
 
     let terrainData = [];
     rooms.forEach(room => {
@@ -43,9 +43,9 @@ exports.init = function init(mod, rooms) {
         throw new Error('Invalid pathfinder binary');
     }
     mod.loadTerrain(terrainData);
-};
+}
 
-module.exports.create = function create(mod) {
+export function create(mod) {
 //
 // Converts return value of `parseRoomName` back into a normal room name
     function generateRoomName(xx, yy) {
@@ -142,4 +142,4 @@ module.exports.create = function create(mod) {
     };
 
     return {make, search};
-};
+}

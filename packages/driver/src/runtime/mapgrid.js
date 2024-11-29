@@ -1,5 +1,5 @@
-const pathfinding = require('@screeps/pathfinding');
-const driver = require('./runtime-driver');
+import pathfinding from '@screeps/pathfinding';
+import driver from './runtime-driver';
 const C = driver.constants;
 
 function roomNameToXY(name) {
@@ -273,4 +273,4 @@ WorldMapGrid.prototype.clone = function() {
     return newGrid;
 };
 
-module.exports = WorldMapGrid;
+export default WorldMapGrid;

@@ -1,14 +1,14 @@
-const q = require('q');
-const _ = require('lodash');
-const common = require('@screeps/common');
+import q from 'q';
+import _ from 'lodash';
+import common from '@screeps/common';
 const config = common.configManager.config;
 const env = common.storage.env;
 
-exports.saveTick = (roomId, gameTime, data) => {
+export function saveTick(roomId, gameTime, data) {
     return env.hmset(env.keys.ROOM_HISTORY + roomId, {[gameTime]: data});
-};
+}
 
-exports.upload = (roomId, baseTime) => {
+export function upload(roomId, baseTime) {
     return env.get(env.keys.ROOM_HISTORY + roomId)
         .then(data => {
         if(!data || !data[""+baseTime]) {
@@ -40,4 +40,4 @@ exports.upload = (roomId, baseTime) => {
 
         return env.del(env.keys.ROOM_HISTORY + roomId);
     });
-};
+}

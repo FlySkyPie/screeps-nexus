@@ -1,16 +1,16 @@
-const _ = require('lodash');
-const ivm = require('isolated-vm');
-const fs = require('fs');
-const index = require('../index');
+import _ from 'lodash';
+import ivm from 'isolated-vm';
+import fs from 'fs';
+import index from '../index';
 const nativeModPath = '../../native/build/Release/native.node';
 const native = require(nativeModPath);
 const nativeMod = new ivm.NativeModule(require.resolve(nativeModPath));
-const common = require('@screeps/common');
+import common from '@screeps/common';
 const config = common.configManager.config;
 let vms = {};
 let snapshot;
 
-exports.create = async ({userId, staticTerrainData, staticTerrainDataSize, codeTimestamp}) => {
+export async function create({userId, staticTerrainData, staticTerrainDataSize, codeTimestamp}) {
     userId = ""+userId;
 
     if(vms[userId]) {
@@ -92,16 +92,17 @@ exports.create = async ({userId, staticTerrainData, staticTerrainDataSize, codeT
     }
 
     vms[userId].lastUsed = Date.now();
-};
+}
 
-exports.get = userId => {
+export function get(userId) {
     userId = ""+userId;
     let vm = vms[userId];
     if (vm && vm.ready) {
         return vm;
     }
-};
-exports.clear = userId => {
+}
+
+export function clear(userId) {
     userId = ""+userId;
     if(vms[userId]) {
         try {
@@ -115,16 +116,16 @@ exports.clear = userId => {
         delete vms[userId];
         vms[userId] = null;
     }
-};
+}
 
-exports.clearAll = () => {
+export function clearAll() {
     for(const userId in vms) {
         exports.clear(userId);
     }
     vms = {};
-};
+}
 
-exports.getMetrics = () => {
+export function getMetrics() {
     return Object.keys(vms).reduce((accum, userId) => {
         if(vms[userId]) {
             const result = {
@@ -140,9 +141,9 @@ exports.getMetrics = () => {
         }
         return accum;
     }, []);
-};
+}
 
-exports.init = () => {
+export function init() {
 
     try {
         snapshot = new ivm.ExternalCopy(fs.readFileSync(require.resolve('../../build/runtime.snapshot.bin')).buffer);
@@ -172,4 +173,4 @@ exports.init = () => {
             console.log('---');
         }, config.engine.reportMemoryUsageInterval);
     }
-};
+}
