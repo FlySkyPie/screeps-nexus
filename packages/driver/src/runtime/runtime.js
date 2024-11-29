@@ -9,7 +9,9 @@ global._init = (() => {
     const context = _context;
     const ivm = _ivm;
     const cpuHalt = _halt;
-    let mapGrid, staticTerrainData = {}, scope;
+    let mapGrid;
+    let staticTerrainData = {};
+    let scope;
 
     function nowCpuTime() {
         return isolate.cpuTime[0] * 1e3 + isolate.cpuTime[1] / 1e6;
@@ -29,11 +31,14 @@ global._init = (() => {
     };
 
     global._start = data => {
-
-        let activeSegments, publicSegments, defaultPublicSegment, activeForeignSegment;
-        let startTime, startDirtyTime = nowCpuTime();
-        let intentCpu = 0.2,
-            freeMethods = {say: true, pull: true};
+        let activeSegments;
+        let publicSegments;
+        let defaultPublicSegment;
+        let activeForeignSegment;
+        let startTime;
+        let startDirtyTime = nowCpuTime();
+        let intentCpu = 0.2;
+        let freeMethods = {say: true, pull: true};
 
         let intents = {
             list: {},

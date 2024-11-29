@@ -1,28 +1,31 @@
-var bulk = require('../bulk'),
-    queue = require('../queue'),
-    EventEmitter = require('events').EventEmitter,
-    common = require('@screeps/common'),
-    db = common.storage.db,
-    env = common.storage.env,
-    config = common.configManager.config,
-    q = require('q'),
-    vm = require('vm'),
-    _ = require('lodash'),
-    child_process = require('child_process'),
-    os = require('os'),
-    util = require('util'),
-    driver = require('../index'),
-    accessibleRoomsCache = {
-        timestamp: 0
-    },
-    cachedMarketOrders = {
-        gameTime: 0,
-        orders: {}
-    },
-    cachedMarketHistory = {
-        time: 0,
-        history: {}
-    };
+var bulk = require('../bulk');
+var queue = require('../queue');
+var EventEmitter = require('events').EventEmitter;
+var common = require('@screeps/common');
+var db = common.storage.db;
+var env = common.storage.env;
+var config = common.configManager.config;
+var q = require('q');
+var vm = require('vm');
+var _ = require('lodash');
+var child_process = require('child_process');
+var os = require('os');
+var util = require('util');
+var driver = require('../index');
+
+var accessibleRoomsCache = {
+    timestamp: 0
+};
+
+var cachedMarketOrders = {
+    gameTime: 0,
+    orders: {}
+};
+
+var cachedMarketHistory = {
+    time: 0,
+    history: {}
+};
 
 function getCachedMarketOrders(gameTime) {
     if(gameTime == cachedMarketOrders.gameTime) {
@@ -83,7 +86,8 @@ function getAccessibleRooms() {
 }
 
 exports.get = userId => {
-    var userObjects, runtimeData;
+    var userObjects;
+    var runtimeData;
     var userIdsHash = {[userId]: true};
 
     return db['rooms.objects'].find({user: userId})
@@ -128,101 +132,100 @@ exports.get = userId => {
                 db['users.power_creeps'].find({user: userId}),
             ]);
         }).then((result) => {
+        var gameTime = result[4];
 
-            var gameTime = result[4];
+        db['users.console'].removeWhere({_id: {$in: _.map(result[3], (i) => i._id)}});
 
-            db['users.console'].removeWhere({_id: {$in: _.map(result[3], (i) => i._id)}});
-
-            var cpu, cpuBucket;
-            if(result[0].cpu) {
-                cpuBucket = result[0].cpuAvailable || 0;
-                if(cpuBucket < 0) {
-                    cpuBucket = 0;
-                }
-                cpu = cpuBucket + result[0].cpu;
-                if(cpu > config.engine.cpuMaxPerTick) {
-                    cpu = config.engine.cpuMaxPerTick;
-                }
+        var cpu;
+        var cpuBucket;
+        if(result[0].cpu) {
+            cpuBucket = result[0].cpuAvailable || 0;
+            if(cpuBucket < 0) {
+                cpuBucket = 0;
             }
-            else {
-                cpu = Infinity;
-                cpuBucket = Infinity;
+            cpu = cpuBucket + result[0].cpu;
+            if(cpu > config.engine.cpuMaxPerTick) {
+                cpu = config.engine.cpuMaxPerTick;
             }
+        }
+        else {
+            cpu = Infinity;
+            cpuBucket = Infinity;
+        }
 
-            var modules = result[1] && result[1].modules || {};
-            for(var key in modules) {
-                var newKey = key.replace(/\$DOT\$/g, '.');
-                newKey = newKey.replace(/\$SLASH\$/g, '/');
-                newKey = newKey.replace(/\$BACKSLASH\$/g, '\\');
-                if(newKey != key) {
-                    modules[newKey] = modules[key];
-                    delete modules[key];
-                }
+        var modules = result[1] && result[1].modules || {};
+        for(var key in modules) {
+            var newKey = key.replace(/\$DOT\$/g, '.');
+            newKey = newKey.replace(/\$SLASH\$/g, '/');
+            newKey = newKey.replace(/\$BACKSLASH\$/g, '\\');
+            if(newKey != key) {
+                modules[newKey] = modules[key];
+                delete modules[key];
             }
+        }
 
-            var userIds = [];
-            var powerCreepsIds = [];
-            result[6].forEach((i) => {
-                if(i.user) {
-                    userIdsHash[i.user] = true;
-                }
-                if(i.type == 'controller' && i.reservation) {
-                    userIdsHash[i.reservation.user] = true;
-                }
-                if(i.type == 'controller' && i.sign) {
-                    userIdsHash[i.sign.user] = true;
-                }
-                if(i.type == 'powerCreep') {
-                    powerCreepsIds.push(i._id);
-                }
-            });
-            result[8].forEach(i => i.recipient && (userIdsHash[i.recipient] = true));
-            result[9].forEach(i => i.sender && (userIdsHash[i.sender] = true));
-            Object.getOwnPropertyNames(userIdsHash).forEach(i => {
-                userIds.push(i);
-            });
+        var userIds = [];
+        var powerCreepsIds = [];
+        result[6].forEach((i) => {
+            if(i.user) {
+                userIdsHash[i.user] = true;
+            }
+            if(i.type == 'controller' && i.reservation) {
+                userIdsHash[i.reservation.user] = true;
+            }
+            if(i.type == 'controller' && i.sign) {
+                userIdsHash[i.sign.user] = true;
+            }
+            if(i.type == 'powerCreep') {
+                powerCreepsIds.push(i._id);
+            }
+        });
+        result[8].forEach(i => i.recipient && (userIdsHash[i.recipient] = true));
+        result[9].forEach(i => i.sender && (userIdsHash[i.sender] = true));
+        Object.getOwnPropertyNames(userIdsHash).forEach(i => {
+            userIds.push(i);
+        });
 
-            runtimeData = {
-                userObjects,
-                user: result[0],
-                userCode: modules,
-                userCodeTimestamp: result[1] && result[1].timestamp || 0,
-                userMemory: {data: result[2] || "", userId},
-                consoleCommands: result[3],
-                time: gameTime,
-                rooms: driver.mapById(result[5]),
-                roomObjects: _.extend(driver.mapById(result[6]), userObjects),
-                flags: result[10],
-                accessibleRooms: result[7],
-                transactions: {
-                    outgoing: result[8],
-                    incoming: result[9]
-                },
-                cpu,
-                cpuBucket,
-                roomEventLog: result[11],
-                userPowerCreeps: _.indexBy(result[12], '_id')
-            };
+        runtimeData = {
+            userObjects,
+            user: result[0],
+            userCode: modules,
+            userCodeTimestamp: result[1] && result[1].timestamp || 0,
+            userMemory: {data: result[2] || "", userId},
+            consoleCommands: result[3],
+            time: gameTime,
+            rooms: driver.mapById(result[5]),
+            roomObjects: _.extend(driver.mapById(result[6]), userObjects),
+            flags: result[10],
+            accessibleRooms: result[7],
+            transactions: {
+                outgoing: result[8],
+                incoming: result[9]
+            },
+            cpu,
+            cpuBucket,
+            roomEventLog: result[11],
+            userPowerCreeps: _.indexBy(result[12], '_id')
+        };
 
-            return q.all([
-                db.users.find({_id: {$in: userIds}}),
-                getCachedMarketOrders(gameTime),
-                getCachedMarketHistory(),
-                db['market.orders'].find({user: userId}),
-                result[0].activeSegments && result[0].activeSegments.length > 0 ?
-                    env.hmget(env.keys.MEMORY_SEGMENTS+userId, result[0].activeSegments) :
-                    q.when(),
-                result[0].activeForeignSegment && result[0].activeForeignSegment.user_id && result[0].activeForeignSegment.id ?
-                    q.all([
-                        env.hget(
-                            env.keys.MEMORY_SEGMENTS+result[0].activeForeignSegment.user_id,
-                            result[0].activeForeignSegment.id),
-                        env.get(env.keys.PUBLIC_MEMORY_SEGMENTS+result[0].activeForeignSegment.user_id)
-                    ]) :
-                    q.when(),
-            ]);
-
-        }).then((result) => {
+        return q.all([
+            db.users.find({_id: {$in: userIds}}),
+            getCachedMarketOrders(gameTime),
+            getCachedMarketHistory(),
+            db['market.orders'].find({user: userId}),
+            result[0].activeSegments && result[0].activeSegments.length > 0 ?
+                env.hmget(env.keys.MEMORY_SEGMENTS+userId, result[0].activeSegments) :
+                q.when(),
+            result[0].activeForeignSegment && result[0].activeForeignSegment.user_id && result[0].activeForeignSegment.id ?
+                q.all([
+                    env.hget(
+                        env.keys.MEMORY_SEGMENTS+result[0].activeForeignSegment.user_id,
+                        result[0].activeForeignSegment.id),
+                    env.get(env.keys.PUBLIC_MEMORY_SEGMENTS+result[0].activeForeignSegment.user_id)
+                ]) :
+                q.when(),
+        ]);
+    }).then((result) => {
             runtimeData.users = driver.mapById(result[0]);
             runtimeData.market = {
                 orders: result[1],
@@ -244,5 +247,4 @@ exports.get = userId => {
             }
             return runtimeData;
         });
-
 };

@@ -1,6 +1,6 @@
-var q = require('q'),
-    _ = require('lodash'),
-    common = require('@screeps/common');
+var q = require('q');
+var _ = require('lodash');
+var common = require('@screeps/common');
 
 
 function removeHidden(obj) {
@@ -23,10 +23,9 @@ function removeHidden(obj) {
 }
 
 module.exports = collectionName => {
-
-    var bulk = [],
-        opsCnt = 0,
-        updates = {};
+    var bulk = [];
+    var opsCnt = 0;
+    var updates = {};
 
     return {
         update(id, data) {
@@ -113,5 +112,4 @@ module.exports = collectionName => {
             return common.storage.db[collectionName].bulk(bulk);
         }
     }
-
 };

@@ -1,18 +1,18 @@
-var common = require('@screeps/common'),
-    db = common.storage.db,
-    env = common.storage.env,
-    pubsub = common.storage.pubsub,
-    config = common.configManager.config,
-    native = require('../../native/build/Release/native.node'),
-    ivm = require('isolated-vm'),
-    q = require('q'),
-    _ = require('lodash'),
-    driver = require('../index'),
-    pathfinderFactory = require('../path-finder'),
-    runtimeData = require('./data'),
-    runtimeUserVm = require('./user-vm');
-
-let staticTerrainData, staticTerrainDataSize = 0;
+var common = require('@screeps/common');
+var db = common.storage.db;
+var env = common.storage.env;
+var pubsub = common.storage.pubsub;
+var config = common.configManager.config;
+var native = require('../../native/build/Release/native.node');
+var ivm = require('isolated-vm');
+var q = require('q');
+var _ = require('lodash');
+var driver = require('../index');
+var pathfinderFactory = require('../path-finder');
+var runtimeData = require('./data');
+var runtimeUserVm = require('./user-vm');
+let staticTerrainData;
+let staticTerrainDataSize = 0;
 
 function getAllTerrainData() {
     if(staticTerrainData) {

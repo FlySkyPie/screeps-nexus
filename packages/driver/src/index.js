@@ -1,19 +1,19 @@
-var bulk = require('./bulk'),
-    queue = require('./queue'),
-    EventEmitter = require('events').EventEmitter,
-    common = require('@screeps/common'),
-    db = common.storage.db,
-    env = common.storage.env,
-    pubsub = common.storage.pubsub,
-    config = Object.assign(common.configManager.config, {engine: new EventEmitter()}),
-    q = require('q'),
-    _ = require('lodash'),
-    os = require('os'),
-    zlib = require('zlib'),
-    runtimeUserVm = require('./runtime/user-vm'),
-    roomStatsUpdates = {},
-    genericPool = require('generic-pool'),
-    worldSize;
+var bulk = require('./bulk');
+var queue = require('./queue');
+var EventEmitter = require('events').EventEmitter;
+var common = require('@screeps/common');
+var db = common.storage.db;
+var env = common.storage.env;
+var pubsub = common.storage.pubsub;
+var config = Object.assign(common.configManager.config, {engine: new EventEmitter()});
+var q = require('q');
+var _ = require('lodash');
+var os = require('os');
+var zlib = require('zlib');
+var runtimeUserVm = require('./runtime/user-vm');
+var roomStatsUpdates = {};
+var genericPool = require('generic-pool');
+var worldSize;
 
 _.extend(config.engine, {
     driver: exports,

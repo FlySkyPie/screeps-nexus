@@ -1,14 +1,14 @@
-const _ = require('lodash'),
-    ivm = require('isolated-vm'),
-    fs = require('fs'),
-    index = require('../index'),
-    nativeModPath = '../../native/build/Release/native.node',
-    native = require(nativeModPath),
-    nativeMod = new ivm.NativeModule(require.resolve(nativeModPath)),
-    common = require('@screeps/common'),
-    config = common.configManager.config;
-
-let vms = {}, snapshot;
+const _ = require('lodash');
+const ivm = require('isolated-vm');
+const fs = require('fs');
+const index = require('../index');
+const nativeModPath = '../../native/build/Release/native.node';
+const native = require(nativeModPath);
+const nativeMod = new ivm.NativeModule(require.resolve(nativeModPath));
+const common = require('@screeps/common');
+const config = common.configManager.config;
+let vms = {};
+let snapshot;
 
 exports.create = async ({userId, staticTerrainData, staticTerrainDataSize, codeTimestamp}) => {
     userId = ""+userId;

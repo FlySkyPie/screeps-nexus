@@ -1,9 +1,9 @@
-var q = require('q'),
-    _ = require('lodash'),
-    register = {},
-    common = require('@screeps/common'),
-    queue = common.storage.queue,
-    pubsub = common.storage.pubsub;
+var q = require('q');
+var _ = require('lodash');
+var register = {};
+var common = require('@screeps/common');
+var queue = common.storage.queue;
+var pubsub = common.storage.pubsub;
 
 var terminated = false;
 

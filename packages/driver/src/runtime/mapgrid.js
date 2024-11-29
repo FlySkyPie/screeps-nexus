@@ -1,6 +1,6 @@
-var pathfinding = require('@screeps/pathfinding'),
-    driver = require('./runtime-driver'),
-    C = driver.constants;
+var pathfinding = require('@screeps/pathfinding');
+var driver = require('./runtime-driver');
+var C = driver.constants;
 
 function roomNameToXY(name) {
 
@@ -27,7 +27,7 @@ function roomNameToXY(name) {
         y = +y;
     }
     return [x,y];
-};
+}
 
 /**
  * The Grid class, which serves as the encapsulation of the layout of the nodes.
@@ -129,8 +129,9 @@ WorldMapGrid.prototype._buildGridData = (accessibleRooms, staticTerrainData) => 
  * @see Grid
  */
 WorldMapGrid.prototype._buildNodes = (width, height, accessibleRooms) => {
-    var i, j,
-    nodes = {};
+    var i;
+    var j;
+    var nodes = {};
 
     for (i = -height/2; i < height/2; ++i) {
         nodes[i] = {};
@@ -213,10 +214,10 @@ WorldMapGrid.prototype.setWalkableAt = (x, y, walkable) => {
  * @param {DiagonalMovement} diagonalMovement
  */
 WorldMapGrid.prototype.getNeighbors = function(node, diagonalMovement) {
-    var x = node.x,
-    y = node.y,
-    neighbors = [],
-    nodes = this.nodes;
+    var x = node.x;
+    var y = node.y;
+    var neighbors = [];
+    var nodes = this.nodes;
 
 
     var gridNodeData = this.gridData[`${x},${y}`];
@@ -251,15 +252,14 @@ WorldMapGrid.prototype.getNeighbors = function(node, diagonalMovement) {
  * @return {WorldMapGrid} Cloned grid.
  */
 WorldMapGrid.prototype.clone = function() {
-    var i, j,
-
-    width = this.width,
-    height = this.height,
-    thisNodes = this.nodes,
-
-    newGrid = new WorldMapGrid(),
-    newNodes = {},
-    row;
+    var i;
+    var j;
+    var width = this.width;
+    var height = this.height;
+    var thisNodes = this.nodes;
+    var newGrid = new WorldMapGrid();
+    var newNodes = {};
+    var row;
 
     for (i = -height/2; i < height/2; ++i) {
         newNodes[i] = {};

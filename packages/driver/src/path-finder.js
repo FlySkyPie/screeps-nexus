@@ -57,8 +57,8 @@ module.exports.create = function create(mod) {
 //
 // Helper function to convert RoomPosition objects into global coordinate objects
     function toWorldPosition(rp) {
-
-        let xx = rp.x | 0, yy = rp.y | 0;
+        let xx = rp.x | 0;
+        let yy = rp.y | 0;
         if (!(xx >=0 && xx < 50 && yy >= 0 && yy < 50)) {
             throw new Error('Invalid room position');
         }
