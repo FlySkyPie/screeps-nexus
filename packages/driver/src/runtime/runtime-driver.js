@@ -5,8 +5,8 @@ function EvalCodeError(message) {
     this.toString = () => message;
 }
 
-var runtimeCache = {};
-var worldSize = global._worldSize;
+const runtimeCache = {};
+const worldSize = global._worldSize;
 
 exports.constants = require('@screeps/common/lib/constants');
 
@@ -20,9 +20,9 @@ exports.getWorldSize = () => {
 
 exports.evalCode = (module, globals, returnValue, timeout, scriptCachedData) => {
 
-    var options = {filename: module.name};
+    const options = {filename: module.name};
 
-    var oldModule = globals.__module || {};
+    const oldModule = globals.__module || {};
 
     globals.__module = module;
 
@@ -42,7 +42,7 @@ exports.evalCode = (module, globals, returnValue, timeout, scriptCachedData) => 
 
     try {
 
-        var result;
+        let result;
 
         if(returnValue) {
             var code = '(function(code,module,exports) { return "" + eval(code); })(' + JSON.stringify(module.code) + ', __module, __module.exports)';
@@ -55,7 +55,7 @@ exports.evalCode = (module, globals, returnValue, timeout, scriptCachedData) => 
 
                 var code = '(function __module(module,exports){ ' + module.code + "\n})(__module, __module.exports)";
 
-                var script = runtime.isolate.compileScriptSync(code, options);
+                const script = runtime.isolate.compileScriptSync(code, options);
 
                 // if(scriptCachedData) {
                 //     if(script.cachedDataProduced) {
@@ -95,7 +95,7 @@ exports.evalCode = (module, globals, returnValue, timeout, scriptCachedData) => 
             e.message = 'Script execution timed out: CPU time limit reached';
         }
 
-        var message = '';
+        let message = '';
         if(e.stack) {
             message = e.stack;
             message = message.replace(/</g,'&lt;');

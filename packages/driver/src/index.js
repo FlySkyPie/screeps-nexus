@@ -1,19 +1,19 @@
-var bulk = require('./bulk');
-var queue = require('./queue');
-var EventEmitter = require('events').EventEmitter;
-var common = require('@screeps/common');
-var db = common.storage.db;
-var env = common.storage.env;
-var pubsub = common.storage.pubsub;
-var config = Object.assign(common.configManager.config, {engine: new EventEmitter()});
-var q = require('q');
-var _ = require('lodash');
-var os = require('os');
-var zlib = require('zlib');
-var runtimeUserVm = require('./runtime/user-vm');
-var roomStatsUpdates = {};
-var genericPool = require('generic-pool');
-var worldSize;
+const bulk = require('./bulk');
+const queue = require('./queue');
+const EventEmitter = require('events').EventEmitter;
+const common = require('@screeps/common');
+const db = common.storage.db;
+const env = common.storage.env;
+const pubsub = common.storage.pubsub;
+const config = Object.assign(common.configManager.config, {engine: new EventEmitter()});
+const q = require('q');
+const _ = require('lodash');
+const os = require('os');
+const zlib = require('zlib');
+const runtimeUserVm = require('./runtime/user-vm');
+const roomStatsUpdates = {};
+const genericPool = require('generic-pool');
+let worldSize;
 
 _.extend(config.engine, {
     driver: exports,
@@ -146,8 +146,8 @@ exports.saveUserMemorySegments = (userId, segments) => {
 };
 
 exports.saveUserIntents = (userId, intents) => {
-    var updates = [];
-    for(var room in intents) {
+    const updates = [];
+    for(const room in intents) {
 
         if(room == 'notify') {
             updates.push(checkNotificationOnline(userId)
@@ -157,7 +157,7 @@ exports.saveUserIntents = (userId, intents) => {
                         intents.notify = _.take(intents.notify, 20);
                     }
 
-                    var promises = [q.when()];
+                    const promises = [q.when()];
 
                     intents.notify.forEach((i) => {
                         if (i.groupInterval < 0) {
@@ -168,12 +168,12 @@ exports.saveUserIntents = (userId, intents) => {
                         }
                         i.groupInterval *= 60 * 1000;
                         i.groupInterval = Math.floor(i.groupInterval);
-                        var date = i.groupInterval ?
+                        const date = i.groupInterval ?
                             new Date(Math.ceil(new Date().getTime() / i.groupInterval) * i.groupInterval) :
                             new Date();
 
 
-                        var message = (""+i.message).substring(0,500);
+                        const message = (""+i.message).substring(0,500);
 
                         promises.push(db['users.notifications'].update({
                             $and: [
@@ -214,10 +214,10 @@ exports.getRoomIntents = roomId => {
 };
 
 exports.getRoomObjects = roomId => {
-    var result = {};
+    const result = {};
     return db['rooms.objects'].find({room: roomId})
         .then((objects) => {
-            var users = {};
+            let users = {};
             result.objects = exports.mapById(objects, obj => {
                 if(obj.user) {
                     users[obj.user] = true;
@@ -352,7 +352,7 @@ exports.sendConsoleError = (userId, error) => {
 
     error = error.toString();
 
-    var user;
+    let user;
 
     db.users.findOne({_id: userId})
     .then((_user) => {
@@ -360,11 +360,11 @@ exports.sendConsoleError = (userId, error) => {
         return checkNotificationOnline(user);
     })
     .then(() => {
-        var interval = 30*60*1000;
+        let interval = 30*60*1000;
         if(user.notifyPrefs && user.notifyPrefs.errorsInterval) {
             interval = user.notifyPrefs.errorsInterval * 60*1000;
         }
-        var date = new Date(Math.ceil(new Date().getTime() / interval) * interval);
+        const date = new Date(Math.ceil(new Date().getTime() / interval) * interval);
 
         db['users.notifications'].update({$and: [{user: userId}, {message: error}, {type: 'error'}, {date: {$lte: date.getTime()}}]},
         {$set: {user: userId, message: error, type: 'error', date: date.getTime()}, $inc: {count: 1}},
@@ -456,7 +456,7 @@ exports.roomsStatsSave = () => {
 exports.updateAccessibleRoomsList = () => {
     return db.rooms.find({status: 'normal'})
     .then((rooms) => {
-        var list = _(rooms).filter(i => !i.openTime || i.openTime < Date.now()).map('_id').value();
+        const list = _(rooms).filter(i => !i.openTime || i.openTime < Date.now()).map('_id').value();
         return env.set(env.keys.ACCESSIBLE_ROOMS, JSON.stringify(list));
     });
 };

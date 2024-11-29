@@ -118,7 +118,7 @@ exports.clear = userId => {
 };
 
 exports.clearAll = () => {
-    for(var userId in vms) {
+    for(const userId in vms) {
         exports.clear(userId);
     }
     vms = {};
@@ -127,7 +127,7 @@ exports.clearAll = () => {
 exports.getMetrics = () => {
     return Object.keys(vms).reduce((accum, userId) => {
         if(vms[userId]) {
-            var result = {
+            const result = {
                 userId,
                 codeTimestamp: vms[userId].codeTimestamp,
                 lastUsed: vms[userId].lastUsed,

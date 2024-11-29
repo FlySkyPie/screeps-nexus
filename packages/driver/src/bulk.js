@@ -1,10 +1,10 @@
-var q = require('q');
-var _ = require('lodash');
-var common = require('@screeps/common');
+const q = require('q');
+const _ = require('lodash');
+const common = require('@screeps/common');
 
 
 function removeHidden(obj) {
-    for(var i in obj) {
+    for(const i in obj) {
         if(i[0] == '_') {
             delete obj[i];
             continue;
@@ -23,9 +23,9 @@ function removeHidden(obj) {
 }
 
 module.exports = collectionName => {
-    var bulk = [];
-    var opsCnt = 0;
-    var updates = {};
+    const bulk = [];
+    let opsCnt = 0;
+    const updates = {};
 
     return {
         update(id, data) {
@@ -40,7 +40,7 @@ module.exports = collectionName => {
                     if (!_.isObject(id)) {
                         throw new Error(`can not update an object diff property '${key}' without object reference`);
                     }
-                    var originalValue = id[key] || {};
+                    const originalValue = id[key] || {};
                     _.merge(originalValue, value);
                     data[key] = originalValue;
                 }
@@ -106,10 +106,10 @@ module.exports = collectionName => {
         },
         execute() {
             if(!opsCnt) return q.when({});
-            for(var id in updates) {
+            for(const id in updates) {
                 bulk.push({op: 'update', id, update: {$set: updates[id]}});
             }
             return common.storage.db[collectionName].bulk(bulk);
         }
-    }
+    };
 };

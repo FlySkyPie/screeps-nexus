@@ -78,7 +78,7 @@ global._init = (() => {
             }
         };
 
-        var rawMemory = Object.create(null, {
+        const rawMemory = Object.create(null, {
             get: {
                 value: function () {
                     return data.userMemory.data;
@@ -114,8 +114,8 @@ global._init = (() => {
                         throw new Error('Only 10 memory segments can be active at the same time');
                     }
                     activeSegments = [];
-                    for (var i = 0; i < ids.length; i++) {
-                        var id = parseInt(ids[i]);
+                    for (let i = 0; i < ids.length; i++) {
+                        const id = parseInt(ids[i]);
                         if (_.isNaN(id) || id > 99 || id < 0) {
                             throw new Error(`"${ids[i]}" is not a valid segment ID`);
                         }
@@ -130,8 +130,8 @@ global._init = (() => {
                         throw new Error(`"${ids}" is not an array`);
                     }
                     publicSegments = [];
-                    for (var i = 0; i < ids.length; i++) {
-                        var id = parseInt(ids[i]);
+                    for (let i = 0; i < ids.length; i++) {
+                        const id = parseInt(ids[i]);
                         if (_.isNaN(id) || id > 99 || id < 0) {
                             throw new Error(`"${ids[i]}" is not a valid segment ID`);
                         }
@@ -168,7 +168,7 @@ global._init = (() => {
         });
 
         if (data.memorySegments) {
-            for (var i in data.memorySegments) {
+            for (const i in data.memorySegments) {
                 rawMemory.segments[i] = data.memorySegments[i];
             }
         }
@@ -178,7 +178,7 @@ global._init = (() => {
             Object.assign(rawMemory.foreignSegment, data.foreignMemorySegment);
         }
 
-        var getUsedCpu = () => {
+        const getUsedCpu = () => {
             return nowCpuTime() + intents.cpu - startTime;
         };
 
@@ -189,7 +189,7 @@ global._init = (() => {
         data.mapGrid = mapGrid;
         data.staticTerrainData = staticTerrainData;
 
-        var outMessage = {};
+        const outMessage = {};
 
         scope = game.init(
             global,
@@ -225,14 +225,14 @@ global._init = (() => {
                 data.userMemory.data = JSON.stringify(rawMemory._parsed);
             }
 
-            var segmentKeys = Object.keys(rawMemory.segments);
+            const segmentKeys = Object.keys(rawMemory.segments);
             if (segmentKeys.length > 0) {
                 if (segmentKeys.length > 10) {
                     throw 'Cannot save more than 10 memory segments on the same tick';
                 }
                 outMessage.memorySegments = {};
-                for (var i = 0; i < segmentKeys.length; i++) {
-                    var key = parseInt(segmentKeys[i]);
+                for (let i = 0; i < segmentKeys.length; i++) {
+                    const key = parseInt(segmentKeys[i]);
                     if (_.isNaN(key) || key < 0 || key > 99) {
                         throw `"${segmentKeys[i]}" is not a valid memory segment ID`;
                     }

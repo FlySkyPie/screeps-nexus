@@ -1,11 +1,11 @@
-var q = require('q');
-var _ = require('lodash');
-var register = {};
-var common = require('@screeps/common');
-var queue = common.storage.queue;
-var pubsub = common.storage.pubsub;
+const q = require('q');
+const _ = require('lodash');
+const register = {};
+const common = require('@screeps/common');
+const queue = common.storage.queue;
+const pubsub = common.storage.pubsub;
 
-var terminated = false;
+let terminated = false;
 
 process.on('SIGTERM', () => {
     console.log('Got SIGTERM, disabling queue fetching');

@@ -1,16 +1,16 @@
-var common = require('@screeps/common');
-var db = common.storage.db;
-var env = common.storage.env;
-var pubsub = common.storage.pubsub;
-var config = common.configManager.config;
-var native = require('../../native/build/Release/native.node');
-var ivm = require('isolated-vm');
-var q = require('q');
-var _ = require('lodash');
-var driver = require('../index');
-var pathfinderFactory = require('../path-finder');
-var runtimeData = require('./data');
-var runtimeUserVm = require('./user-vm');
+const common = require('@screeps/common');
+const db = common.storage.db;
+const env = common.storage.env;
+const pubsub = common.storage.pubsub;
+const config = common.configManager.config;
+const native = require('../../native/build/Release/native.node');
+const ivm = require('isolated-vm');
+const q = require('q');
+const _ = require('lodash');
+const driver = require('../index');
+const pathfinderFactory = require('../path-finder');
+const runtimeData = require('./data');
+const runtimeUserVm = require('./user-vm');
 let staticTerrainData;
 let staticTerrainDataSize = 0;
 
@@ -36,15 +36,15 @@ function getAllTerrainData() {
             };
 
             result.forEach((room, roomIndex) => {
-                var offset = roomIndex * 2500;
-                for (var i = 0; i < 2500; i++) {
+                const offset = roomIndex * 2500;
+                for (let i = 0; i < 2500; i++) {
                     view[i + offset] = Number(room.terrain.charAt(i));
                 }
                 staticTerrainData.roomOffsets[room.room] = offset;
             });
 
             console.log('Terrain shared buffer size:', staticTerrainDataSize);
-        })
+        });
 }
 
 
@@ -52,7 +52,7 @@ function getUserData(userId) {
     return db.users.findOne({_id: userId})
         .then((user) => {
 
-            var cpu;
+            let cpu;
             if(user.cpu) {
                 cpu = user.cpuAvailable || 0;
                 if(user.skipTicksPenalty > 0) {
@@ -171,7 +171,7 @@ async function make (scope, userId) {
         run.release();
         dataRef.release();
 
-        var $set = {
+        const $set = {
             lastUsedCpu: runResult.usedTime,
             lastUsedDirtyTime: runResult.usedDirtyTime
         };
@@ -182,7 +182,7 @@ async function make (scope, userId) {
             $set.defaultPublicSegment = runResult.defaultPublicSegment;
         }
         if (userData.cpu < Infinity) {
-            var newCpuAvailable = userData.user.cpuAvailable + userData.user.cpu - runResult.usedTime;
+            let newCpuAvailable = userData.user.cpuAvailable + userData.user.cpu - runResult.usedTime;
             if(newCpuAvailable > config.engine.cpuBucketSize) {
                 newCpuAvailable = config.engine.cpuBucketSize;
             }
@@ -229,7 +229,7 @@ async function make (scope, userId) {
         }
 
         if(runResult.visual) {
-            for (var roomName in runResult.visual) {
+            for (const roomName in runResult.visual) {
                 env.setex(
                     env.keys.ROOM_VISUAL + userData.user._id + ',' + roomName + ',' + data.time,
                     config.engine.mainLoopResetInterval / 1000,

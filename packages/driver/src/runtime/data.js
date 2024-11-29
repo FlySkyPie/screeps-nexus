@@ -1,28 +1,28 @@
-var bulk = require('../bulk');
-var queue = require('../queue');
-var EventEmitter = require('events').EventEmitter;
-var common = require('@screeps/common');
-var db = common.storage.db;
-var env = common.storage.env;
-var config = common.configManager.config;
-var q = require('q');
-var vm = require('vm');
-var _ = require('lodash');
-var child_process = require('child_process');
-var os = require('os');
-var util = require('util');
-var driver = require('../index');
+const bulk = require('../bulk');
+const queue = require('../queue');
+const EventEmitter = require('events').EventEmitter;
+const common = require('@screeps/common');
+const db = common.storage.db;
+const env = common.storage.env;
+const config = common.configManager.config;
+const q = require('q');
+const vm = require('vm');
+const _ = require('lodash');
+const child_process = require('child_process');
+const os = require('os');
+const util = require('util');
+const driver = require('../index');
 
-var accessibleRoomsCache = {
+const accessibleRoomsCache = {
     timestamp: 0
 };
 
-var cachedMarketOrders = {
+const cachedMarketOrders = {
     gameTime: 0,
     orders: {}
 };
 
-var cachedMarketHistory = {
+const cachedMarketHistory = {
     time: 0,
     history: {}
 };
@@ -33,7 +33,7 @@ function getCachedMarketOrders(gameTime) {
     }
     return db['market.orders'].find({active: true})
         .then(orders => {
-            var result = {all: {}};
+            const result = {all: {}};
             orders.forEach(i => {
                 i.id = ""+i._id;
                 delete i._id;
@@ -86,9 +86,9 @@ function getAccessibleRooms() {
 }
 
 exports.get = userId => {
-    var userObjects;
-    var runtimeData;
-    var userIdsHash = {[userId]: true};
+    let userObjects;
+    let runtimeData;
+    const userIdsHash = {[userId]: true};
 
     return db['rooms.objects'].find({user: userId})
         .then((_userObjects) => {
@@ -100,7 +100,7 @@ exports.get = userId => {
 
             userObjects = driver.mapById(_userObjects);
 
-            var roomIdsHash = {};
+            const roomIdsHash = {};
             _userObjects.forEach((i) => {
 
                 if(i.type == 'flag' || i.type == 'constructionSite') {
@@ -132,12 +132,12 @@ exports.get = userId => {
                 db['users.power_creeps'].find({user: userId}),
             ]);
         }).then((result) => {
-        var gameTime = result[4];
+        const gameTime = result[4];
 
         db['users.console'].removeWhere({_id: {$in: _.map(result[3], (i) => i._id)}});
 
-        var cpu;
-        var cpuBucket;
+        let cpu;
+        let cpuBucket;
         if(result[0].cpu) {
             cpuBucket = result[0].cpuAvailable || 0;
             if(cpuBucket < 0) {
@@ -153,9 +153,9 @@ exports.get = userId => {
             cpuBucket = Infinity;
         }
 
-        var modules = result[1] && result[1].modules || {};
-        for(var key in modules) {
-            var newKey = key.replace(/\$DOT\$/g, '.');
+        const modules = result[1] && result[1].modules || {};
+        for(const key in modules) {
+            let newKey = key.replace(/\$DOT\$/g, '.');
             newKey = newKey.replace(/\$SLASH\$/g, '/');
             newKey = newKey.replace(/\$BACKSLASH\$/g, '\\');
             if(newKey != key) {
@@ -164,8 +164,8 @@ exports.get = userId => {
             }
         }
 
-        var userIds = [];
-        var powerCreepsIds = [];
+        const userIds = [];
+        const powerCreepsIds = [];
         result[6].forEach((i) => {
             if(i.user) {
                 userIdsHash[i.user] = true;
@@ -234,7 +234,7 @@ exports.get = userId => {
             };
             if(result[4]) {
                 runtimeData.memorySegments = {};
-                for(var i=0; i<runtimeData.user.activeSegments.length; i++) {
+                for(let i=0; i<runtimeData.user.activeSegments.length; i++) {
                     runtimeData.memorySegments[runtimeData.user.activeSegments[i]] = result[4][i] || "";
                 }
             }

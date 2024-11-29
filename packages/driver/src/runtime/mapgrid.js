@@ -1,16 +1,16 @@
-var pathfinding = require('@screeps/pathfinding');
-var driver = require('./runtime-driver');
-var C = driver.constants;
+const pathfinding = require('@screeps/pathfinding');
+const driver = require('./runtime-driver');
+const C = driver.constants;
 
 function roomNameToXY(name) {
 
     name = name.toUpperCase();
 
-    var match = name.match(/^(\w)(\d+)(\w)(\d+)$/);
+    const match = name.match(/^(\w)(\d+)(\w)(\d+)$/);
     if(!match) {
         return [undefined, undefined];
     }
-    var [,hor,x,ver,y] = match;
+    let [,hor,x,ver,y] = match;
 
     if(hor == 'W') {
         x = -x-1;
@@ -129,9 +129,9 @@ WorldMapGrid.prototype._buildGridData = (accessibleRooms, staticTerrainData) => 
  * @see Grid
  */
 WorldMapGrid.prototype._buildNodes = (width, height, accessibleRooms) => {
-    var i;
-    var j;
-    var nodes = {};
+    let i;
+    let j;
+    const nodes = {};
 
     for (i = -height/2; i < height/2; ++i) {
         nodes[i] = {};
@@ -141,7 +141,7 @@ WorldMapGrid.prototype._buildNodes = (width, height, accessibleRooms) => {
     }
     if(accessibleRooms) {
         accessibleRooms.forEach((i) => {
-            var [x,y] = roomNameToXY(i);
+            const [x,y] = roomNameToXY(i);
             if (nodes[y] && nodes[y][x]) {
                 nodes[y][x].weight = 1;
             }
@@ -214,13 +214,13 @@ WorldMapGrid.prototype.setWalkableAt = (x, y, walkable) => {
  * @param {DiagonalMovement} diagonalMovement
  */
 WorldMapGrid.prototype.getNeighbors = function(node, diagonalMovement) {
-    var x = node.x;
-    var y = node.y;
-    var neighbors = [];
-    var nodes = this.nodes;
+    const x = node.x;
+    const y = node.y;
+    const neighbors = [];
+    const nodes = this.nodes;
 
 
-    var gridNodeData = this.gridData[`${x},${y}`];
+    const gridNodeData = this.gridData[`${x},${y}`];
 
     if(!gridNodeData) {
         return [];
@@ -252,14 +252,14 @@ WorldMapGrid.prototype.getNeighbors = function(node, diagonalMovement) {
  * @return {WorldMapGrid} Cloned grid.
  */
 WorldMapGrid.prototype.clone = function() {
-    var i;
-    var j;
-    var width = this.width;
-    var height = this.height;
-    var thisNodes = this.nodes;
-    var newGrid = new WorldMapGrid();
-    var newNodes = {};
-    var row;
+    let i;
+    let j;
+    const width = this.width;
+    const height = this.height;
+    const thisNodes = this.nodes;
+    const newGrid = new WorldMapGrid();
+    const newNodes = {};
+    let row;
 
     for (i = -height/2; i < height/2; ++i) {
         newNodes[i] = {};
