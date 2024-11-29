@@ -6,14 +6,19 @@
   "author": "Artem Chivchalov <contact@screeps.com>",
   "license": "ISC",
   "dependencies": {
+    "@screeps/common": "workspace:*",
     "generic-pool": "^3.4.1",
-    "isolated-vm": "^2.0.1",
+    "isolated-vm": "^5.0.1",
     "lodash": "^3.10.1",
     "nan": "^2.14.0",
-    "node-gyp": "^3.8.0",
+    "node-gyp": "^10.2.0",
     "q": "^1.4.1",
     "webpack": "^3.11.0",
     "webpack-shell-plugin": "^0.5.0"
+  },
+  "devDependencies": {
+    "@types/lodash": "^3.10.1",
+    "@types/q": "^1.5.2"
   },
   "scripts": {
     "build": "webpack",

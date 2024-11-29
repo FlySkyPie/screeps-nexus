@@ -1,42 +1,45 @@
 import _ from 'lodash';
 import ivm from 'isolated-vm';
 import fs from 'fs';
-import index from '../index';
+
+import common from '@screeps/common';
+
+import * as index from '../index';
+
 const nativeModPath = '../../native/build/Release/native.node';
 const native = require(nativeModPath);
 const nativeMod = new ivm.NativeModule(require.resolve(nativeModPath));
-import common from '@screeps/common';
 const config = common.configManager.config;
 let vms = {};
 let snapshot;
 
-export async function create({userId, staticTerrainData, staticTerrainDataSize, codeTimestamp}) {
-    userId = ""+userId;
+export async function create({ userId, staticTerrainData, staticTerrainDataSize, codeTimestamp }) {
+    userId = "" + userId;
 
-    if(vms[userId]) {
-        if(vms[userId].isolate.isDisposed) {
+    if (vms[userId]) {
+        if (vms[userId].isolate.isDisposed) {
             exports.clear(userId);
             throw 'Script execution has been terminated: your isolate disposed unexpectedly, restarting virtual machine';
         }
-        if(!vms[userId].ready) {
+        if (!vms[userId].ready) {
             return vms[userId].promise;
-        } else if(codeTimestamp > vms[userId].codeTimestamp) {
+        } else if (codeTimestamp > vms[userId].codeTimestamp) {
             exports.clear(userId);
         }
     }
 
-    if(!vms[userId]) {
+    if (!vms[userId]) {
         let inspector = config.engine.enableInspector;
-        let isolate = new ivm.Isolate({inspector, snapshot, memoryLimit: 256 + staticTerrainDataSize/1024/1024});
-        let vm = vms[userId] = {isolate, ready: false};
+        let isolate = new ivm.Isolate({ inspector, snapshot, memoryLimit: 256 + staticTerrainDataSize / 1024 / 1024 });
+        let vm = vms[userId] = { isolate, ready: false };
         vm.promise = (async () => {
-            let context = await isolate.createContext({inspector});
-            if(!snapshot) {
-                await(await isolate.compileScript(
-                        fs.readFileSync(require.resolve('../../build/runtime.bundle.js'), 'utf8')))
+            let context = await isolate.createContext({ inspector });
+            if (!snapshot) {
+                await (await isolate.compileScript(
+                    fs.readFileSync(require.resolve('../../build/runtime.bundle.js'), 'utf8')))
                     .run(context);
             }
-            let [ nativeModInstance, initScript, cleanupScript ] = await Promise.all([
+            let [nativeModInstance, initScript, cleanupScript] = await Promise.all([
                 nativeMod.create(context),
                 isolate.compileScript('_init();'),
                 isolate.compileScript('new ' + (() => {
@@ -65,7 +68,7 @@ export async function create({userId, staticTerrainData, staticTerrainDataSize, 
             }));
             await initScript.run(context);
 
-            let [ evalFn, start, setStaticTerrainData ] = await Promise.all([
+            let [evalFn, start, setStaticTerrainData] = await Promise.all([
                 context.global.get('_evalFn'),
                 context.global.get('_start'),
                 context.global.get('_setStaticTerrainData'),
@@ -95,7 +98,7 @@ export async function create({userId, staticTerrainData, staticTerrainDataSize, 
 }
 
 export function get(userId) {
-    userId = ""+userId;
+    userId = "" + userId;
     let vm = vms[userId];
     if (vm && vm.ready) {
         return vm;
@@ -103,10 +106,10 @@ export function get(userId) {
 }
 
 export function clear(userId) {
-    userId = ""+userId;
-    if(vms[userId]) {
+    userId = "" + userId;
+    if (vms[userId]) {
         try {
-            if(!vms[userId].isolate.isDisposed) {
+            if (!vms[userId].isolate.isDisposed) {
                 vms[userId].isolate.dispose();
             }
         }
@@ -119,7 +122,7 @@ export function clear(userId) {
 }
 
 export function clearAll() {
-    for(const userId in vms) {
+    for (const userId in vms) {
         exports.clear(userId);
     }
     vms = {};
@@ -127,7 +130,7 @@ export function clearAll() {
 
 export function getMetrics() {
     return Object.keys(vms).reduce((accum, userId) => {
-        if(vms[userId]) {
+        if (vms[userId]) {
             const result = {
                 userId,
                 codeTimestamp: vms[userId].codeTimestamp,
@@ -148,7 +151,7 @@ export function init() {
     try {
         snapshot = new ivm.ExternalCopy(fs.readFileSync(require.resolve('../../build/runtime.snapshot.bin')).buffer);
     }
-    catch(e) {
+    catch (e) {
         console.log('File `build/runtime.shapshot.bin` not found, using `build/runtime.bundle.js` instead')
     }
 

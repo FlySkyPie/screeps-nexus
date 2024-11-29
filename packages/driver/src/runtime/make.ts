@@ -1,27 +1,31 @@
+import q from 'q';
+import _ from 'lodash';
+import ivm from 'isolated-vm';
+
 import common from '@screeps/common';
+
+import native from '../../native/build/Release/native.node';
+import * as driver from '../index';
+import * as pathfinderFactory from '../path-finder';
+
+import * as runtimeData from './data';
+import * as runtimeUserVm from './user-vm';
+
 const db = common.storage.db;
 const env = common.storage.env;
 const pubsub = common.storage.pubsub;
 const config = common.configManager.config;
-import native from '../../native/build/Release/native.node';
-import ivm from 'isolated-vm';
-import q from 'q';
-import _ from 'lodash';
-import driver from '../index';
-import pathfinderFactory from '../path-finder';
-import runtimeData from './data';
-import runtimeUserVm from './user-vm';
-let staticTerrainData;
+let staticTerrainData: any;
 let staticTerrainDataSize = 0;
 
 function getAllTerrainData() {
-    if(staticTerrainData) {
+    if (staticTerrainData) {
         return;
     }
     return driver.getAllTerrainData()
-        .then((result) => {
+        .then((result: any) => {
 
-            if(staticTerrainData) {
+            if (staticTerrainData) {
                 return;
             }
 
@@ -49,37 +53,41 @@ function getAllTerrainData() {
 
 
 function getUserData(userId) {
-    return db.users.findOne({_id: userId})
+    return db.users.findOne({ _id: userId })
         .then((user) => {
 
             let cpu;
-            if(user.cpu) {
+            if (user.cpu) {
                 cpu = user.cpuAvailable || 0;
-                if(user.skipTicksPenalty > 0) {
+                if (user.skipTicksPenalty > 0) {
                     console.log(`Skip user execution ${user.username} (penalty ${user.skipTicksPenalty})`);
-                    db.users.update({_id: user._id}, {$set: {
-                        lastUsedCpu: 0,
-                        lastUsedDirtyTime: 0
-                    }, $inc: {skipTicksPenalty: -1}});
+                    db.users.update({ _id: user._id }, {
+                        $set: {
+                            lastUsedCpu: 0,
+                            lastUsedDirtyTime: 0
+                        }, $inc: { skipTicksPenalty: -1 }
+                    });
                     return q.reject({
                         type: 'error',
                         error: 'Your script is temporary blocked due to a hard reset inflicted to the runtime process.\nPlease try to change your code in order to prevent causing hard timeout resets.'
                     });
                 }
-                if(user.cpuAvailable < 0) {
+                if (user.cpuAvailable < 0) {
                     console.log(`Skip user execution ${user.username} (${user.cpuAvailable})`);
-                    db.users.update({_id: user._id}, {$set: {
-                        lastUsedCpu: 0,
-                        lastUsedDirtyTime: 0,
-                        cpuAvailable: user.cpuAvailable < -user.cpu * 2 ? -user.cpu * 2 : user.cpuAvailable + user.cpu
-                    }});
+                    db.users.update({ _id: user._id }, {
+                        $set: {
+                            lastUsedCpu: 0,
+                            lastUsedDirtyTime: 0,
+                            cpuAvailable: user.cpuAvailable < -user.cpu * 2 ? -user.cpu * 2 : user.cpuAvailable + user.cpu
+                        }
+                    });
                     return q.reject({
                         type: 'error',
                         error: 'Script execution has been terminated: CPU bucket is empty'
                     });
                 }
                 cpu += user.cpu;
-                if(cpu > config.engine.cpuMaxPerTick) {
+                if (cpu > config.engine.cpuMaxPerTick) {
                     cpu = config.engine.cpuMaxPerTick;
                 }
             }
@@ -87,12 +95,12 @@ function getUserData(userId) {
                 cpu = Infinity;
             }
 
-            return {user, cpu};
+            return { user, cpu };
 
         });
 }
 
-async function make (scope, userId) {
+async function make(scope, userId) {
 
     let userData;
 
@@ -100,23 +108,23 @@ async function make (scope, userId) {
 
         await getAllTerrainData();
 
-        if(scope.abort) {
+        if (scope.abort) {
             throw 'aborted';
         }
 
         userData = await getUserData(userId);
 
-        if(scope.abort) {
+        if (scope.abort) {
             throw 'aborted';
         }
 
     }
-    catch(error) {
+    catch (error) {
         console.error(error);
-        if(_.isObject(error)) {
+        if (_.isObject(error)) {
             throw error;
         }
-        throw {error};
+        throw { error };
     }
 
     let runResult;
@@ -126,7 +134,7 @@ async function make (scope, userId) {
         let data = await runtimeData.get(userId);
         let dataRef = new ivm.ExternalCopy(data);
 
-        if(scope.abort) {
+        if (scope.abort) {
             throw 'aborted';
         }
 
@@ -141,7 +149,7 @@ async function make (scope, userId) {
 
         let run = await vm.start.apply(undefined, [dataRef.copyInto()]);
 
-        if(scope.abort) {
+        if (scope.abort) {
             throw 'aborted';
         }
 
@@ -166,7 +174,7 @@ async function make (scope, userId) {
             }
         }, userId);
 
-        runResult = await run.apply(undefined, [], {timeout: data.timeout});
+        runResult = await run.apply(undefined, [], { timeout: data.timeout });
 
         run.release();
         dataRef.release();
@@ -183,17 +191,17 @@ async function make (scope, userId) {
         }
         if (userData.cpu < Infinity) {
             let newCpuAvailable = userData.user.cpuAvailable + userData.user.cpu - runResult.usedTime;
-            if(newCpuAvailable > config.engine.cpuBucketSize) {
+            if (newCpuAvailable > config.engine.cpuBucketSize) {
                 newCpuAvailable = config.engine.cpuBucketSize;
             }
             $set.cpuAvailable = newCpuAvailable;
         }
 
-        db.users.update({_id: userData.user._id}, {$set});
+        db.users.update({ _id: userData.user._id }, { $set });
 
         if (runResult.activeForeignSegment !== undefined) {
             if (runResult.activeForeignSegment === null) {
-                db.users.update({_id: userData.user._id}, {
+                db.users.update({ _id: userData.user._id }, {
                     $unset: {
                         activeForeignSegment: true
                     }
@@ -203,32 +211,36 @@ async function make (scope, userId) {
                 if (userData.user.activeForeignSegment &&
                     runResult.activeForeignSegment.username == userData.user.activeForeignSegment.username &&
                     runResult.activeForeignSegment.id) {
-                    db.users.update({_id: userData.user._id}, {$merge: {
-                        activeForeignSegment: {id: runResult.activeForeignSegment.id}
-                    }});
+                    db.users.update({ _id: userData.user._id }, {
+                        $merge: {
+                            activeForeignSegment: { id: runResult.activeForeignSegment.id }
+                        }
+                    });
                 }
                 else {
-                    db.users.findOne({username: runResult.activeForeignSegment.username}, {defaultPublicSegment: true})
+                    db.users.findOne({ username: runResult.activeForeignSegment.username }, { defaultPublicSegment: true })
                         .then(user => {
                             runResult.activeForeignSegment.user_id = user._id;
-                            if(!runResult.activeForeignSegment.id && user.defaultPublicSegment) {
+                            if (!runResult.activeForeignSegment.id && user.defaultPublicSegment) {
                                 runResult.activeForeignSegment.id = user.defaultPublicSegment;
                             }
                         })
                         .finally(() => {
-                            db.users.update({_id: userData.user._id}, {$set: {
-                                activeForeignSegment: runResult.activeForeignSegment
-                            }});
+                            db.users.update({ _id: userData.user._id }, {
+                                $set: {
+                                    activeForeignSegment: runResult.activeForeignSegment
+                                }
+                            });
                         })
                 }
             }
         }
 
-        if(runResult.publicSegments) {
-            env.set(env.keys.PUBLIC_MEMORY_SEGMENTS+userData.user._id, runResult.publicSegments);
+        if (runResult.publicSegments) {
+            env.set(env.keys.PUBLIC_MEMORY_SEGMENTS + userData.user._id, runResult.publicSegments);
         }
 
-        if(runResult.visual) {
+        if (runResult.visual) {
             for (const roomName in runResult.visual) {
                 env.setex(
                     env.keys.ROOM_VISUAL + userData.user._id + ',' + roomName + ',' + data.time,
@@ -260,28 +272,28 @@ async function make (scope, userId) {
             runtimeUserVm.clear(userId);
             throw { error: "CPU halted" };
         }
-        if(/Isolate is disposed/.test(""+error) ||
-            /Isolate has exhausted v8 heap space/.test(""+error)) {
+        if (/Isolate is disposed/.test("" + error) ||
+            /Isolate has exhausted v8 heap space/.test("" + error)) {
             runtimeUserVm.clear(userId);
         }
-        if(/Array buffer allocation failed/.test(""+error) && !runResult) {
+        if (/Array buffer allocation failed/.test("" + error) && !runResult) {
             runtimeUserVm.clear(userId);
-            throw { error: "Script execution has been terminated: unable to allocate memory, restarting virtual machine"};
+            throw { error: "Script execution has been terminated: unable to allocate memory, restarting virtual machine" };
         }
-        throw {error: error.stack || error};
+        throw { error: error.stack || error };
     }
 }
 
 export default userId => {
-    const scope = {abort: false};
+    const scope = { abort: false };
     let timeout;
     return new Promise((resolve, reject) => {
         timeout = setTimeout(() => {
             scope.abort = true;
-            reject({error: 'Script execution timed out ungracefully, restarting virtual machine'});
+            reject({ error: 'Script execution timed out ungracefully, restarting virtual machine' });
             runtimeUserVm.clear(userId);
             console.error('isolated-vm timeout', userId);
-            pubsub.publish(`user:${userId}/cpu`, JSON.stringify({cpu: 'error'}));
+            pubsub.publish(`user:${userId}/cpu`, JSON.stringify({ cpu: 'error' }));
         }, Math.max(5000, config.engine.mainLoopResetInterval));
         make(scope, userId).then(resolve).catch(reject);
     })

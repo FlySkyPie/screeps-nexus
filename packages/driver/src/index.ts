@@ -1,19 +1,21 @@
-import bulk from './bulk';
-import queue from './queue';
-import {EventEmitter} from 'events';
-import common from '@screeps/common';
-const db = common.storage.db;
-const env = common.storage.env;
-const pubsub = common.storage.pubsub;
-const _config = Object.assign(common.configManager.config, {engine: new EventEmitter()});
+import { EventEmitter } from 'events';
 import q from 'q';
 import _ from 'lodash';
 import os from 'os';
 import zlib from 'zlib';
-import runtimeUserVm from './runtime/user-vm';
-const roomStatsUpdates = {};
 import genericPool from 'generic-pool';
-let worldSize;
+import common from '@screeps/common';
+
+import bulk from './bulk';
+import * as queue from './queue';
+import * as runtimeUserVm from './runtime/user-vm';
+
+const db = common.storage.db;
+const env = common.storage.env;
+const pubsub = common.storage.pubsub;
+const _config = Object.assign(common.configManager.config, { engine: new EventEmitter() });
+const roomStatsUpdates = {};
+let worldSize: any;
 
 _.extend(_config.engine, {
     driver: exports,
@@ -53,14 +55,14 @@ _config.engine.on('playerSandbox', (sandbox) => {
 export var customObjectPrototypes = [];
 
 Object.defineProperty(_config.engine, 'registerCustomObjectPrototype', {
-    value: function(objectType, name, opts) {
-        if(!objectType) {
+    value: function (objectType, name, opts) {
+        if (!objectType) {
             throw new Error('No object type provided!');
         }
-        if(!name) {
+        if (!name) {
             throw new Error('No prototype name provided!');
         }
-        exports.customObjectPrototypes.push({objectType, name, opts});
+        exports.customObjectPrototypes.push({ objectType, name, opts });
     }
 });
 
@@ -79,7 +81,7 @@ function getAllTerrainData() {
         .then(data => JSON.parse(data));
 }
 
-export {getAllTerrainData};
+export { getAllTerrainData };
 import pathFinderFactory from './path-finder';
 export var pathFinder = pathFinderFactory.create(require('../native/build/Release/native'));
 
@@ -88,67 +90,67 @@ export function connect(processType) {
     common.configManager.load();
 
     return common.storage._connect()
-    .then(() => {
+        .then(() => {
 
-        if (processType == 'runner') {
-            runtimeUserVm.init();
-            pubsub.subscribe(pubsub.keys.RUNTIME_RESTART, () => {
-                console.log('runtime restart signal');
-                runtimeUserVm.clearAll();
-            });
-        }
+            if (processType == 'runner') {
+                runtimeUserVm.init();
+                pubsub.subscribe(pubsub.keys.RUNTIME_RESTART, () => {
+                    console.log('runtime restart signal');
+                    runtimeUserVm.clearAll();
+                });
+            }
 
-        if (processType == 'runtime') {
-        }
+            if (processType == 'runtime') {
+            }
 
-        if (processType == 'processor') {
-            getAllTerrainData()
-                .then(rooms => pathFinderFactory.init(require('../native/build/Release/native'), rooms));
-        }
+            if (processType == 'processor') {
+                getAllTerrainData()
+                    .then(rooms => pathFinderFactory.init(require('../native/build/Release/native'), rooms));
+            }
 
-        if (processType == 'main') {
-        }
-    })
-    .then(() => db.rooms.find({}, {_id: true}))
-    .then(common.calcWorldSize)
-    .then(_worldSize => worldSize = _worldSize)
-    .then(() => {
-        _config.engine.emit('init', processType);
-        return true;
-    });
+            if (processType == 'main') {
+            }
+        })
+        .then(() => db.rooms.find({}, { _id: true }))
+        .then(common.calcWorldSize)
+        .then(_worldSize => worldSize = _worldSize)
+        .then(() => {
+            _config.engine.emit('init', processType);
+            return true;
+        });
 }
 
 export function getAllUsers() {
-    return db.users.find({$and: [{active: {$ne: 0}}, {cpu: {$gt: 0}}]})
-    .then((data) => {
-        data.sort((a,b) => (b.lastUsedDirtyTime || 0) - (a.lastUsedDirtyTime || 0));
+    return db.users.find({ $and: [{ active: { $ne: 0 } }, { cpu: { $gt: 0 } }] })
+        .then((data) => {
+            data.sort((a, b) => (b.lastUsedDirtyTime || 0) - (a.lastUsedDirtyTime || 0));
 
-        return data;
-    })
+            return data;
+        })
 }
 
 export function saveUserMemory(userId, memory) {
 
-    if(memory.data.length > 2*1024*1024) {
+    if (memory.data.length > 2 * 1024 * 1024) {
         return q.reject('Script execution has been terminated: memory allocation limit reached');
     }
 
-    return env.set(env.keys.MEMORY+userId, memory.data);
+    return env.set(env.keys.MEMORY + userId, memory.data);
 }
 
 export function saveUserMemorySegments(userId, segments) {
 
-    if(Object.keys(segments).length > 0) {
-        return env.hmset(env.keys.MEMORY_SEGMENTS+userId, segments);
+    if (Object.keys(segments).length > 0) {
+        return env.hmset(env.keys.MEMORY_SEGMENTS + userId, segments);
     }
     return q.when();
 }
 
 export function saveUserIntents(userId, intents) {
     const updates = [];
-    for(const room in intents) {
+    for (const room in intents) {
 
-        if(room == 'notify') {
+        if (room == 'notify') {
             updates.push(checkNotificationOnline(userId)
                 .then(() => {
 
@@ -172,19 +174,19 @@ export function saveUserIntents(userId, intents) {
                             new Date();
 
 
-                        const message = (""+i.message).substring(0,500);
+                        const message = ("" + i.message).substring(0, 500);
 
                         promises.push(db['users.notifications'].update({
                             $and: [
-                                {user: userId},
-                                {message},
-                                {date: date.getTime()},
-                                {type: 'msg'}
+                                { user: userId },
+                                { message },
+                                { date: date.getTime() },
+                                { type: 'msg' }
                             ]
                         }, {
-                            $inc: {count: 1}
+                            $inc: { count: 1 }
                         },
-                        {upsert: true}));
+                            { upsert: true }));
                     });
 
                     return q.all(promises);
@@ -192,39 +194,39 @@ export function saveUserIntents(userId, intents) {
             continue;
         }
 
-        if(room == 'global') {
-            updates.push(db['users.intents'].insert({user: userId, intents: intents[room]}));
+        if (room == 'global') {
+            updates.push(db['users.intents'].insert({ user: userId, intents: intents[room] }));
             continue;
         }
 
         updates.push(
-        db['rooms.intents'].update({room}, {$merge: {users: {[userId]: {objects: intents[room]}}}}, {upsert: true}));
+            db['rooms.intents'].update({ room }, { $merge: { users: { [userId]: { objects: intents[room] } } } }, { upsert: true }));
     }
 
     return q.all(updates);
 }
 
 export function getAllRooms() {
-    return db.rooms.find({active: true});
+    return db.rooms.find({ active: true });
 }
 
 export function getRoomIntents(roomId) {
-    return db['rooms.intents'].findOne({room: roomId});
+    return db['rooms.intents'].findOne({ room: roomId });
 }
 
 export function getRoomObjects(roomId) {
     const result = {};
-    return db['rooms.objects'].find({room: roomId})
+    return db['rooms.objects'].find({ room: roomId })
         .then((objects) => {
             let users = {};
             result.objects = exports.mapById(objects, obj => {
-                if(obj.user) {
+                if (obj.user) {
                     users[obj.user] = true;
                 }
             });
             users = Object.keys(users);
-            if(users.length) {
-                return db['users'].find({_id: {$in: users}})
+            if (users.length) {
+                return db['users'].find({ _id: { $in: users } })
             }
             else {
                 return [];
@@ -237,12 +239,12 @@ export function getRoomObjects(roomId) {
 }
 
 export function getRoomFlags(roomId) {
-    return db['rooms.flags'].find({room: roomId});
+    return db['rooms.flags'].find({ room: roomId });
 }
 
 export function getRoomTerrain(roomId) {
-    return db['rooms.terrain'].find({room: roomId})
-    .then((result) => exports.mapById(result));
+    return db['rooms.terrain'].find({ room: roomId })
+        .then((result) => exports.mapById(result));
 }
 
 export function bulkObjectsWrite() {
@@ -286,7 +288,7 @@ export function bulkUsersPowerCreeps() {
 }
 
 export function clearRoomIntents(roomId) {
-    return db['rooms.intents'].removeWhere({room: roomId});
+    return db['rooms.intents'].removeWhere({ room: roomId });
 }
 
 export function clearGlobalIntents() {
@@ -304,7 +306,7 @@ export function mapById(array, fn) {
 export function notifyTickStarted() {
     return env.get(env.keys.MAIN_LOOP_PAUSED)
         .then(paused => {
-            if(+paused) {
+            if (+paused) {
                 return q.reject('Simulation paused');
             }
             return pubsub.publish(pubsub.keys.TICK_STARTED, "1");
@@ -316,33 +318,33 @@ export function notifyRoomsDone(gameTime) {
 }
 
 export function sendConsoleMessages(userId, messages) {
-    if(userId == '3') {
-        if(messages.log.length) {
+    if (userId == '3') {
+        if (messages.log.length) {
             console.log("Source Keeper console", messages.log);
         }
         return q.when();
     }
-    if(userId == '2') {
-        if(messages.log.length) {
+    if (userId == '2') {
+        if (messages.log.length) {
             console.log("Invader console", messages.log);
         }
         return q.when();
     }
-    return pubsub.publish(`user:${userId}/console`, JSON.stringify({messages, userId}));
+    return pubsub.publish(`user:${userId}/console`, JSON.stringify({ messages, userId }));
 }
 
 export function sendConsoleError(userId, error) {
 
-    if(!error) {
+    if (!error) {
         return q.when();
     }
 
-    if(userId == '3') {
+    if (userId == '3') {
         console.log("Source Keeper error", _.isObject(error) && error.stack || error);
         return q.when();
     }
 
-    if(userId == '2') {
+    if (userId == '2') {
         console.log("Invader error", _.isObject(error) && error.stack || error);
         return q.when();
     }
@@ -351,25 +353,25 @@ export function sendConsoleError(userId, error) {
 
     let user;
 
-    db.users.findOne({_id: userId})
-    .then((_user) => {
-        user = _user;
-        return checkNotificationOnline(user);
-    })
-    .then(() => {
-        let interval = 30*60*1000;
-        if(user.notifyPrefs && user.notifyPrefs.errorsInterval) {
-            interval = user.notifyPrefs.errorsInterval * 60*1000;
-        }
-        const date = new Date(Math.ceil(new Date().getTime() / interval) * interval);
+    db.users.findOne({ _id: userId })
+        .then((_user) => {
+            user = _user;
+            return checkNotificationOnline(user);
+        })
+        .then(() => {
+            let interval = 30 * 60 * 1000;
+            if (user.notifyPrefs && user.notifyPrefs.errorsInterval) {
+                interval = user.notifyPrefs.errorsInterval * 60 * 1000;
+            }
+            const date = new Date(Math.ceil(new Date().getTime() / interval) * interval);
 
-        db['users.notifications'].update({$and: [{user: userId}, {message: error}, {type: 'error'}, {date: {$lte: date.getTime()}}]},
-        {$set: {user: userId, message: error, type: 'error', date: date.getTime()}, $inc: {count: 1}},
-        {upsert: true});
-    });
+            db['users.notifications'].update({ $and: [{ user: userId }, { message: error }, { type: 'error' }, { date: { $lte: date.getTime() } }] },
+                { $set: { user: userId, message: error, type: 'error', date: date.getTime() }, $inc: { count: 1 } },
+                { upsert: true });
+        });
 
 
-    return pubsub.publish(`user:${userId}/console`, JSON.stringify({userId, error}));
+    return pubsub.publish(`user:${userId}/console`, JSON.stringify({ userId, error }));
 }
 
 export function getGameTime() {
@@ -378,29 +380,29 @@ export function getGameTime() {
 
 export function incrementGameTime() {
     return common.getGametime()
-    .then(gameTime => env.set(env.keys.GAMETIME, gameTime+1));
+        .then(gameTime => env.set(env.keys.GAMETIME, gameTime + 1));
 }
 
 export function getRoomInfo(roomId) {
-    return db.rooms.findOne({_id: roomId});
+    return db.rooms.findOne({ _id: roomId });
 }
 
 export function saveRoomInfo(roomId, roomInfo) {
-    return db.rooms.update({_id: roomId}, {$set: roomInfo});
+    return db.rooms.update({ _id: roomId }, { $set: roomInfo });
 }
 
 export function getInterRoom() {
     return q.all([
         common.getGametime(),
-        db['rooms.objects'].find({$and: [{type: {$in: ['creep','powerCreep']}}, {interRoom: {$ne: null}}]}),
-        db.rooms.find({status: 'normal'})
+        db['rooms.objects'].find({ $and: [{ type: { $in: ['creep', 'powerCreep'] } }, { interRoom: { $ne: null } }] }),
+        db.rooms.find({ status: 'normal' })
             .then((rooms) => exports.mapById(_.filter(rooms, i => !i.openTime || i.openTime < Date.now()))),
-        db['rooms.objects'].find({type: {$in: ['terminal', 'powerSpawn', 'powerCreep']}}),
+        db['rooms.objects'].find({ type: { $in: ['terminal', 'powerSpawn', 'powerCreep'] } }),
         q.all([
             db['market.orders'].find(),
             db['users.power_creeps'].find(),
             db['users.intents'].find()
-        ]).then(result => db.users.find({_id: {$in: _.map(_.flatten(result), 'user')}})
+        ]).then(result => db.users.find({ _id: { $in: _.map(_.flatten(result), 'user') } })
             .then(users => ({
                 users,
                 orders: result[0],
@@ -412,25 +414,25 @@ export function getInterRoom() {
 }
 
 export function setRoomStatus(roomId, status) {
-    return db.rooms.update({_id: roomId}, {$set: {status}});
+    return db.rooms.update({ _id: roomId }, { $set: { status } });
 }
 
 export function sendNotification(userId, message) {
     return checkNotificationOnline(userId)
-    .then(() => db['users.notifications'].update({
-        user: userId,
-        message,
-        date: {$lte: Date.now()},
-        type: 'msg'
-    }, {
-        $set: {
+        .then(() => db['users.notifications'].update({
             user: userId,
             message,
-            date: Date.now(),
+            date: { $lte: Date.now() },
             type: 'msg'
-        },
-        $inc: {count: 1}
-    }, {upsert: true}));
+        }, {
+            $set: {
+                user: userId,
+                message,
+                date: Date.now(),
+                type: 'msg'
+            },
+            $inc: { count: 1 }
+        }, { upsert: true }));
 }
 
 export function getRoomStatsUpdater(room) {
@@ -450,11 +452,11 @@ export function roomsStatsSave() {
 }
 
 export function updateAccessibleRoomsList() {
-    return db.rooms.find({status: 'normal'})
-    .then((rooms) => {
-        const list = _(rooms).filter(i => !i.openTime || i.openTime < Date.now()).map('_id').value();
-        return env.set(env.keys.ACCESSIBLE_ROOMS, JSON.stringify(list));
-    });
+    return db.rooms.find({ status: 'normal' })
+        .then((rooms) => {
+            const list = _(rooms).filter(i => !i.openTime || i.openTime < Date.now()).map('_id').value();
+            return env.set(env.keys.ACCESSIBLE_ROOMS, JSON.stringify(list));
+        });
 }
 
 export function saveIdleTime(name, time) {
@@ -462,7 +464,7 @@ export function saveIdleTime(name, time) {
 }
 
 export function mapViewSave(roomId, mapView) {
-    return env.set(env.keys.MAP_VIEW+roomId, JSON.stringify(mapView));
+    return env.set(env.keys.MAP_VIEW + roomId, JSON.stringify(mapView));
 }
 
 export function commitDbBulk() {
@@ -474,13 +476,13 @@ export function getWorldSize() {
 }
 
 export function addRoomToUser(roomId, user, bulk) {
-    if(!user.rooms || user.rooms.indexOf(roomId) == -1) {
+    if (!user.rooms || user.rooms.indexOf(roomId) == -1) {
         bulk.addToSet(user, 'rooms', roomId);
     }
 }
 
 export function removeRoomFromUser(roomId, user, bulk) {
-    if(user.rooms && user.rooms.indexOf(roomId) != -1) {
+    if (user.rooms && user.rooms.indexOf(roomId) != -1) {
         bulk.pull(user, 'rooms', roomId);
     }
 }
@@ -494,8 +496,8 @@ export function startLoop(name, fn) {
     let counter = 0;
 
     const pool = genericPool.createPool({
-        create() { return {name: name + (counter++)} },
-        destroy() {}
+        create() { return { name: name + (counter++) } },
+        destroy() { }
     }, {
         max: process.env.RUNNER_THREADS || 2,
         min: 0
@@ -520,7 +522,7 @@ export function saveRoomEventLog(roomId, eventLog) {
 
 export var makeRuntime = require('./runtime/make');
 export var history = require('./history');
-export {queue};
+export { queue };
 export var constants = _config.common.constants;
 export var strongholds = common.configManager.config.common.strongholds;
 

@@ -1,7 +1,8 @@
 import q from 'q';
 import _ from 'lodash';
-const register = {};
 import common from '@screeps/common';
+
+const register = {};
 const queue = common.storage.queue;
 const pubsub = common.storage.pubsub;
 
@@ -17,16 +18,16 @@ process.on('SIGTERM', () => {
 
 export function create(name) {
 
-    if(name == 'users') {
+    if (name == 'users') {
         name = 'usersIvm';
     }
 
-    if(!register[name]) {
+    if (!register[name]) {
 
         register[name] = {
 
             fetch() {
-                if(terminated) {
+                if (terminated) {
                     return q.defer().promise;
                 }
                 return queue.fetch(name);
@@ -65,5 +66,5 @@ export function resetAll() {
 }
 
 export function createDoneListener(name, fn) {
-    pubsub.subscribe(pubsub.keys.QUEUE_DONE+name, fn);
+    pubsub.subscribe(pubsub.keys.QUEUE_DONE + name, fn);
 }
