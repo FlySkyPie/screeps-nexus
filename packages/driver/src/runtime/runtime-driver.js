@@ -14,11 +14,11 @@ exports.bufferFromBase64 = (base64) => {
     return Buffer.from(base64, 'base64');
 };
 
-exports.getWorldSize = function() {
+exports.getWorldSize = () => {
     return worldSize;
 };
 
-exports.evalCode = function(module, globals, returnValue, timeout, scriptCachedData) {
+exports.evalCode = (module, globals, returnValue, timeout, scriptCachedData) => {
 
     var options = {filename: module.name};
 

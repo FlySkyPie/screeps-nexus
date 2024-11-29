@@ -22,7 +22,7 @@ function removeHidden(obj) {
     }
 }
 
-module.exports = function(collectionName) {
+module.exports = collectionName => {
 
     var bulk = [],
         opsCnt = 0,

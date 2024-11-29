@@ -10,7 +10,7 @@ const _ = require('lodash'),
 
 let vms = {}, snapshot;
 
-exports.create = async function({userId, staticTerrainData, staticTerrainDataSize, codeTimestamp}) {
+exports.create = async ({userId, staticTerrainData, staticTerrainDataSize, codeTimestamp}) => {
     userId = ""+userId;
 
     if(vms[userId]) {
@@ -29,7 +29,7 @@ exports.create = async function({userId, staticTerrainData, staticTerrainDataSiz
         let inspector = config.engine.enableInspector;
         let isolate = new ivm.Isolate({inspector, snapshot, memoryLimit: 256 + staticTerrainDataSize/1024/1024});
         let vm = vms[userId] = {isolate, ready: false};
-        vm.promise = async function() {
+        vm.promise = (async () => {
             let context = await isolate.createContext({inspector});
             if(!snapshot) {
                 await(await isolate.compileScript(
@@ -39,7 +39,7 @@ exports.create = async function({userId, staticTerrainData, staticTerrainDataSiz
             let [ nativeModInstance, initScript, cleanupScript ] = await Promise.all([
                 nativeMod.create(context),
                 isolate.compileScript('_init();'),
-                isolate.compileScript('new ' + function () {
+                isolate.compileScript('new ' + (() => {
                     delete global._ivm;
                     delete global._isolate;
                     delete global._context;
@@ -50,7 +50,7 @@ exports.create = async function({userId, staticTerrainData, staticTerrainDataSiz
                     delete global._worldSize;
                     delete global._nativeMod;
                     delete global._halt;
-                }),
+                })),
             ]);
 
             context.global.setIgnored('global', context.global.derefInto());
@@ -59,7 +59,7 @@ exports.create = async function({userId, staticTerrainData, staticTerrainDataSiz
             context.global.setIgnored('_context', context);
             context.global.setIgnored('_worldSize', index.getWorldSize());
             context.global.setIgnored('_nativeMod', nativeModInstance.derefInto());
-            context.global.setIgnored('_halt', new ivm.Reference(function() {
+            context.global.setIgnored('_halt', new ivm.Reference(() => {
                 vm.didHaltByUserRequest = true;
                 isolate.dispose();
             }));
@@ -87,21 +87,21 @@ exports.create = async function({userId, staticTerrainData, staticTerrainDataSiz
                 nativeModInstance,
                 codeTimestamp
             });
-        }();
+        })();
         await vm.promise;
     }
 
     vms[userId].lastUsed = Date.now();
 };
 
-exports.get = function(userId) {
+exports.get = userId => {
     userId = ""+userId;
     let vm = vms[userId];
     if (vm && vm.ready) {
         return vm;
     }
 };
-exports.clear = function(userId) {
+exports.clear = userId => {
     userId = ""+userId;
     if(vms[userId]) {
         try {
@@ -117,14 +117,14 @@ exports.clear = function(userId) {
     }
 };
 
-exports.clearAll = function() {
+exports.clearAll = () => {
     for(var userId in vms) {
         exports.clear(userId);
     }
     vms = {};
 };
 
-exports.getMetrics = function() {
+exports.getMetrics = () => {
     return Object.keys(vms).reduce((accum, userId) => {
         if(vms[userId]) {
             var result = {
@@ -142,7 +142,7 @@ exports.getMetrics = function() {
     }, []);
 };
 
-exports.init = function() {
+exports.init = () => {
 
     try {
         snapshot = new ivm.ExternalCopy(fs.readFileSync(require.resolve('../../build/runtime.snapshot.bin')).buffer);

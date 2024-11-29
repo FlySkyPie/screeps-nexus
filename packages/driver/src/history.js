@@ -4,11 +4,11 @@ var q = require('q'),
     config = common.configManager.config,
     env = common.storage.env;
 
-exports.saveTick = function(roomId, gameTime, data) {
+exports.saveTick = (roomId, gameTime, data) => {
     return env.hmset(env.keys.ROOM_HISTORY + roomId, {[gameTime]: data});
 };
 
-exports.upload = function(roomId, baseTime) {
+exports.upload = (roomId, baseTime) => {
     return env.get(env.keys.ROOM_HISTORY + roomId)
         .then(data => {
 

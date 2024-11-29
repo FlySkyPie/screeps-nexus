@@ -15,7 +15,7 @@ process.on('SIGTERM', () => {
     }, 2000);
 });
 
-exports.create = function (name) {
+exports.create = name => {
 
     if(name == 'users') {
         name = 'usersIvm';
@@ -60,10 +60,10 @@ exports.create = function (name) {
     return register[name];
 };
 
-exports.resetAll = function() {
+exports.resetAll = () => {
     return q.all(Object.keys(register).map(i => queue.reset(i)));
 };
 
-exports.createDoneListener = function(name, fn) {
+exports.createDoneListener = (name, fn) => {
     pubsub.subscribe(pubsub.keys.QUEUE_DONE+name, fn);
 };

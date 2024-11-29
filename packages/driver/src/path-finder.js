@@ -23,7 +23,7 @@ function parseRoomName(roomName) {
 exports.init = function init(mod, rooms) {
 
     let terrainData = [];
-    rooms.forEach(function(room) {
+    rooms.forEach(room => {
         let pack = new Uint8Array(50 * 50 / 4);
         let terrain = room.terrain;
         for (let xx = 0; xx < 50; ++xx) {
@@ -79,11 +79,11 @@ module.exports.create = function create(mod) {
         );
     }
 
-    const make = function (_globals) {
+    const make = _globals => {
         globals = _globals;
     };
 
-    const search = function (origin, goal, options) {
+    const search = (origin, goal, options) => {
 
         // Options
         options = options || {};
@@ -96,7 +96,7 @@ module.exports.create = function create(mod) {
         let flee = !!options.flee;
 
         // Convert one-or-many goal into standard format for native extension
-        let goals = _.map(Array.isArray(goal) ? goal : [ goal ], function(goal) {
+        let goals = _.map(Array.isArray(goal) ? goal : [ goal ], goal => {
             if (goal.x !== undefined && goal.y !== undefined && goal.roomName !== undefined) {
                 return {
                     range: 0,
@@ -117,8 +117,8 @@ module.exports.create = function create(mod) {
             if (typeof cb !== 'function') {
                 cb = undefined;
             } else {
-                cb = function(cb) {
-                    return function(xx, yy) {
+                cb = (cb => {
+                    return (xx, yy) => {
                         let ret = cb(generateRoomName(xx, yy));
                         if (ret === false) {
                             return ret;
@@ -126,7 +126,7 @@ module.exports.create = function create(mod) {
                             return ret._bits;
                         }
                     };
-                }(cb);
+                })(cb);
             }
         }
 

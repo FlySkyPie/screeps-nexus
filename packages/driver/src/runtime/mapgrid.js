@@ -65,8 +65,7 @@ function WorldMapGrid(accessibleRooms, staticTerrainData) {
  * @return {Object.<string, Object.<string, number>>} The number of exits in
  *     each direction for every room, if any.
  */
-WorldMapGrid.prototype._buildGridData = function(
-        accessibleRooms, staticTerrainData) {
+WorldMapGrid.prototype._buildGridData = (accessibleRooms, staticTerrainData) => {
     if (!accessibleRooms) return {};
     const dirs = {
         t: {
@@ -129,7 +128,7 @@ WorldMapGrid.prototype._buildGridData = function(
  *     the walkable status of the nodes.
  * @see Grid
  */
-WorldMapGrid.prototype._buildNodes = function(width, height, accessibleRooms) {
+WorldMapGrid.prototype._buildNodes = (width, height, accessibleRooms) => {
     var i, j,
     nodes = {};
 
@@ -190,7 +189,7 @@ WorldMapGrid.prototype.isInside = function(x, y) {
  * @param {number} y - The y coordinate of the node.
  * @param {boolean} walkable - Whether the position is walkable.
  */
-WorldMapGrid.prototype.setWalkableAt = function(x, y, walkable) {
+WorldMapGrid.prototype.setWalkableAt = (x, y, walkable) => {
 
 };
 

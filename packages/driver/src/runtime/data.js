@@ -82,7 +82,7 @@ function getAccessibleRooms() {
 
 }
 
-exports.get = function(userId) {
+exports.get = userId => {
     var userObjects, runtimeData;
     var userIdsHash = {[userId]: true};
 
@@ -178,7 +178,7 @@ exports.get = function(userId) {
             });
             result[8].forEach(i => i.recipient && (userIdsHash[i.recipient] = true));
             result[9].forEach(i => i.sender && (userIdsHash[i.sender] = true));
-            Object.getOwnPropertyNames(userIdsHash).forEach(function(i) {
+            Object.getOwnPropertyNames(userIdsHash).forEach(i => {
                 userIds.push(i);
             });
 
@@ -243,6 +243,6 @@ exports.get = function(userId) {
                 };
             }
             return runtimeData;
-        })
+        });
 
 };

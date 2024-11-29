@@ -272,7 +272,7 @@ async function make (scope, userId) {
     }
 }
 
-module.exports = function(userId) {
+module.exports = userId => {
     const scope = {abort: false};
     let timeout;
     return new Promise((resolve, reject) => {

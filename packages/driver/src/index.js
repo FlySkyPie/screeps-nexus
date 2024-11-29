@@ -84,7 +84,7 @@ exports.getAllTerrainData = getAllTerrainData;
 const pathFinderFactory = require('./path-finder');
 exports.pathFinder = pathFinderFactory.create(require('../native/build/Release/native'));
 
-exports.connect = function(processType) {
+exports.connect = processType => {
 
     common.configManager.load();
 
@@ -119,7 +119,7 @@ exports.connect = function(processType) {
     });
 };
 
-exports.getAllUsers = function() {
+exports.getAllUsers = () => {
     return db.users.find({$and: [{active: {$ne: 0}}, {cpu: {$gt: 0}}]})
     .then((data) => {
         data.sort((a,b) => (b.lastUsedDirtyTime || 0) - (a.lastUsedDirtyTime || 0));
@@ -128,7 +128,7 @@ exports.getAllUsers = function() {
     })
 };
 
-exports.saveUserMemory = function(userId, memory) {
+exports.saveUserMemory = (userId, memory) => {
 
     if(memory.data.length > 2*1024*1024) {
         return q.reject('Script execution has been terminated: memory allocation limit reached');
@@ -137,7 +137,7 @@ exports.saveUserMemory = function(userId, memory) {
     return env.set(env.keys.MEMORY+userId, memory.data);
 };
 
-exports.saveUserMemorySegments = function(userId, segments) {
+exports.saveUserMemorySegments = (userId, segments) => {
 
     if(Object.keys(segments).length > 0) {
         return env.hmset(env.keys.MEMORY_SEGMENTS+userId, segments);
@@ -145,7 +145,7 @@ exports.saveUserMemorySegments = function(userId, segments) {
     return q.when();
 };
 
-exports.saveUserIntents = function(userId, intents) {
+exports.saveUserIntents = (userId, intents) => {
     var updates = [];
     for(var room in intents) {
 
@@ -205,15 +205,15 @@ exports.saveUserIntents = function(userId, intents) {
     return q.all(updates);
 };
 
-exports.getAllRooms = function() {
+exports.getAllRooms = () => {
     return db.rooms.find({active: true});
 };
 
-exports.getRoomIntents = function(roomId) {
+exports.getRoomIntents = roomId => {
     return db['rooms.intents'].findOne({room: roomId});
 };
 
-exports.getRoomObjects = function(roomId) {
+exports.getRoomObjects = roomId => {
     var result = {};
     return db['rooms.objects'].find({room: roomId})
         .then((objects) => {
@@ -237,65 +237,65 @@ exports.getRoomObjects = function(roomId) {
         });
 };
 
-exports.getRoomFlags = function(roomId) {
+exports.getRoomFlags = roomId => {
     return db['rooms.flags'].find({room: roomId});
 };
 
-exports.getRoomTerrain = function(roomId) {
+exports.getRoomTerrain = roomId => {
     return db['rooms.terrain'].find({room: roomId})
     .then((result) => exports.mapById(result));
 };
 
-exports.bulkObjectsWrite = function() {
+exports.bulkObjectsWrite = () => {
     return bulk('rooms.objects');
 };
 
-exports.bulkFlagsWrite = function() {
+exports.bulkFlagsWrite = () => {
     return bulk('rooms.flags');
 };
 
-exports.bulkUsersWrite = function() {
+exports.bulkUsersWrite = () => {
     return bulk('users');
 };
 
-exports.bulkRoomsWrite = function() {
+exports.bulkRoomsWrite = () => {
     return bulk('rooms');
 };
 
-exports.bulkTransactionsWrite = function() {
+exports.bulkTransactionsWrite = () => {
     return bulk('transactions');
 };
 
-exports.bulkMarketOrders = function() {
+exports.bulkMarketOrders = () => {
     return bulk('market.orders');
 };
 
-exports.bulkMarketIntershardOrders = function() {
+exports.bulkMarketIntershardOrders = () => {
     return bulk('market.orders');
 };
 
-exports.bulkUsersMoney = function() {
+exports.bulkUsersMoney = () => {
     return bulk('users.money');
 };
 
-exports.bulkUsersResources = function() {
+exports.bulkUsersResources = () => {
     return bulk('users.resources');
 };
 
-exports.bulkUsersPowerCreeps = function() {
+exports.bulkUsersPowerCreeps = () => {
     return bulk('users.power_creeps');
 };
 
-exports.clearRoomIntents = function(roomId) {
+exports.clearRoomIntents = roomId => {
     return db['rooms.intents'].removeWhere({room: roomId});
 };
 
-exports.clearGlobalIntents = function() {
+exports.clearGlobalIntents = () => {
     return db['users.intents'].clear();
 };
 
 
-exports.mapById = function(array, fn) {
+exports.mapById = (array, fn) => {
     return _.reduce(array, (result, i) => {
         result[i._id.toString()] = i;
         fn && fn(i);
@@ -303,7 +303,7 @@ exports.mapById = function(array, fn) {
     }, {});
 };
 
-exports.notifyTickStarted = function() {
+exports.notifyTickStarted = () => {
     return env.get(env.keys.MAIN_LOOP_PAUSED)
         .then(paused => {
             if(+paused) {
@@ -314,11 +314,11 @@ exports.notifyTickStarted = function() {
 };
 
 
-exports.notifyRoomsDone = function(gameTime) {
+exports.notifyRoomsDone = gameTime => {
     return pubsub.publish(pubsub.keys.ROOMS_DONE, gameTime);
 };
 
-exports.sendConsoleMessages = function(userId, messages) {
+exports.sendConsoleMessages = (userId, messages) => {
     if(userId == '3') {
         if(messages.log.length) {
             console.log("Source Keeper console", messages.log);
@@ -334,7 +334,7 @@ exports.sendConsoleMessages = function(userId, messages) {
     return pubsub.publish(`user:${userId}/console`, JSON.stringify({messages, userId}));
 };
 
-exports.sendConsoleError = function(userId, error) {
+exports.sendConsoleError = (userId, error) => {
 
     if(!error) {
         return q.when();
@@ -375,20 +375,20 @@ exports.sendConsoleError = function(userId, error) {
     return pubsub.publish(`user:${userId}/console`, JSON.stringify({userId, error}));
 };
 
-exports.getGameTime = function() {
+exports.getGameTime = () => {
     return common.getGametime();
 };
 
-exports.incrementGameTime = function() {
+exports.incrementGameTime = () => {
     return common.getGametime()
     .then(gameTime => env.set(env.keys.GAMETIME, gameTime+1));
 };
 
-exports.getRoomInfo = function(roomId) {
+exports.getRoomInfo = roomId => {
     return db.rooms.findOne({_id: roomId});
 };
 
-exports.saveRoomInfo = function(roomId, roomInfo) {
+exports.saveRoomInfo = (roomId, roomInfo) => {
     return db.rooms.update({_id: roomId}, {$set: roomInfo});
 };
 
@@ -493,7 +493,7 @@ exports.bufferFromBase64 = (base64) => {
     return Buffer.from(base64, 'base64');
 };
 
-exports.startLoop = function(name, fn) {
+exports.startLoop = (name, fn) => {
 
     let counter = 0;
 

@@ -1,4 +1,4 @@
-global._init = (function() {
+global._init = (() => {
     const game = require('@screeps/engine/src/game/game');
     const fakeConsole = require('@screeps/engine/src/game/console');
     const WorldMapGrid = require('./mapgrid');
@@ -18,17 +18,17 @@ global._init = (function() {
     module.exports.isolate = isolate;
     module.exports.context = context;
 
-    global._setStaticTerrainData = function (buffer, roomOffsets) {
+    global._setStaticTerrainData = (buffer, roomOffsets) => {
         for (let room in roomOffsets) {
             staticTerrainData[room] = new Uint8Array(buffer, roomOffsets[room], 2500);
         }
     };
 
-    global._evalFn = function(fnString) {
+    global._evalFn = fnString => {
         eval('('+fnString+')(scope)');
     };
 
-    global._start = function (data) {
+    global._start = data => {
 
         let activeSegments, publicSegments, defaultPublicSegment, activeForeignSegment;
         let startTime, startDirtyTime = nowCpuTime();
@@ -173,7 +173,7 @@ global._init = (function() {
             Object.assign(rawMemory.foreignSegment, data.foreignMemorySegment);
         }
 
-        var getUsedCpu = function () {
+        var getUsedCpu = () => {
             return nowCpuTime() + intents.cpu - startTime;
         };
 
@@ -192,18 +192,18 @@ global._init = (function() {
             data,
             intents,
             rawMemory,
-            fakeConsole.makeConsole(data.user._id, function(fn) { return fn }),
+            fakeConsole.makeConsole(data.user._id, fn => { return fn }),
             data.consoleCommands,
             data.cpu,
             getUsedCpu,
-            function (name) {},
+            name => {},
             undefined,
-            function() {
+            () => {
                 return isolate.getHeapStatisticsSync();
             },
             cpuHalt);
 
-        return new ivm.Reference(function() {
+        return new ivm.Reference(() => {
 
             startTime = nowCpuTime();
 
