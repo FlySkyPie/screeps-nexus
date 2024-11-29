@@ -5,7 +5,7 @@ import common from '@screeps/common';
 const db = common.storage.db;
 const env = common.storage.env;
 const pubsub = common.storage.pubsub;
-const config = Object.assign(common.configManager.config, {engine: new EventEmitter()});
+const _config = Object.assign(common.configManager.config, {engine: new EventEmitter()});
 import q from 'q';
 import _ from 'lodash';
 import os from 'os';
@@ -15,7 +15,7 @@ const roomStatsUpdates = {};
 import genericPool from 'generic-pool';
 let worldSize;
 
-_.extend(config.engine, {
+_.extend(_config.engine, {
     driver: exports,
     mainLoopMinDuration: 200,
     mainLoopResetInterval: 5000,
@@ -31,7 +31,7 @@ _.extend(config.engine, {
     enableInspector: false,
 });
 
-config.engine.on('playerSandbox', (sandbox) => {
+_config.engine.on('playerSandbox', (sandbox) => {
     sandbox.run(`Game.shard = Object.create(null, {
         name: {
             value: "${os.hostname()}",
@@ -52,7 +52,7 @@ config.engine.on('playerSandbox', (sandbox) => {
 
 export var customObjectPrototypes = [];
 
-Object.defineProperty(config.engine, 'registerCustomObjectPrototype', {
+Object.defineProperty(_config.engine, 'registerCustomObjectPrototype', {
     value: function(objectType, name, opts) {
         if(!objectType) {
             throw new Error('No object type provided!');
@@ -64,7 +64,7 @@ Object.defineProperty(config.engine, 'registerCustomObjectPrototype', {
     }
 });
 
-export var config = config.engine;
+export var config = _config.engine;
 
 function checkNotificationOnline(userId) {
     return q.when(true); // TODO
@@ -113,7 +113,7 @@ export function connect(processType) {
     .then(common.calcWorldSize)
     .then(_worldSize => worldSize = _worldSize)
     .then(() => {
-        config.engine.emit('init', processType);
+        _config.engine.emit('init', processType);
         return true;
     });
 }
@@ -521,7 +521,7 @@ export function saveRoomEventLog(roomId, eventLog) {
 export var makeRuntime = require('./runtime/make');
 export var history = require('./history');
 export {queue};
-export var constants = config.common.constants;
+export var constants = _config.common.constants;
 export var strongholds = common.configManager.config.common.strongholds;
 
 process.on('disconnect', () => process.exit());
