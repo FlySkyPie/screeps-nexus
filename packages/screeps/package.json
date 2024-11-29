@@ -13,13 +13,13 @@
     "url": "https://github.com/screeps/screeps.git"
   },
   "dependencies": {
-    "@screeps/backend": "3.0.2",
-    "@screeps/common": "2.12.1",
-    "@screeps/driver": "5.0.0",
-    "@screeps/engine": "4.0.4",
-    "@screeps/launcher": "4.0.0",
-    "@screeps/pathfinding": "0.4.16",
-    "@screeps/storage": "5.0.0"
+    "@screeps/backend": "workspace:*",
+    "@screeps/common": "workspace:*",
+    "@screeps/driver": "workspace:*",
+    "@screeps/engine": "workspace:*",
+    "@screeps/launcher": "workspace:*",
+    "@screeps/pathfinding": "workspace:*",
+    "@screeps/storage": "workspace:*"
   },
   "engines": {
     "node": ">=10.13.0",

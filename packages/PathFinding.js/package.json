@@ -1,5 +1,5 @@
 {
-  "name": "pathfinding",
+  "name": "@screeps/pathfinding",
   "version": "0.4.16",
   "description": "Comprehensive pathfinding library for grid based games",
   "homepage": "https://github.com/qiao/PathFinding.js",
