@@ -1,0 +1,28 @@
+{
+  "name": "screeps",
+  "version": "4.0.5",
+  "description": "A standalone server for programming game Screeps",
+  "main": "package.json",
+  "bin": {
+    "screeps": "bin/screeps.js"
+  },
+  "author": "Artem Chivchalov <contact@screeps.com>",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/screeps/screeps.git"
+  },
+  "dependencies": {
+    "@screeps/backend": "3.0.2",
+    "@screeps/common": "2.12.1",
+    "@screeps/driver": "5.0.0",
+    "@screeps/engine": "4.0.4",
+    "@screeps/launcher": "4.0.0",
+    "@screeps/pathfinding": "0.4.16",
+    "@screeps/storage": "5.0.0"
+  },
+  "engines": {
+    "node": ">=10.13.0",
+    "npm": ">=3.10.3"
+  }
+}
