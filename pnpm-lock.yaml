@@ -6,7 +6,11 @@ settings:
 
 importers:
 
-  .: {}
+  .:
+    dependencies:
+      screeps:
+        specifier: workspace:*
+        version: link:packages/screeps
 
   packages/PathFinding.js:
     dependencies:
