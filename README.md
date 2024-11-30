@@ -6,13 +6,20 @@ I can't set up Screeps server from official [repo](https://github.com/screeps/sc
 
 ## Install
 
+1. Download and setup Steam SDK for greenwork. [document](https://github.com/greenheartgames/greenworks/blob/master/docs/get-steamworks-sdk.md)
+
 ```shell
+nvm use 18
+
 # Used to fix build issue in `@screeps/driver`
 export CXXFLAGS='-include /usr/include/c++/13/limits'
+
 pnpm install
 ```
 
 ## Usage
+
+1. Open Steam
 
 ```shell
 pnpm exec screeps init

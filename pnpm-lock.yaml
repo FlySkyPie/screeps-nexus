@@ -84,6 +84,9 @@ importers:
       express-session:
         specifier: ^1.14.1
         version: 1.18.1
+      greenworks:
+        specifier: workspace:*
+        version: link:../greenworks
       lodash:
         specifier: ^3.10.1
         version: 3.10.1
@@ -215,6 +218,20 @@ importers:
       jasmine:
         specifier: ^3.3.0
         version: 3.99.0
+
+  packages/greenworks:
+    dependencies:
+      nan:
+        specifier: ^2.22.0
+        version: 2.22.0
+    devDependencies:
+      mocha:
+        specifier: 1.21.4
+        version: 1.21.4
+
+  packages/greenworks/samples/electron: {}
+
+  packages/greenworks/samples/nw.js: {}
 
   packages/launcher:
     dependencies:
@@ -1105,6 +1122,10 @@ packages:
     resolution: {integrity: sha512-0fLycpl1UMTGX257hRsu/arL/cUbcvQM4zMKwvLvzXtfdezIV4yotPS2dYtknF+NmEfWSoCEF6+hj9XLm/6hEw==}
     engines: {node: '>= 0.4.x'}
 
+  commander@2.0.0:
+    resolution: {integrity: sha512-qebjpyeaA/nJ4w3EO2cV2++/zEkccPnjWogzA2rff+Lk8ILI75vULeTmyd4wPxWdKwtP3J+G39IXVZadh0UHyw==}
+    engines: {node: '>= 0.6.x'}
+
   commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
 
@@ -1404,6 +1425,10 @@ packages:
 
   detective@3.1.0:
     resolution: {integrity: sha512-BIvQHuiVSRMufK1OnlpeAzVqF2yXD75ZzYIx8XV4VQiJ48chF/MMYAdsz/NkulhZznwb4fAX8vyi5CUc24I2BA==}
+
+  diff@1.0.7:
+    resolution: {integrity: sha512-0bTLzyr1S59cPsgAD/lR+ivvHTbgPb+k/mUR6WGqma1J6QDU+kUegI8uQFuH/cMUNK7JGN3Tk1Y5Jf2MO85WrA==}
+    engines: {node: '>=0.3.1'}
 
   diff@1.0.8:
     resolution: {integrity: sha512-1zEb73vemXFpUmfh3fsta4YHz3lwebxXvaWmPbFv9apujQBWDnkrPDLXLQs1gZo4RCWMDsT89r0Pf/z8/02TGA==}
@@ -3032,6 +3057,10 @@ packages:
     resolution: {integrity: sha512-OHsdUcVAQ6pOtg5JYWpCBo9W/GySVuwvP9hueRMW7UqshC0tbfzLv8wjySTPm3tfUZ/21CE9E1pJagOA91Pxew==}
     deprecated: Legacy versions of mkdirp are no longer supported. Please update to mkdirp 1.x. (Note that the API surface has changed to use Promises in 1.x.)
 
+  mkdirp@0.3.5:
+    resolution: {integrity: sha512-8OCq0De/h9ZxseqzCH8Kw/Filf5pF/vMI6+BH7Lu0jXz2pqYCjTAQRolSxRIi+Ax+oCCjlxoJMP0YQ4XlrQNHg==}
+    deprecated: Legacy versions of mkdirp are no longer supported. Please update to mkdirp 1.x. (Note that the API surface has changed to use Promises in 1.x.)
+
   mkdirp@0.5.0:
     resolution: {integrity: sha512-xjjNGy+ry1lhtIKcr2PT6ok3aszhQfgrUDp4OZLHacgRgFmF6XR9XCOJVcXlVGQonIqXcK1DvqgKKQOPWYGSfw==}
     deprecated: Legacy versions of mkdirp are no longer supported. Please update to mkdirp 1.x. (Note that the API surface has changed to use Promises in 1.x.)
@@ -3044,6 +3073,12 @@ packages:
   mkdirp@1.0.4:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
     engines: {node: '>=10'}
+    hasBin: true
+
+  mocha@1.21.4:
+    resolution: {integrity: sha512-eImqF7KoJsoxmaB8WSzsRe2BmnC60EieacW2RE7wZB443toPjk/ioB66nbF9jQv28A5jbny15cx+Zg3xw1q88A==}
+    engines: {node: '>= 0.4.x'}
+    deprecated: Mocha v1.x is no longer supported.
     hasBin: true
 
   mocha@2.0.1:
@@ -5875,6 +5910,8 @@ snapshots:
 
   commander@0.6.1: {}
 
+  commander@2.0.0: {}
+
   commander@2.20.3: {}
 
   commander@2.3.0: {}
@@ -6169,6 +6206,8 @@ snapshots:
     dependencies:
       escodegen: 1.1.0
       esprima-fb: 3001.1.0-dev-harmony-fb
+
+  diff@1.0.7: {}
 
   diff@1.0.8: {}
 
@@ -8120,6 +8159,8 @@ snapshots:
 
   mkdirp@0.3.0: {}
 
+  mkdirp@0.3.5: {}
+
   mkdirp@0.5.0:
     dependencies:
       minimist: 0.0.8
@@ -8129,6 +8170,18 @@ snapshots:
       minimist: 1.2.8
 
   mkdirp@1.0.4: {}
+
+  mocha@1.21.4:
+    dependencies:
+      commander: 2.0.0
+      debug: 4.3.7
+      diff: 1.0.7
+      glob: 3.2.3
+      growl: 1.8.1
+      jade: 0.26.3
+      mkdirp: 0.3.5
+    transitivePeerDependencies:
+      - supports-color
 
   mocha@2.0.1:
     dependencies:

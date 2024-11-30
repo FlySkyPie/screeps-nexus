@@ -113,7 +113,7 @@ function startServer() {
     else {
         console.log("STEAM_KEY environment variable is not found, trying to connect to local Steam client");
         try {
-            greenworks = require('../../greenworks/greenworks');
+            greenworks = require('greenworks');
         }
         catch(e) {
             throw new Error('Cannot find greenworks library, please either install it in the /greenworks folder or provide STEAM_KEY environment variable');
