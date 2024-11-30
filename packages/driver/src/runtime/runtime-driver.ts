@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import runtime from './runtime';
+
+import * as runtime from './runtime';
 
 function EvalCodeError(message) {
     this.toString = () => message;
@@ -20,15 +21,15 @@ export function getWorldSize() {
 
 export function evalCode(module, globals, returnValue, timeout, scriptCachedData) {
 
-    const options = {filename: module.name};
+    const options = { filename: module.name };
 
     const oldModule = globals.__module || {};
 
     globals.__module = module;
 
-    if(!_.isUndefined(timeout) && timeout !== null && timeout !== 0 && timeout != Infinity) {
+    if (!_.isUndefined(timeout) && timeout !== null && timeout !== 0 && timeout != Infinity) {
         options.timeout = timeout + 5;
-        if(options.timeout < 30) {
+        if (options.timeout < 30) {
             options.timeout = 30;
         }
     }
@@ -44,7 +45,7 @@ export function evalCode(module, globals, returnValue, timeout, scriptCachedData
 
         let result;
 
-        if(returnValue) {
+        if (returnValue) {
             var code = '(function(code,module,exports) { return "" + eval(code); })(' + JSON.stringify(module.code) + ', __module, __module.exports)';
             result = runtime.isolate.compileScriptSync(code, options).runSync(runtime.context, options);
         }
@@ -87,18 +88,18 @@ export function evalCode(module, globals, returnValue, timeout, scriptCachedData
 
         return result;
     }
-    catch(e) {
+    catch (e) {
 
-        if(e instanceof EvalCodeError) throw e;
+        if (e instanceof EvalCodeError) throw e;
 
-        if(e.message === 'Script execution timed out.') {
+        if (e.message === 'Script execution timed out.') {
             e.message = 'Script execution timed out: CPU time limit reached';
         }
 
         let message = '';
-        if(e.stack) {
+        if (e.stack) {
             message = e.stack;
-            message = message.replace(/</g,'&lt;');
+            message = message.replace(/</g, '&lt;');
             message = message.replace(/ *at.*?$/, '');
             message = message.replace(/_console\d+:\d+/, 'console');
             message = message.replace(/at __module \((.*)\)/g, 'at $1');

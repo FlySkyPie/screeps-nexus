@@ -1,5 +1,7 @@
 import pathfinding from '@screeps/pathfinding';
+
 import driver from './runtime-driver';
+
 const C = driver.constants;
 
 function roomNameToXY(name) {
