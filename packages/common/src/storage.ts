@@ -1,5 +1,6 @@
 import q from 'q';
 import net from 'net';
+
 import { config } from './config-manager';
 import { RpcClient } from './rpc';
 

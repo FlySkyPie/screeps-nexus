@@ -139,6 +139,9 @@ importers:
       '@types/q':
         specifier: ^1.0.0
         version: 1.5.8
+      '@vercel/ncc':
+        specifier: ^0.38.3
+        version: 0.38.3
 
   packages/driver:
     dependencies:

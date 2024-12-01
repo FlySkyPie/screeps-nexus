@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import C from './constants';
+import { ListItems } from './tables/list-items';
 
 const transforms: any = {
     'string': (value: any) => "" + value,
@@ -9,7 +9,7 @@ const transforms: any = {
     'price': (value: any) => parseInt((1000 * value).toFixed(0)),
     'string[]': (value: any) => _.isArray(value) ? _.map(value, i => "" + i) : undefined,
     'number[]': (value: any) => _.isArray(value) ? _.map(value, (i: any) => parseInt(i)) : undefined,
-    'bodypart[]': (value: any) => _.filter(value, i => _.contains(C.BODYPARTS_ALL, i)),
+    'bodypart[]': (value: any) => _.filter(value, i => _.contains(ListItems.BODYPARTS_ALL, i)),
     'userString': (value: any) => ("" + (value || "")).substring(0, 100),
     'userText': (value: any) => ("" + (value || "")).substring(0, 1000)
 };

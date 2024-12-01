@@ -2,11 +2,14 @@ import _ from 'lodash';
 import fs from 'fs';
 import path from 'path';
 
+import * as strongholds from './strongholds';
+import * as system from './system';
+
 const config: any = {
     common: {
-        constants: require('./constants'),
-        strongholds: require('./strongholds'),
-        system: require('./system'),
+        // constants: require('./constants'),
+        strongholds: strongholds,
+        system: system,
         bots: {}
     }
 };
