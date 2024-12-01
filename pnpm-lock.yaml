@@ -235,6 +235,18 @@ importers:
 
   packages/launcher:
     dependencies:
+      '@screeps/backend':
+        specifier: workspace:*
+        version: link:../backend
+      '@screeps/common':
+        specifier: workspace:*
+        version: link:../common
+      '@screeps/engine':
+        specifier: workspace:*
+        version: link:../engine
+      '@screeps/storage':
+        specifier: workspace:*
+        version: link:../storage
       angular:
         specifier: ^1.5.8
         version: 1.8.3
@@ -263,6 +275,27 @@ importers:
         specifier: ^1.4.1
         version: 1.5.1
     devDependencies:
+      '@types/ini':
+        specifier: ^1.0.0
+        version: 1.3.34
+      '@types/lodash':
+        specifier: ^3.0.0
+        version: 3.10.9
+      '@types/ncp':
+        specifier: ^2.0.0
+        version: 2.0.8
+      '@types/node':
+        specifier: ^22.10.1
+        version: 22.10.1
+      '@types/prompt':
+        specifier: ^1.0.0
+        version: 1.1.9
+      '@types/q':
+        specifier: ^1.0.0
+        version: 1.5.8
+      '@vercel/ncc':
+        specifier: ^0.38.3
+        version: 0.38.3
       electron:
         specifier: ^2.0.0-beta.7
         version: 2.0.18
@@ -347,14 +380,33 @@ packages:
   '@screeps/pathfinding@0.4.17':
     resolution: {integrity: sha512-W8z4jkKe+PHtWWNZ3Q4Jy/BtK90hqe/THt1bXlFNlgCZrZxMh5ckAsKfa4v1jSHX1QE35BkQYH0yxYt5Q+o6rw==}
 
+  '@types/ini@1.3.34':
+    resolution: {integrity: sha512-FafeLhwmWucTi31ZYg/6aHBZNyrogQ35aDvSW7zMAz3HMhUqQ4G/NBya8c5pe2jwoYsDFwra8O9/yZotong76g==}
+
   '@types/lodash@3.10.9':
     resolution: {integrity: sha512-BqzpDcDNIj0D15QezYF2C8OhOZVsm3g9Y6bLfXC6jO+wgxDGdCJlzge9OqnI0RezYJNsfsGXovhb3zTZjHpiCA==}
+
+  '@types/ncp@2.0.8':
+    resolution: {integrity: sha512-pLNWVLCVWBLVM4F2OPjjK6FWFtByFKD7LhHryF+MbVLws7ENj09mKxRFlhkGPOXfJuaBAG+2iADKJsZwnAbYDw==}
+
+  '@types/node@22.10.1':
+    resolution: {integrity: sha512-qKgsUwfHZV2WCWLAnVP1JqnpE6Im6h3Y0+fYgMTasNQ7V++CBX5OT1as0g0f+OyubbFqhf6XVNIsmN4IIhEgGQ==}
 
   '@types/node@8.10.66':
     resolution: {integrity: sha512-tktOkFUA4kXx2hhhrB8bIFb5TbwzS4uOhKEmwiD+NoiL0qtP2OQ9mFldbgD4dV1djrlBYP6eBuQZiWjuHUpqFw==}
 
+  '@types/prompt@1.1.9':
+    resolution: {integrity: sha512-Yl0hzOWGDNCo2JHA8s7g7e9higzonlP/MssTMAIAwYmA7GugrB5WZ1DmrfrpJyJY8Y5UHFr8uaXDlxiyHt2jbg==}
+
   '@types/q@1.5.8':
     resolution: {integrity: sha512-hroOstUScF6zhIi+5+x0dzqrHA1EJi+Irri6b1fxolMTqqHIV/Cg77EtnQcZqZCu8hR3mX2BzIxN4/GzI68Kfw==}
+
+  '@types/revalidator@0.3.12':
+    resolution: {integrity: sha512-DsA2jHfz73JaIROVoMDd/x7nVWXBmEdDSoXB4yQlDzv/NCBkFY2fMHkyE6DGrvooLDAFe5QI6l9Wq0TgdopMtg==}
+
+  '@vercel/ncc@0.38.3':
+    resolution: {integrity: sha512-rnK6hJBS6mwc+Bkab+PGPs9OiS0i/3kdTO+CkI8V0/VrW3vmz7O2Pxjw/owOlmo6PKEIxRSeZKv/kuL9itnpYA==}
+    hasBin: true
 
   Base64@0.2.1:
     resolution: {integrity: sha512-reGEWshDmTDQDsCec/HduOO9Wyj6yMOupMfhIf3ugN1TDlK2NQW4DDJSqNNtp380SNcvRfXtO8HSCQot0d0SMw==}
@@ -4500,6 +4552,9 @@ packages:
     resolution: {integrity: sha512-eXL4nmJT7oCpkZsHZUOJo8hcX3GbsiDOa0Qu9F646fi8dT3XuSVopVqAcEiVzSKKH7UoDti23wNX3qGFxcW5Qg==}
     engines: {node: '>=0.10.0'}
 
+  undici-types@6.20.0:
+    resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
+
   union-value@1.0.1:
     resolution: {integrity: sha512-tJfXmxMeWYnczCVs7XAEvIV7ieppALdyepWMkHkwciRpZraG/xwT+s2JN8+pr1+8jCRf80FFzvr+MpQeeoF4Xg==}
     engines: {node: '>=0.10.0'}
@@ -4833,11 +4888,30 @@ snapshots:
     dependencies:
       heap: 0.2.5
 
+  '@types/ini@1.3.34': {}
+
   '@types/lodash@3.10.9': {}
+
+  '@types/ncp@2.0.8':
+    dependencies:
+      '@types/node': 22.10.1
+
+  '@types/node@22.10.1':
+    dependencies:
+      undici-types: 6.20.0
 
   '@types/node@8.10.66': {}
 
+  '@types/prompt@1.1.9':
+    dependencies:
+      '@types/node': 22.10.1
+      '@types/revalidator': 0.3.12
+
   '@types/q@1.5.8': {}
+
+  '@types/revalidator@0.3.12': {}
+
+  '@vercel/ncc@0.38.3': {}
 
   Base64@0.2.1: {}
 
@@ -9733,6 +9807,8 @@ snapshots:
       uglify-js: 2.4.24
 
   unc-path-regex@0.1.2: {}
+
+  undici-types@6.20.0: {}
 
   union-value@1.0.1:
     dependencies:
