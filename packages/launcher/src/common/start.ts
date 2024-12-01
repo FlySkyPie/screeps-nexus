@@ -7,14 +7,6 @@ import { readFile, writeFile, mkdir, stat, rename, } from 'fs/promises';
 
 import common from '@screeps/common';
 
-// const readFile = util.promisify(fs.readFile)
-// const writeFile = util.promisify(fs.writeFile)
-// // const open = util.promisify(fs.open)
-// // const close = util.promisify(fs.close)
-// const mkdir = util.promisify(fs.mkdir)
-// const stat = util.promisify(fs.stat)
-// const rename = util.promisify(fs.rename)
-
 const DEFAULTS = {
     modfile: 'mods.json',
     runners_threads: 2,

@@ -129,6 +129,16 @@ importers:
       q:
         specifier: ^1.4.1
         version: 1.5.1
+    devDependencies:
+      '@types/lodash':
+        specifier: ^3.0.0
+        version: 3.10.9
+      '@types/node':
+        specifier: ^16.0.0
+        version: 16.18.121
+      '@types/q':
+        specifier: ^1.0.0
+        version: 1.5.8
 
   packages/driver:
     dependencies:
@@ -397,6 +407,9 @@ packages:
 
   '@types/ncp@2.0.8':
     resolution: {integrity: sha512-pLNWVLCVWBLVM4F2OPjjK6FWFtByFKD7LhHryF+MbVLws7ENj09mKxRFlhkGPOXfJuaBAG+2iADKJsZwnAbYDw==}
+
+  '@types/node@16.18.121':
+    resolution: {integrity: sha512-Gk/pOy8H0cvX8qNrwzElYIECpcUn87w4EAEFXFvPJ8qsP9QR/YqukUORSy0zmyDyvdo149idPpy4W6iC5aSbQA==}
 
   '@types/node@22.10.1':
     resolution: {integrity: sha512-qKgsUwfHZV2WCWLAnVP1JqnpE6Im6h3Y0+fYgMTasNQ7V++CBX5OT1as0g0f+OyubbFqhf6XVNIsmN4IIhEgGQ==}
@@ -4904,6 +4917,8 @@ snapshots:
   '@types/ncp@2.0.8':
     dependencies:
       '@types/node': 22.10.1
+
+  '@types/node@16.18.121': {}
 
   '@types/node@22.10.1':
     dependencies:
