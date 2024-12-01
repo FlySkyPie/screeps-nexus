@@ -22,6 +22,6 @@ pnpm install
 1. Open Steam
 
 ```shell
-pnpm exec screeps init
-pnpm exec screeps start
+pnpm exec screeps-launcher init
+pnpm exec screeps-launcher start
 ```

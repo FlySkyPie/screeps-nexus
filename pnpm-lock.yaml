@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      screeps:
+      '@screeps/launcher':
         specifier: workspace:*
-        version: link:packages/screeps
+        version: link:packages/launcher
 
   packages/PathFinding.js:
     dependencies:

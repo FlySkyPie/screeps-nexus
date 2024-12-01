@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {},
   "dependencies": {
-    "screeps": "workspace:*"
+    "@screeps/launcher": "workspace:*"
   },
   "keywords": [],
   "author": "",
