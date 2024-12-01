@@ -25,3 +25,7 @@ pnpm install
 pnpm exec screeps-launcher init
 pnpm exec screeps-launcher start
 ```
+
+```shell
+pnpx tsx packages/launcher/src/screeps.ts start
+```

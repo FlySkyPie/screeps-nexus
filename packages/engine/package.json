@@ -11,6 +11,7 @@
     "test": "cross-env DRIVER_MODULE=@screeps/driver jasmine"
   },
   "dependencies": {
+    "@screeps/driver": "workspace:*",
     "@screeps/pathfinding": "^0.4.16",
     "bulk-require": "^0.2.1",
     "cross-env": "^5.2.0",
