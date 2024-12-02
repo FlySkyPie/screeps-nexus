@@ -3,7 +3,7 @@ import q from 'q';
 import fs from 'fs';
 import _ from 'lodash';
 
-import common from '@screeps/common';
+import * as common from '@screeps/common/src/index';
 import { Resource } from '@screeps/common/src/constants/resource';
 import { ListItems } from '@screeps/common/src/tables/list-items';
 
@@ -25,7 +25,7 @@ Object.assign(config.storage, {
         }
         return new loki(process.env.DB_PATH ?? "", config.storage.dbOptions);
     },
-    loadDb() {
+    async loadDb() {
         db = config.storage.getDb();
         return q.ninvoke(db, 'loadDatabase', {})
             .then(upgradeDb);

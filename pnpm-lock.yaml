@@ -322,6 +322,22 @@ importers:
         specifier: ^1.7.3
         version: 1.11.0
 
+  packages/launcher/dist:
+    dependencies:
+      faye-websocket:
+        specifier: ^0.11.3
+        version: 0.11.4
+      uuid:
+        specifier: ^8.3.2
+        version: 8.3.2
+      websocket-driver:
+        specifier: ^0.7.4
+        version: 0.7.4
+    devDependencies:
+      coffeescript:
+        specifier: ^1.12.7
+        version: 1.12.7
+
   packages/screeps:
     dependencies:
       '@screeps/backend':
@@ -373,6 +389,9 @@ importers:
       '@types/q':
         specifier: ^1.0.0
         version: 1.5.8
+      '@vercel/ncc':
+        specifier: ^0.38.3
+        version: 0.38.3
 
 packages:
 
@@ -1174,6 +1193,11 @@ packages:
   code-point-at@1.1.0:
     resolution: {integrity: sha512-RpAVKQA5T63xEj6/giIbUEtZwJ4UFIc3ZtvEkiaUERylqe8xb5IvqcgOurZLahv93CLKfxcw5YI+DZcUBRyLXA==}
     engines: {node: '>=0.10.0'}
+
+  coffeescript@1.12.7:
+    resolution: {integrity: sha512-pLXHFxQMPklVoEekowk8b3erNynC+DVJzChxS/LCBBgR6/8AJkHivkm//zbowcfc7BTCAjryuhx6gPqPRfsFoA==}
+    engines: {node: '>=0.8.0'}
+    hasBin: true
 
   collection-visit@1.0.0:
     resolution: {integrity: sha512-lNkKvzEeMBBjUGHZ+q6z9pSJla0KWAQPvtzhEV9+iGyQYG+pBpl7xKDhxoNSOZH2hhv0v5k0y2yAM4o4SjoSkw==}
@@ -5993,6 +6017,8 @@ snapshots:
       readable-stream: 2.3.8
 
   code-point-at@1.1.0: {}
+
+  coffeescript@1.12.7: {}
 
   collection-visit@1.0.0:
     dependencies:

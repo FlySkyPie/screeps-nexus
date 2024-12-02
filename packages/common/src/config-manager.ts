@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import fs from 'fs';
 import path from 'path';
+import { EventEmitter } from 'node:events';
 
 import * as strongholds from './strongholds';
 import * as system from './system';
@@ -11,7 +12,8 @@ const config: any = {
         strongholds: strongholds,
         system: system,
         bots: {}
-    }
+    },
+    storage: new EventEmitter(),
 };
 
 export function load() {

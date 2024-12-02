@@ -1,18 +1,14 @@
 import net from 'node:net';
-import { EventEmitter } from 'node:events';
 import _ from 'lodash';
 
-import common from '@screeps/common';
+import * as common from '@screeps/common/src/index';
 
 import * as databaseMethods from './db';
 import * as pubsub from './pubsub';
 import * as queueMethods from './queue';
 
 const { RpcServer } = common.rpc;
-const config = Object.assign(common.configManager.config, { storage: new EventEmitter() });
-// databaseMethods = require('./db'),
-// pubsub = require('./pubsub'),
-// queueMethods = require('./queue');
+const { config } = common.configManager;
 
 Object.assign(config.storage, {
     socketListener(socket: any) {
