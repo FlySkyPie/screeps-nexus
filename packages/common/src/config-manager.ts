@@ -14,6 +14,8 @@ const config: any = {
         bots: {}
     },
     storage: new EventEmitter(),
+    backend: new EventEmitter(),
+    cli: new EventEmitter(),
 };
 
 export function load() {

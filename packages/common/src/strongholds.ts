@@ -1,7 +1,7 @@
 import { Resource } from './constants/resource';
 import { StructureEnum } from './constants/structure-enum';
 
-export var templates = {
+export const templates: any = {
     'bunker1': {
         description: 'Level 1 bunker-style Stronghold',
         rewardLevel: 1,
@@ -246,17 +246,17 @@ export var templates = {
     }
 };
 
-export var coreRewards = {
+export const coreRewards = {
     [Resource.RESOURCE_SILICON]: [Resource.RESOURCE_WIRE, Resource.RESOURCE_SWITCH, Resource.RESOURCE_TRANSISTOR, Resource.RESOURCE_MICROCHIP, Resource.RESOURCE_CIRCUIT, Resource.RESOURCE_DEVICE],
     [Resource.RESOURCE_METAL]: [Resource.RESOURCE_ALLOY, Resource.RESOURCE_TUBE, Resource.RESOURCE_FIXTURES, Resource.RESOURCE_FRAME, Resource.RESOURCE_HYDRAULICS, Resource.RESOURCE_MACHINE],
     [Resource.RESOURCE_BIOMASS]: [Resource.RESOURCE_CELL, Resource.RESOURCE_PHLEGM, Resource.RESOURCE_TISSUE, Resource.RESOURCE_MUSCLE, Resource.RESOURCE_ORGANOID, Resource.RESOURCE_ORGANISM],
     [Resource.RESOURCE_MIST]: [Resource.RESOURCE_CONDENSATE, Resource.RESOURCE_CONCENTRATE, Resource.RESOURCE_EXTRACT, Resource.RESOURCE_SPIRIT, Resource.RESOURCE_EMANATION, Resource.RESOURCE_ESSENCE]
 };
 
-export var coreAmounts = [0, 1000, 16000, 60000, 400000, 3000000];
-export var coreDensities = [10, 220, 1400, 5100, 14000, 31500];
+export const coreAmounts = [0, 1000, 16000, 60000, 400000, 3000000];
+export const coreDensities = [10, 220, 1400, 5100, 14000, 31500];
 
-export var containerRewards = {
+export const containerRewards = {
     [Resource.RESOURCE_UTRIUM_BAR]: 5,
     [Resource.RESOURCE_LEMERGIUM_BAR]: 5,
     [Resource.RESOURCE_ZYNTHIUM_BAR]: 5,
@@ -271,4 +271,4 @@ export var containerRewards = {
     [Resource.RESOURCE_LIQUID]: 30
 };
 
-export var containerAmounts = [0, 500, 4000, 10000, 50000, 360000];
+export const containerAmounts = [0, 500, 4000, 10000, 50000, 360000];

@@ -309,9 +309,33 @@ export abstract class ScreepsConstants {
     public static readonly INVADER_CORE_CREEP_SPAWN_TIME = {
         0: 0, 1: 0, 2: 6, 3: 3, 4: 2, 5: 1
     };
-    public static readonly INVADER_CORE_EXPAND_TIME = { 1: 4000, 2: 3500, 3: 3000, 4: 2500, 5: 2000 };
+    public static readonly INVADER_CORE_EXPAND_TIME: Record<any, number> = {
+        1: 4000, 2: 3500, 3: 3000, 4: 2500, 5: 2000
+    };
     public static readonly INVADER_CORE_CONTROLLER_POWER = 2;
     public static readonly INVADER_CORE_CONTROLLER_DOWNGRADE = 5000;
     public static readonly STRONGHOLD_RAMPART_HITS = { 0: 0, 1: 100000, 2: 200000, 3: 500000, 4: 1000000, 5: 2000000 };
     public static readonly STRONGHOLD_DECAY_TICKS = 75000;
+
+    public static readonly OBSTACLE_OBJECT_TYPES = [
+        "spawn",
+        "creep",
+        "powerCreep",
+        "source",
+        "mineral",
+        "deposit",
+        "controller",
+        "constructedWall",
+        "extension",
+        "link",
+        "storage",
+        "tower",
+        "observer",
+        "powerSpawn",
+        "powerBank",
+        "lab",
+        "terminal",
+        "nuker",
+        "factory",
+        "invaderCore"];
 };
