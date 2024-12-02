@@ -16,5 +16,11 @@
     "lodash": "^3.10.1",
     "lokijs": "^1.5.6",
     "q": "^1.4.1"
+  },
+  "devDependencies": {
+    "@types/lokijs": "^1.0.0",
+    "@types/node": "^16.0.0",
+    "@types/lodash": "^3.0.0",
+    "@types/q": "^1.0.0"
   }
 }
