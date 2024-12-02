@@ -27,141 +27,148 @@ config.common.dbCollections = [
     'users.power_creeps'
 ];
 
-config.common.storage = exports;
+class StorageInstance {
+    public static resetAllData: any;
 
-export var db = {};
-export var queue = {};
+    public static _connected = false;
 
-export var env = {
-    keys: {
-        ACCESSIBLE_ROOMS: 'accessibleRooms',
-        ROOM_STATUS_DATA: 'roomStatusData',
-        MEMORY: 'memory:',
-        GAMETIME: 'gameTime',
-        MAP_VIEW: 'mapView:',
-        TERRAIN_DATA: 'terrainData',
-        SCRIPT_CACHED_DATA: 'scriptCachedData:',
-        USER_ONLINE: 'userOnline:',
-        MAIN_LOOP_PAUSED: 'mainLoopPaused',
-        ROOM_HISTORY: 'roomHistory:',
-        ROOM_VISUAL: 'roomVisual:',
-        MEMORY_SEGMENTS: 'memorySegments:',
-        PUBLIC_MEMORY_SEGMENTS: 'publicMemorySegments:',
-        ROOM_EVENT_LOG: 'roomEventLog:',
-        ACTIVE_ROOMS: 'activeRooms',
-        MAIN_LOOP_MIN_DURATION: 'tickRate'
-    }
-};
+    public static db: any = {};
 
-export var pubsub = {
-    keys: {
-        QUEUE_DONE: 'queueDone:',
-        RUNTIME_RESTART: 'runtimeRestart',
-        TICK_STARTED: "tickStarted",
-        ROOMS_DONE: "roomsDone"
-    }
-};
+    public static queue: any = {};
 
-exports._connect = function storageConnect() {
+    public static env = {
+        keys: {
+            ACCESSIBLE_ROOMS: 'accessibleRooms',
+            ROOM_STATUS_DATA: 'roomStatusData',
+            MEMORY: 'memory:',
+            GAMETIME: 'gameTime',
+            MAP_VIEW: 'mapView:',
+            TERRAIN_DATA: 'terrainData',
+            SCRIPT_CACHED_DATA: 'scriptCachedData:',
+            USER_ONLINE: 'userOnline:',
+            MAIN_LOOP_PAUSED: 'mainLoopPaused',
+            ROOM_HISTORY: 'roomHistory:',
+            ROOM_VISUAL: 'roomVisual:',
+            MEMORY_SEGMENTS: 'memorySegments:',
+            PUBLIC_MEMORY_SEGMENTS: 'publicMemorySegments:',
+            ROOM_EVENT_LOG: 'roomEventLog:',
+            ACTIVE_ROOMS: 'activeRooms',
+            MAIN_LOOP_MIN_DURATION: 'tickRate'
+        }
+    };
 
-    if (exports._connected) {
-        return q.when();
-    }
+    public static pubsub = {
+        keys: {
+            QUEUE_DONE: 'queueDone:',
+            RUNTIME_RESTART: 'runtimeRestart',
+            TICK_STARTED: "tickStarted",
+            ROOMS_DONE: "roomsDone"
+        }
+    };
 
-    if (!process.env.STORAGE_PORT) {
-        throw new Error('STORAGE_PORT environment variable is not set!');
-    }
+    public static _connect() {
+        if (StorageInstance._connected) {
+            return q.when();
+        }
 
-    console.log('Connecting to storage');
+        if (!process.env.STORAGE_PORT) {
+            throw new Error('STORAGE_PORT environment variable is not set!');
+        }
 
-    const socket = net.connect(parseInt(process.env.STORAGE_PORT), process.env.STORAGE_HOST);
-    const rpcClient = new RpcClient(socket);
+        console.log('Connecting to storage');
 
-    const defer = q.defer();
-    const resetDefer = q.defer();
+        const socket = net.connect(parseInt(process.env.STORAGE_PORT), process.env.STORAGE_HOST);
+        const rpcClient = new RpcClient(socket);
 
-    function resetInterceptor(fn: any) {
-        /*return function() {
-            var promise = fn.apply(null, Array.prototype.slice.call(arguments));
-            return q.any([promise, resetDefer.promise])
-            .then(result => result === 'reset' ? q.reject('Storage connection lost') : result);
-        }*/
-        // TODO
-        return fn;
-    }
+        const defer = q.defer();
+        const resetDefer = q.defer();
 
+        function resetInterceptor(fn: any) {
+            /*return function() {
+                var promise = fn.apply(null, Array.prototype.slice.call(arguments));
+                return q.any([promise, resetDefer.promise])
+                .then(result => result === 'reset' ? q.reject('Storage connection lost') : result);
+            }*/
+            // TODO
+            return fn;
+        }
 
-    function wrapCollection(collectionName: any) {
-        const wrap: any = {};
-        ['find', 'findOne', 'by', 'clear', 'count', 'ensureIndex', 'removeWhere', 'insert'].forEach(method => {
-            wrap[method] = function () {
-                return rpcClient.request('dbRequest', collectionName, method, Array.prototype.slice.call(arguments));
+        function wrapCollection(collectionName: any) {
+            const wrap: any = {};
+            ['find', 'findOne', 'by', 'clear', 'count', 'ensureIndex', 'removeWhere', 'insert'].forEach(method => {
+                wrap[method] = function () {
+                    return rpcClient.request('dbRequest', collectionName, method, Array.prototype.slice.call(arguments));
+                }
+            });
+            wrap.update = resetInterceptor((query: any, update: any, params: any) => {
+                return rpcClient.request('dbUpdate', collectionName, query, update, params);
+            });
+            wrap.bulk = resetInterceptor((bulk: any) => {
+                return rpcClient.request('dbBulk', collectionName, bulk);
+            });
+            wrap.findEx = resetInterceptor((query: any, opts: any) => {
+                return rpcClient.request('dbFindEx', collectionName, query, opts);
+            });
+            return wrap;
+        }
+
+        config.common.dbCollections.forEach((i: any) => StorageInstance.db[i] = wrapCollection(i));
+
+        StorageInstance.resetAllData = () => rpcClient.request('dbResetAllData');
+
+        Object.assign(StorageInstance.queue, {
+            fetch: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueFetch')),
+            add: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueAdd')),
+            addMulti: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueAddMulti')),
+            markDone: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueMarkDone')),
+            whenAllDone: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueWhenAllDone')),
+            reset: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueReset'))
+        });
+
+        Object.assign(StorageInstance.env, {
+            get: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvGet')),
+            mget: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvMget')),
+            set: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvSet')),
+            setex: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvSetex')),
+            expire: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvExpire')),
+            ttl: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvTtl')),
+            del: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvDel')),
+            hmget: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvHmget')),
+            hmset: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvHmset')),
+            hget: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvHget')),
+            hset: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvHset')),
+            sadd: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvSadd')),
+            smembers: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvSmembers')),
+        });
+
+        Object.assign(StorageInstance.pubsub, {
+            publish: resetInterceptor(rpcClient.request.bind(rpcClient, 'publish')),
+            subscribe(channel: any, cb: any) {
+                rpcClient.subscribe(channel, cb);
             }
         });
-        wrap.update = resetInterceptor((query: any, update: any, params: any) => {
-            return rpcClient.request('dbUpdate', collectionName, query, update, params);
+
+        StorageInstance._connected = true;
+
+        defer.resolve();
+
+        socket.on('error', err => {
+            console.error('Storage connection lost', err);
+            resetDefer.resolve('reset');
+            StorageInstance._connected = false;
+            setTimeout(exports._connect, 1000);
         });
-        wrap.bulk = resetInterceptor((bulk: any) => {
-            return rpcClient.request('dbBulk', collectionName, bulk);
+        socket.on('end', () => {
+            console.error('Storage connection lost');
+            resetDefer.resolve('reset');
+            StorageInstance._connected = false;
+            setTimeout(StorageInstance._connect, 1000)
         });
-        wrap.findEx = resetInterceptor((query: any, opts: any) => {
-            return rpcClient.request('dbFindEx', collectionName, query, opts);
-        });
-        return wrap;
-    }
 
-    config.common.dbCollections.forEach((i: any) => exports.db[i] = wrapCollection(i));
-
-    exports.resetAllData = () => rpcClient.request('dbResetAllData');
-
-    Object.assign(exports.queue, {
-        fetch: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueFetch')),
-        add: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueAdd')),
-        addMulti: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueAddMulti')),
-        markDone: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueMarkDone')),
-        whenAllDone: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueWhenAllDone')),
-        reset: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueReset'))
-    });
-
-    Object.assign(exports.env, {
-        get: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvGet')),
-        mget: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvMget')),
-        set: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvSet')),
-        setex: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvSetex')),
-        expire: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvExpire')),
-        ttl: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvTtl')),
-        del: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvDel')),
-        hmget: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvHmget')),
-        hmset: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvHmset')),
-        hget: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvHget')),
-        hset: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvHset')),
-        sadd: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvSadd')),
-        smembers: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvSmembers')),
-    });
-
-    Object.assign(exports.pubsub, {
-        publish: resetInterceptor(rpcClient.request.bind(rpcClient, 'publish')),
-        subscribe(channel: any, cb: any) {
-            rpcClient.subscribe(channel, cb);
-        }
-    });
-
-    exports._connected = true;
-
-    defer.resolve();
-
-    socket.on('error', err => {
-        console.error('Storage connection lost', err);
-        resetDefer.resolve('reset');
-        exports._connected = false;
-        setTimeout(exports._connect, 1000);
-    });
-    socket.on('end', () => {
-        console.error('Storage connection lost');
-        resetDefer.resolve('reset');
-        exports._connected = false;
-        setTimeout(exports._connect, 1000)
-    });
-
-    return defer.promise;
+        return defer.promise;
+    };
 };
+
+export default StorageInstance;
+
+config.common.storage = StorageInstance;
