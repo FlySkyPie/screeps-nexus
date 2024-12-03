@@ -7,12 +7,12 @@ import * as  common from '@screeps/common/src/index';
 import * as strongholds from '@screeps/common/src/strongholds';
 import { StructureEnum } from '@screeps/common/src/constants/structure-enum';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import StorageInstance from '@screeps/common/src/storage';
 
 import * as  utils from './utils';
 
-// const C = common.configManager.config.common.constants;
-const db = common.storage.db;
-const env = common.storage.env;
+const db = StorageInstance.db;
+const env = StorageInstance.env;
 
 const strongholdDeployTime = 5000;
 
@@ -219,7 +219,7 @@ async function buildMapGrid() {
     let gridData: any = {};
     for (let roomName of accessibleRooms) {
         let [x, y] = common.roomNameToXY(roomName);
-        let terrain = _.find(terrainData, { room: roomName }).terrain;
+        let terrain = (_.find(terrainData, { room: roomName }) as any).terrain;
         let roomData: any = {};
         for (let dirName in dirs) {
             let { startx, starty, dx, dy } = dirs[dirName];
@@ -333,7 +333,7 @@ async function expandStronghold(invaderCore: any, { gameTime, mapGrid }: any = {
             x2: Math.min(48, found.controller.x + 5),
             y1: Math.max(1, found.controller.y - 5),
             y2: Math.min(48, found.controller.y + 5)
-        });
+        }) as any;
     }
     catch (e) {
         console.log('no pos', e);

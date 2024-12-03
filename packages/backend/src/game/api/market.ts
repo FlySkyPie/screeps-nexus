@@ -3,13 +3,14 @@ import _ from 'lodash';
 import jsonResponse from 'q-json-response';
 
 import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
 
 import * as auth from './auth';
 
 const router = express.Router();
 
-const db = common.storage.db;
-const env = common.storage.env;
+const db = StorageInstance.db;
+const env = StorageInstance.env;
 const C = common.configManager.config.common.constants;
 
 

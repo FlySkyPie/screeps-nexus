@@ -5,14 +5,15 @@ import _ from 'lodash';
 import zlib from 'zlib';
 
 import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
 import * as  utils from '../utils';
 
-const C = common.configManager.config.common.constants;
 const config = common.configManager.config;
-const db = common.storage.db;
-const env = common.storage.env;
-const pubsub = common.storage.pubsub;
+const db = StorageInstance.db;
+const env = StorageInstance.env;
+const pubsub = StorageInstance.pubsub;
 
 export var generateRoom = utils.withHelp([
     `generateRoom(roomName, [opts]) - Generate a new room at the specified location. 'opts' is an object with the following optional properties:\r
@@ -35,7 +36,7 @@ export var generateRoom = utils.withHelp([
         function _exitsArray(terrain: any, x: any, y: any) {
             const exits = [];
             for (let i = 0; i < 50; i++) {
-                if (!common.checkTerrain(terrain, x === undefined ? i : x, y === undefined ? i : y, C.TERRAIN_MASK_WALL)) {
+                if (!common.checkTerrain(terrain, x === undefined ? i : x, y === undefined ? i : y, ScreepsConstants.TERRAIN_MASK_WALL)) {
                     exits.push(i);
                 }
             }
@@ -490,9 +491,9 @@ export var generateRoom = utils.withHelp([
                                 type: 'source',
                                 x,
                                 y,
-                                "energy": C.SOURCE_ENERGY_NEUTRAL_CAPACITY,
-                                "energyCapacity": C.SOURCE_ENERGY_NEUTRAL_CAPACITY,
-                                "ticksToRegeneration": C.ENERGY_REGEN_TIME
+                                "energy": ScreepsConstants.SOURCE_ENERGY_NEUTRAL_CAPACITY,
+                                "energyCapacity": ScreepsConstants.SOURCE_ENERGY_NEUTRAL_CAPACITY,
+                                "ticksToRegeneration": ScreepsConstants.ENERGY_REGEN_TIME
                             });
                         }
                         if (roomData[y][x].controller) {
@@ -538,11 +539,11 @@ export var generateRoom = utils.withHelp([
                     do {
                         mx = 4 + Math.floor(Math.random() * 42);
                         my = 4 + Math.floor(Math.random() * 42);
-                        isWall = common.checkTerrain(terrain, mx, my, C.TERRAIN_MASK_WALL);
+                        isWall = common.checkTerrain(terrain, mx, my, ScreepsConstants.TERRAIN_MASK_WALL);
                         hasSpot = false;
                         for (var dx = -1; dx <= 1; dx++) {
                             for (var dy = -1; dy <= 1; dy++) {
-                                if (!common.checkTerrain(terrain, mx + dx, my + dy, C.TERRAIN_MASK_WALL)) {
+                                if (!common.checkTerrain(terrain, mx + dx, my + dy, ScreepsConstants.TERRAIN_MASK_WALL)) {
                                     hasSpot = true;
                                 }
                             }
@@ -553,8 +554,8 @@ export var generateRoom = utils.withHelp([
 
                     const random = Math.random();
                     let density: any;
-                    for (const d in C.MINERAL_DENSITY_PROBABILITY) {
-                        if (random <= C.MINERAL_DENSITY_PROBABILITY[d]) {
+                    for (const d in ScreepsConstants.MINERAL_DENSITY_PROBABILITY) {
+                        if (random <= ScreepsConstants.MINERAL_DENSITY_PROBABILITY[d]) {
                             density = +d;
                             break;
                         }
@@ -564,7 +565,7 @@ export var generateRoom = utils.withHelp([
                         type: 'mineral',
                         mineralType: opts.mineral,
                         density,
-                        mineralAmount: C.MINERAL_DENSITY[density],
+                        mineralAmount: ScreepsConstants.MINERAL_DENSITY[density],
                         x: mx,
                         y: my,
                         room: roomName

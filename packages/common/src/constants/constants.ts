@@ -201,13 +201,13 @@ export abstract class ScreepsConstants {
     };
     public static readonly MINERAL_RANDOM_FACTOR = 2;
 
-    public static readonly MINERAL_DENSITY = {
+    public static readonly MINERAL_DENSITY: any = {
         1: 15000,
         2: 35000,
         3: 70000,
         4: 100000
     };
-    public static readonly MINERAL_DENSITY_PROBABILITY = {
+    public static readonly MINERAL_DENSITY_PROBABILITY: any = {
         1: 0.1,
         2: 0.5,
         3: 0.9,

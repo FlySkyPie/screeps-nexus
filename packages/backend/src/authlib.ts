@@ -2,9 +2,10 @@ import q from 'q';
 import _ from 'lodash';
 import crypto from 'crypto';
 
-import * as  common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
 
-const env = common.storage.env;
+const env = StorageInstance.env;
+const db = StorageInstance.db;
 
 export function genToken(id: any) {
     const token = crypto.createHmac('sha1', 'hsdhweh342sdbj34e').update(new Date().getTime() + id).digest('hex');
@@ -30,7 +31,7 @@ export function checkToken(token: any, noConsume?: any) {
                         }
                     });
             }
-            return common.storage.db.users.findOne({ _id: data })
+            return db.users.findOne({ _id: data })
         })
         .then((user: any) => {
             if (!user) {

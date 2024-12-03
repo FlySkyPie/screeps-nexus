@@ -6,14 +6,14 @@ import passport from 'passport';
 import { Strategy as TokenStrategy } from 'passport-token';
 import steamApi from 'steam-webapi';
 
-import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
 
 import * as authlib from '../../authlib';
 
 const router = express.Router();
 
-const db = common.storage.db;
-const env = common.storage.env;
+const db = StorageInstance.db;
+const env = StorageInstance.env;
 let steam: any;
 
 const sessionSecret = 'gwoif31m947j925hxcy6cj4l62he';

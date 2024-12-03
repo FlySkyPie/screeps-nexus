@@ -4,15 +4,15 @@ import sockjs from 'sockjs';
 import zlib from 'zlib';
 
 import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
 
 import * as authlib from '../../authlib';
 
 const config = common.configManager.config;
 
-const storage = common.storage;
-const db = storage.db;
-const env = storage.env;
-const pubsub = storage.pubsub;
+const db = StorageInstance.db;
+const env = StorageInstance.env;
+const pubsub = StorageInstance.pubsub;
 
 Object.assign(config.backend, {
     socketModules: {

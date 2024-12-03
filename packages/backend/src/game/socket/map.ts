@@ -1,10 +1,11 @@
 import _ from 'lodash';
 
 import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
 
 const config = common.configManager.config.backend;
-const db = common.storage.db;
-const env = common.storage.env;
+const db = StorageInstance.db;
+const env = StorageInstance.env;
 
 export default (listen: any, _emit: any) => {
     const connectedToRooms: Record<string, any> = {};

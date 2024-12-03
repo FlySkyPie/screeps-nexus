@@ -2,19 +2,20 @@ import q from 'q';
 import _ from 'lodash';
 
 import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
 
 import * as utils from '../utils';
 
 const config = common.configManager.config;
 const C = config.common.constants;
-const db = common.storage.db;
-const env = common.storage.env;
-const pubsub = common.storage.pubsub;
+const db = StorageInstance.db;
+const env = StorageInstance.env;
+const pubsub = StorageInstance.pubsub;
 
 export var resetAllData = utils.withHelp([
     "resetAllData() - Wipe all world data and reset the database to the default state.",
     function resetAllData() {
-        return common.storage.resetAllData();
+        return StorageInstance.resetAllData();
     }
 ]);
 

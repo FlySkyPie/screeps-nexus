@@ -1,4 +1,4 @@
-import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
 
 const help = `The supported commands are:\r
     * help() - Print this help text.\r
@@ -16,12 +16,12 @@ const storageHelp = {
     * env - A simple key-value storage with an interface based on Redis syntax.\r
     * pubsub - A Pub/Sub mechanism allowing to publish events across all processes.`,
     db: `Database collections: \r
-${Object.keys(common.storage.db).map(i => ' - ' + i).join('\r\n')}\r
+${Object.keys(StorageInstance.db).map(i => ' - ' + i).join('\r\n')}\r
 Available methods: \r
-${Object.keys(common.storage.db.users).map(i => ' - ' + i).join('\r\n')}\r
+${Object.keys(StorageInstance.db.users).map(i => ' - ' + i).join('\r\n')}\r
 Example: storage.db.users.findOne({username: 'User1'}).then(print);`,
     env: `Keys ('storage.env.keys' object): \r
-${Object.keys(common.storage.env.keys).map(i => ' - ' + i).join('\r\n')}\r    
+${Object.keys(StorageInstance.env.keys).map(i => ' - ' + i).join('\r\n')}\r    
 Available methods:\r
  - get\r
  - mget\r
@@ -33,7 +33,7 @@ Available methods:\r
  - hmset\r
 Example: storage.env.get(storage.env.keys.GAMETIME).then(print);`,
     pubsub: `Keys ('storage.pubsub.keys' object): \r
-${Object.keys(common.storage.pubsub.keys).map(i => ' - ' + i).join('\r\n')}\r    
+${Object.keys(StorageInstance.pubsub.keys).map(i => ' - ' + i).join('\r\n')}\r    
 Available methods:\r
  - publish\r
  - subscribe\r

@@ -1,19 +1,20 @@
 import express from 'express';
 import q from 'q';
 import _ from 'lodash';
-// import jsonResponse from 'q-json-response';
 
 import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
 
 import * as  utils from './utils';
 import * as strongholds from './strongholds';
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
 const router = express.Router();
 
 const config = common.configManager.config;
-const db = common.storage.db;
-const env = common.storage.env;
-const C = config.common.constants;
+const db = StorageInstance.db;
+const env = StorageInstance.env;
+// const C = config.common.constants;
 
 config.cronjobs = {
     sendNotifications: [60, sendNotifications],
@@ -202,7 +203,7 @@ function genPowerBanks() {
             return db.rooms.find({ $and: [{ bus: true }, { status: 'normal' }] })
                 .then((rooms: any) => q.all(rooms.map((room: any) => {
 
-                    const respawnTime = Math.round(Math.random() * C.POWER_BANK_RESPAWN_TIME / 2 + C.POWER_BANK_RESPAWN_TIME * 0.75);
+                    const respawnTime = Math.round(Math.random() * ScreepsConstants.POWER_BANK_RESPAWN_TIME / 2 + ScreepsConstants.POWER_BANK_RESPAWN_TIME * 0.75);
 
                     if (!room.powerBankTime) {
                         room.powerBankTime = gameTime + respawnTime;
@@ -231,9 +232,9 @@ function genPowerBanks() {
                                 }
                                 while (!isWall || !hasExit);
 
-                                let power = Math.floor(Math.random() * (C.POWER_BANK_CAPACITY_MAX - C.POWER_BANK_CAPACITY_MIN) + C.POWER_BANK_CAPACITY_MIN);
-                                if (Math.random() < C.POWER_BANK_CAPACITY_CRIT) {
-                                    power += C.POWER_BANK_CAPACITY_MAX;
+                                let power = Math.floor(Math.random() * (ScreepsConstants.POWER_BANK_CAPACITY_MAX - ScreepsConstants.POWER_BANK_CAPACITY_MIN) + ScreepsConstants.POWER_BANK_CAPACITY_MIN);
+                                if (Math.random() < ScreepsConstants.POWER_BANK_CAPACITY_CRIT) {
+                                    power += ScreepsConstants.POWER_BANK_CAPACITY_MAX;
                                 }
 
                                 return db['rooms.objects'].insert({
@@ -241,9 +242,9 @@ function genPowerBanks() {
                                     x, y,
                                     room: room._id,
                                     store: { power },
-                                    hits: C.POWER_BANK_HITS,
-                                    hitsMax: C.POWER_BANK_HITS,
-                                    decayTime: gameTime + C.POWER_BANK_DECAY
+                                    hits: ScreepsConstants.POWER_BANK_HITS,
+                                    hitsMax: ScreepsConstants.POWER_BANK_HITS,
+                                    decayTime: gameTime + ScreepsConstants.POWER_BANK_DECAY
                                 });
                             })
                             .then(() => db.rooms.update({ _id: room._id }, { $set: room }));
@@ -397,7 +398,7 @@ function genInvaders() {
                         return;
                     }
                     const invaderHarvested = _.sum(sources, 'invaderHarvested');
-                    const goal = room.invaderGoal || C.INVADERS_ENERGY_GOAL;
+                    const goal = room.invaderGoal || ScreepsConstants.INVADERS_ENERGY_GOAL;
                     if (goal != 1 && invaderHarvested < goal) {
                         return;
                     }
@@ -416,19 +417,19 @@ function genInvaders() {
                             let exits: any = {};
                             const exitSquares: any = { top: [], left: [], right: [], bottom: [] };
                             for (let i = 0; i < 49; i++) {
-                                if (!common.checkTerrain(terrain.terrain, i, 0, C.TERRAIN_MASK_WALL)) {
+                                if (!common.checkTerrain(terrain.terrain, i, 0, ScreepsConstants.TERRAIN_MASK_WALL)) {
                                     exits.top = true;
                                     exitSquares.top.push([i, 0]);
                                 }
-                                if (!common.checkTerrain(terrain.terrain, i, 49, C.TERRAIN_MASK_WALL)) {
+                                if (!common.checkTerrain(terrain.terrain, i, 49, ScreepsConstants.TERRAIN_MASK_WALL)) {
                                     exits.bottom = true;
                                     exitSquares.bottom.push([i, 49]);
                                 }
-                                if (!common.checkTerrain(terrain.terrain, 0, i, C.TERRAIN_MASK_WALL)) {
+                                if (!common.checkTerrain(terrain.terrain, 0, i, ScreepsConstants.TERRAIN_MASK_WALL)) {
                                     exits.left = true;
                                     exitSquares.left.push([0, i]);
                                 }
-                                if (!common.checkTerrain(terrain.terrain, 49, i, C.TERRAIN_MASK_WALL)) {
+                                if (!common.checkTerrain(terrain.terrain, 49, i, ScreepsConstants.TERRAIN_MASK_WALL)) {
                                     exits.right = true;
                                     exitSquares.right.push([49, i]);
                                 }
@@ -447,7 +448,7 @@ function genInvaders() {
                                 });
                         })
                         .then(() => {
-                            let invaderGoal = Math.floor(C.INVADERS_ENERGY_GOAL * (Math.random() * 0.6 + 0.7));
+                            let invaderGoal = Math.floor(ScreepsConstants.INVADERS_ENERGY_GOAL * (Math.random() * 0.6 + 0.7));
                             if (Math.random() < 0.1) {
                                 invaderGoal *= Math.floor(Math.random() > 0.5 ? 2 : 0.5);
                             }
@@ -543,11 +544,11 @@ function calcMarketStats() {
 }
 
 function calcPowerLevelBase(level: any) {
-    return Math.pow(level, C.POWER_LEVEL_POW) * C.POWER_LEVEL_MULTIPLY;
+    return Math.pow(level, ScreepsConstants.POWER_LEVEL_POW) * ScreepsConstants.POWER_LEVEL_MULTIPLY;
 }
 
 function calcPowerLevel(power: any) {
-    return Math.floor(Math.pow((power || 0) / C.POWER_LEVEL_MULTIPLY, 1 / C.POWER_LEVEL_POW));
+    return Math.floor(Math.pow((power || 0) / ScreepsConstants.POWER_LEVEL_MULTIPLY, 1 / ScreepsConstants.POWER_LEVEL_POW));
 }
 
 function deletePowerCreeps() {
@@ -588,7 +589,7 @@ function genDeposits() {
                         (_str: any, p1: any, p2: any) => `^${p1}\\d${p2}\\d$`);
                     const sectorDeposits = _.filter(result[1], (d: any) => d.room.match(sectorRegex));
 
-                    const throughput = _.sum(sectorDeposits, deposit => 20 / Math.max(1, (C.DEPOSIT_EXHAUST_MULTIPLY * Math.pow(deposit.harvested || 0, C.DEPOSIT_EXHAUST_POW))));
+                    const throughput = _.sum(sectorDeposits, deposit => 20 / Math.max(1, (ScreepsConstants.DEPOSIT_EXHAUST_MULTIPLY * Math.pow(deposit.harvested || 0, ScreepsConstants.DEPOSIT_EXHAUST_POW))));
 
                     if (throughput < 2.5) {
                         promises.push(
@@ -642,7 +643,7 @@ function genDeposits() {
                                             }
 
                                             if (room.depositType) {
-                                                const obj = { type: 'deposit', depositType: room.depositType, x, y, room: room._id, harvested: 0, decayTime: C.DEPOSIT_DECAY_TIME + gameTime };
+                                                const obj = { type: 'deposit', depositType: room.depositType, x, y, room: room._id, harvested: 0, decayTime: ScreepsConstants.DEPOSIT_DECAY_TIME + gameTime };
                                                 console.log(`Spawning deposit of ${obj.depositType} in ${room._id}`);
                                                 return db['rooms.objects'].insert(obj)
                                                     .then(db.rooms.update({ _id: room._id }, { $set: { active: true } }));

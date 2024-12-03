@@ -1,6 +1,7 @@
 import vm from 'vm';
 import util from 'util';
 import * as common from '@screeps/common/src';
+
 const config = common.configManager.config;
 
 Object.assign(config.cli, {

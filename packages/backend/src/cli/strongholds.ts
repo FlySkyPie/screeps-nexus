@@ -2,12 +2,13 @@ import _ from 'lodash';
 import q from 'q';
 
 import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
 
 import * as utils from '../utils';
 import * as strongholds from '../strongholds';
 
 const C = common.configManager.config.common.constants;
-const db = common.storage.db;
+const db = StorageInstance.db;
 
 export var spawn = utils.withHelp([
     `spawn(roomName, [opts]) - Create a new NPC Stronghold, and spawn it to the specified room. 'opts' is an object with the following optional properties:\r

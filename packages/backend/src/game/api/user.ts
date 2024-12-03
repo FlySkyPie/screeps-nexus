@@ -5,7 +5,7 @@ import q from 'q';
 import _ from 'lodash';
 import jsonResponse from 'q-json-response';
 
-import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
 
 import * as utils from '../../utils';
 
@@ -13,9 +13,9 @@ import * as auth from './auth';
 import badge from './badge';
 
 const router = express.Router();
-const db = common.storage.db;
-const env = common.storage.env;
-const pubsub = common.storage.pubsub;
+const db = StorageInstance.db;
+const env = StorageInstance.env;
+const pubsub = StorageInstance.pubsub;
 
 
 router.use('/messages', require('./user-messages'));

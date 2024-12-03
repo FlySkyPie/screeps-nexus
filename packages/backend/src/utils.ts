@@ -5,10 +5,12 @@ import fs from 'fs';
 import path from 'path';
 
 import * as common from '@screeps/common/src/index';
+import StorageInstance from '@screeps/common/src/storage';
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+
 const config = common.configManager.config;
-const C = config.common.constants;
-const db = common.storage.db;
-const env = common.storage.env;
+const db = StorageInstance.db;
+// const env = StorageInstance.env;
 
 export function roomNameFromXY(x: any, y: any) {
     if (x < 0) {
@@ -115,7 +117,7 @@ export function getUserWorldStatus(user: any) {
 }
 
 export async function respawnUser(userId: any) {
-    return db['users'].findOne({ username: C.SYSTEM_USERNAME })
+    return db['users'].findOne({ username: ScreepsConstants.SYSTEM_USERNAME })
         .then(async (systemUser: any) => {
             if (!systemUser) {
                 return q.reject('no system user');
@@ -123,7 +125,7 @@ export async function respawnUser(userId: any) {
             const gameTime = await common.getGametime();
             await db['rooms.objects'].removeWhere({ $and: [{ user: "" + userId }, { type: { $in: ['creep', 'powerCreep', 'constructionSite'] } }] });
             await db['users.power_creeps'].removeWhere({ user: "" + userId });
-            const objects = await db['rooms.objects'].find({ user: "" + userId, type: { $in: _.keys(C.CONSTRUCTION_COST) } });
+            const objects = await db['rooms.objects'].find({ user: "" + userId, type: { $in: _.keys(ScreepsConstants.CONSTRUCTION_COST) } });
             if (objects.length) {
                 await db['rooms.objects'].insert(objects.map((i: any) => ({
                     type: 'ruin',
@@ -213,10 +215,10 @@ export function createTerrainColorsMap(terrain: any, zoomIn: any) {
         for (let x = 0; x < width; x++) {
 
             let color;
-            if (common.checkTerrain(terrain, x, y, C.TERRAIN_MASK_WALL)) {
+            if (common.checkTerrain(terrain, x, y, ScreepsConstants.TERRAIN_MASK_WALL)) {
                 color = [0, 0, 0];
             }
-            else if (common.checkTerrain(terrain, x, y, C.TERRAIN_MASK_SWAMP)) {
+            else if (common.checkTerrain(terrain, x, y, ScreepsConstants.TERRAIN_MASK_SWAMP)) {
                 color = [35, 37, 19];
             }
             else if (x == 0 || y == 0 || x == 49 || y == 49) {
@@ -337,13 +339,15 @@ export function findFreePos(roomName: any, distance: any, rect: any, exclude?: a
                 spot = true;
                 for (let dx = -distance; dx <= distance; dx++) {
                     for (let dy = -distance; dy <= distance; dy++) {
-                        if (common.checkTerrain(terrain.terrain, x + dx, y + dy, C.TERRAIN_MASK_WALL)) {
+                        if (common.checkTerrain(terrain.terrain, x + dx, y + dy, ScreepsConstants.TERRAIN_MASK_WALL)) {
                             spot = false;
                         }
                     }
                 }
-                hasObjects = _.any(objects, (i: any) => Math.abs(i.x - x) <= distance && Math.abs(i.y - y) <= distance &&
-                    C.OBSTACLE_OBJECT_TYPES.concat(['rampart', 'portal']).indexOf(object.type) != -1);
+                hasObjects = _.any(objects, (i: any) =>
+                    Math.abs(i.x - x) <= distance &&
+                    Math.abs(i.y - y) <= distance &&
+                    ScreepsConstants.OBSTACLE_OBJECT_TYPES.concat(['rampart', 'portal']).indexOf(object.type) != -1);
                 counter++;
             }
             while ((!spot || hasObjects) && counter < 500);

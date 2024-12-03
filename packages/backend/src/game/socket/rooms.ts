@@ -2,10 +2,11 @@ import q from 'q';
 import _ from 'lodash';
 
 import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
 
 const config = common.configManager.config.backend;
-const db = common.storage.db;
-const env = common.storage.env;
+const db = StorageInstance.db;
+const env = StorageInstance.env;
 
 const USER_LIMIT = 2;
 
@@ -213,7 +214,7 @@ export default (listen: any, _emit: any) => {
 
                 conn.on('close', () => {
                     if (connectedToRooms[roomName]) {
-                        _.remove(connectedToRooms[roomName], (i) => i.conn === conn);
+                        _.remove(connectedToRooms[roomName], (i: any) => i.conn === conn);
                     }
                 });
 
@@ -227,7 +228,7 @@ export default (listen: any, _emit: any) => {
 
             if (m = channel.match(/^room:([a-zA-Z0-9_-]+)$/)) {
                 if (connectedToRooms[m[1]]) {
-                    _.remove(connectedToRooms[m[1]], (i) => i.conn === conn);
+                    _.remove(connectedToRooms[m[1]], (i: any) => i.conn === conn);
                 }
             }
         }

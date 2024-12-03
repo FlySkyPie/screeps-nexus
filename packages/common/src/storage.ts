@@ -36,7 +36,7 @@ class StorageInstance {
 
     public static queue: any = {};
 
-    public static env = {
+    public static env: any = {
         keys: {
             ACCESSIBLE_ROOMS: 'accessibleRooms',
             ROOM_STATUS_DATA: 'roomStatusData',
@@ -57,7 +57,7 @@ class StorageInstance {
         }
     };
 
-    public static pubsub = {
+    public static pubsub: any = {
         keys: {
             QUEUE_DONE: 'queueDone:',
             RUNTIME_RESTART: 'runtimeRestart',
