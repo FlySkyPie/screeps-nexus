@@ -1,8 +1,8 @@
 import q from 'q';
 import _ from 'lodash';
-import { EventEmitter } from 'events';
 
 import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
 
 import * as cliServer from './cli/server';
 import * as  gameServer from './game/server';
@@ -15,7 +15,7 @@ export function start() {
 
     common.configManager.load();
 
-    common.storage._connect()
+    StorageInstance._connect()
         .then(() => cliServer.startServer())
         .then(() => gameServer.startServer())
         .then(() => {
@@ -24,7 +24,7 @@ export function start() {
                 utils.reloadBotUsers(i).catch(e => console.error(`Couldn't reload bot AI "${i}": ${e}`));
             }
         })
-        .catch(err => {
+        .catch((err: any) => {
             console.error(err);
             process.exit();
         });

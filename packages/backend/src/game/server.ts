@@ -17,8 +17,6 @@ const config = common.configManager.config;
 
 let greenworks;
 const db = StorageInstance.db;
-const env = StorageInstance.env;
-const pubsub = StorageInstance.pubsub;
 
 steamApi.key = process.env.STEAM_KEY;
 

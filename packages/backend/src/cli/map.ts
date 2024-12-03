@@ -10,10 +10,8 @@ import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
 import * as  utils from '../utils';
 
-const config = common.configManager.config;
 const db = StorageInstance.db;
 const env = StorageInstance.env;
-const pubsub = StorageInstance.pubsub;
 
 export var generateRoom = utils.withHelp([
     `generateRoom(roomName, [opts]) - Generate a new room at the specified location. 'opts' is an object with the following optional properties:\r

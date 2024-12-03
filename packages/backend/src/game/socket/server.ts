@@ -10,7 +10,6 @@ import * as authlib from '../../authlib';
 
 const config = common.configManager.config;
 
-const db = StorageInstance.db;
 const env = StorageInstance.env;
 const pubsub = StorageInstance.pubsub;
 

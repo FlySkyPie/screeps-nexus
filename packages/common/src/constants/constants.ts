@@ -78,7 +78,7 @@ export abstract class ScreepsConstants {
     public static readonly STORAGE_CAPACITY = 1000000;
     public static readonly STORAGE_HITS = 10000;
 
-    public static readonly CONSTRUCTION_COST = {
+    public static readonly CONSTRUCTION_COST: any = {
         "spawn": 15000,
         "extension": 3000,
         "road": 300,
@@ -103,7 +103,7 @@ export abstract class ScreepsConstants {
     public static readonly CONTROLLER_LEVELS = {
         1: 200, 2: 45000, 3: 135000, 4: 405000, 5: 1215000, 6: 3645000, 7: 10935000
     };
-    public static readonly CONTROLLER_STRUCTURES = {
+    public static readonly CONTROLLER_STRUCTURES: any = {
         "spawn": { 0: 0, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 2, 8: 3 },
         "extension": { 0: 0, 1: 0, 2: 5, 3: 10, 4: 20, 5: 30, 6: 40, 7: 50, 8: 60 },
         "link": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 2, 6: 3, 7: 4, 8: 6 },

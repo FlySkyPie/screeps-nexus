@@ -9,7 +9,6 @@ import * as auth from './auth';
 
 const router = express.Router();
 const db = StorageInstance.db;
-const env = StorageInstance.env;
 
 router.get('/check-email', jsonResponse((request: any) => {
 

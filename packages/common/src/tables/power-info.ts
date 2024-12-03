@@ -1,7 +1,7 @@
 import { ScreepsConstants } from '../constants/constants';
 import { PWRCode } from '../constants/pwr-code';
 
-export const POWER_INFO = {
+export const POWER_INFO: any = {
     [PWRCode.PWR_GENERATE_OPS]: {
         className: ScreepsConstants.POWER_CLASS.OPERATOR,
         level: [0, 2, 7, 14, 22],

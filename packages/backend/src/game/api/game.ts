@@ -5,16 +5,15 @@ import jsonResponse from 'q-json-response';
 
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { ListItems } from '@screeps/common/src/tables/list-items';
 
 import * as auth from './auth';
 
 const router = express.Router();
 
-const config = common.configManager.config;
 const db = StorageInstance.db;
-const env = StorageInstance.env;
 const pubsub = StorageInstance.pubsub;
-const C = common.configManager.config.common.constants;
 let worldSize: any;
 
 const lastTicks: any[] = [];
@@ -78,7 +77,7 @@ function checkConstructionSpot(room: any, structureType: any, x: any, y: any) {
         .then(() => checkForObjectAbsence({ $and: [{ room }, { x }, { y }, { type: 'constructionSite' }] }))
         .then(() => structureType == 'rampart' ? true : checkForObjectAbsence({ $and: [{ room }, { x }, { y }, { type: { $in: ['wall', 'constructedWall', 'spawn', 'extension', 'link', 'storage', 'tower', 'observer', 'powerSpawn'] } }] }))
         .then(() => structureType == 'road' ? true :
-            checkForTerrainAbsence(room, x, y, C.TERRAIN_MASK_WALL))
+            checkForTerrainAbsence(room, x, y, ScreepsConstants.TERRAIN_MASK_WALL))
         .then(() => checkForObjectAbsence({ $and: [{ room }, { x: { $gt: x - 2, $lt: x + 2 } }, { y: { $gt: y - 2, $lt: y + 2 } }, { type: 'exit' }] }));
 
     if (structureType != 'road' && structureType != 'container' && (x == 1 || x == 48 || y == 1 || y == 48)) {
@@ -88,7 +87,7 @@ function checkConstructionSpot(room: any, structureType: any, x: any, y: any) {
         if (y == 1) borderTiles = [[x - 1, 0], [x, 0], [x + 1, 0]];
         if (y == 48) borderTiles = [[x - 1, 49], [x, 49], [x + 1, 49]];
         result = result
-            .then(() => q.all(_.map(borderTiles, (pos: any) => checkForTerrainPresence(room, pos[0], pos[1], C.TERRAIN_MASK_WALL))))
+            .then(() => q.all(_.map(borderTiles, (pos: any) => checkForTerrainPresence(room, pos[0], pos[1], ScreepsConstants.TERRAIN_MASK_WALL))))
     }
 
     return result;
@@ -134,7 +133,7 @@ function checkControllerAvailability(type: any, roomObjects: any, roomController
     }
 
     const structuresCnt = _(roomObjects).filter((i: any) => i.type == type || i.type == 'constructionSite' && i.structureType == type).size();
-    const availableCnt = C.CONTROLLER_STRUCTURES[type][rcl];
+    const availableCnt = ScreepsConstants.CONTROLLER_STRUCTURES[type][rcl];
 
     return structuresCnt < availableCnt;
 }
@@ -353,10 +352,10 @@ router.post('/place-spawn', auth.tokenAuth, jsonResponse((request: any) => {
         y,
         name: request.body.name,
         user: request.user._id.toString(),
-        store: { energy: C.SPAWN_ENERGY_START },
-        storeCapacityResource: { energy: C.SPAWN_ENERGY_CAPACITY },
-        hits: C.SPAWN_HITS,
-        hitsMax: C.SPAWN_HITS,
+        store: { energy: ScreepsConstants.SPAWN_ENERGY_START },
+        storeCapacityResource: { energy: ScreepsConstants.SPAWN_ENERGY_CAPACITY },
+        hits: ScreepsConstants.SPAWN_HITS,
+        hitsMax: ScreepsConstants.SPAWN_HITS,
         spawning: null,
         notifyWhenAttacked: true
     }];
@@ -380,7 +379,7 @@ router.post('/place-spawn', auth.tokenAuth, jsonResponse((request: any) => {
         .then(() => checkConstructionSpot(request.body.room, 'spawn', x, y))
         // OK
         .then(() => db['rooms.objects'].removeWhere({ $and: [{ room: request.body.room }, { user: { $ne: null } }, { type: { $in: ['creep', 'constructionSite'] } }] }))
-        .then(() => db['rooms.objects'].find({ $and: [{ room: request.body.room }, { user: { $ne: null } }, { type: { $in: _.keys(C.CONSTRUCTION_COST) } }] }))
+        .then(() => db['rooms.objects'].find({ $and: [{ room: request.body.room }, { user: { $ne: null } }, { type: { $in: _.keys(ScreepsConstants.CONSTRUCTION_COST) } }] }))
         .then((objects: any) => objects.length ? db['rooms.objects'].insert(objects.map((i: any) => ({
             type: 'ruin',
             user: i.user,
@@ -398,7 +397,7 @@ router.post('/place-spawn', auth.tokenAuth, jsonResponse((request: any) => {
             destroyTime: gameTime,
             decayTime: gameTime + 100000
         }))) : q.when())
-        .then(() => db['rooms.objects'].removeWhere({ $and: [{ room: request.body.room }, { user: { $ne: null } }, { type: { $in: _.keys(C.CONSTRUCTION_COST) } }] }))
+        .then(() => db['rooms.objects'].removeWhere({ $and: [{ room: request.body.room }, { user: { $ne: null } }, { type: { $in: _.keys(ScreepsConstants.CONSTRUCTION_COST) } }] }))
         .then(() => db['rooms.objects'].update({ $and: [{ room: request.body.room }, { type: 'controller' }, { level: 0 }] },
             { $set: { user: "" + request.user._id, level: 1, progress: 0, downgradeTime: null, safeMode: gameTime + 20000 } }))
         .then(() => db['rooms.objects'].update({ $and: [{ room: request.body.room }, { type: 'source' }] },
@@ -417,8 +416,8 @@ router.post('/create-flag', auth.tokenAuth, jsonResponse((request: any) => {
         !_.isNumber(request.body.y) || request.body.y < 0 || request.body.y > 49 ||
         !_.isString(request.body.name) ||
         request.body.name.length > 60 ||
-        !_.contains(C.COLORS_ALL, request.body.color) ||
-        !_.contains(C.COLORS_ALL, request.body.secondaryColor)) {
+        !_.contains(ListItems.COLORS_ALL, request.body.color) ||
+        !_.contains(ListItems.COLORS_ALL, request.body.secondaryColor)) {
 
         return q.reject('invalid params');
     }
@@ -436,7 +435,7 @@ router.post('/create-flag', auth.tokenAuth, jsonResponse((request: any) => {
         .then(() => getFlags(request.user._id))
         .then((flags: any) => {
             const cnt = _.sum(flags, (i: any) => i.length);
-            if (cnt >= C.FLAGS_LIMIT) {
+            if (cnt >= ScreepsConstants.FLAGS_LIMIT) {
                 return q.reject('flags limit exceeded');
             }
             const roomFlags = flags[request.body.room] || [];
@@ -474,10 +473,10 @@ router.post('/check-unique-flag-name', auth.tokenAuth, jsonResponse((request: an
 
 router.post('/change-flag-color', auth.tokenAuth, jsonResponse((request: any, _response: any) => {
 
-    if (!_.contains(C.COLORS_ALL, request.body.color)) {
+    if (!_.contains(ListItems.COLORS_ALL, request.body.color)) {
         return q.reject('invalid params');
     }
-    if (!_.contains(C.COLORS_ALL, request.body.secondaryColor)) {
+    if (!_.contains(ListItems.COLORS_ALL, request.body.secondaryColor)) {
         return q.reject('invalid params');
     }
 
@@ -522,7 +521,7 @@ router.post('/create-construction', auth.tokenAuth, jsonResponse((request: any) 
     const x = parseInt(request.body.x), y = parseInt(request.body.y), structureType = request.body.structureType;
 
     if (x < 0 || x > 49 || y < 0 || y > 49 ||
-        !C.CONSTRUCTION_COST[structureType] ||
+        !ScreepsConstants.CONSTRUCTION_COST[structureType] ||
         request.body.name && (!_.isString(request.body.name) || request.body.name.length > 50)) {
 
         return q.reject('invalid params');
@@ -537,20 +536,20 @@ router.post('/create-construction', auth.tokenAuth, jsonResponse((request: any) 
         .then(() => checkConstructionSpot(request.body.room, structureType, x, y))
         .then(() => checkController(request.body.room, 'construct', structureType, request.user._id));
 
-    let progressTotal = C.CONSTRUCTION_COST[structureType];
+    let progressTotal = ScreepsConstants.CONSTRUCTION_COST[structureType];
     if (structureType == 'road') {
         result = result.then(() => {
-            return checkForTerrainAbsence(request.body.room, x, y, C.TERRAIN_MASK_SWAMP)
-                .catch(() => progressTotal *= C.CONSTRUCTION_COST_ROAD_SWAMP_RATIO);
+            return checkForTerrainAbsence(request.body.room, x, y, ScreepsConstants.TERRAIN_MASK_SWAMP)
+                .catch(() => progressTotal *= ScreepsConstants.CONSTRUCTION_COST_ROAD_SWAMP_RATIO);
         });
         result = result.then(() => {
-            return checkForTerrainAbsence(request.body.room, x, y, C.TERRAIN_MASK_WALL)
-                .catch(() => progressTotal *= C.CONSTRUCTION_COST_ROAD_WALL_RATIO);
+            return checkForTerrainAbsence(request.body.room, x, y, ScreepsConstants.TERRAIN_MASK_WALL)
+                .catch(() => progressTotal *= ScreepsConstants.CONSTRUCTION_COST_ROAD_WALL_RATIO);
         });
     }
 
     result = result.then(() => db['rooms.objects'].count({ $and: [{ type: 'constructionSite' }, { user: "" + request.user._id }] }))
-        .then((count: any) => count >= C.MAX_CONSTRUCTION_SITES ? q.reject('too many') : true);
+        .then((count: any) => count >= ScreepsConstants.MAX_CONSTRUCTION_SITES ? q.reject('too many') : true);
 
     return result.then(() => db['rooms.objects'].insert({
         type: 'constructionSite',

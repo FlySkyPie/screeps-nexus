@@ -2,7 +2,6 @@ import _ from 'lodash';
 import net from 'net';
 import readline from 'readline';
 
-
 import * as common from '@screeps/common/src';
 
 import * as  cliSandbox from './sandbox';

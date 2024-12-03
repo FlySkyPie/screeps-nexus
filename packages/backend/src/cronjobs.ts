@@ -1,4 +1,3 @@
-import express from 'express';
 import q from 'q';
 import _ from 'lodash';
 
@@ -9,12 +8,8 @@ import * as  utils from './utils';
 import * as strongholds from './strongholds';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
-const router = express.Router();
-
 const config = common.configManager.config;
 const db = StorageInstance.db;
-const env = StorageInstance.env;
-// const C = config.common.constants;
 
 config.cronjobs = {
     sendNotifications: [60, sendNotifications],

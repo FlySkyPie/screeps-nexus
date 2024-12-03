@@ -3,19 +3,18 @@ import q from 'q';
 import _ from 'lodash';
 import jsonResponse from 'q-json-response';
 
-import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { POWER_INFO } from '@screeps/common/src/tables/power-info';
 
 import * as auth from './auth';
 
 const router = express.Router();
 
 const db = StorageInstance.db;
-const env = StorageInstance.env;
-const C = common.configManager.config.common.constants;
 
 function calcFreePowerLevels(user: any, userPowerCreeps: any) {
-    const level = Math.floor(Math.pow((user.power || 0) / C.POWER_LEVEL_MULTIPLY, 1 / C.POWER_LEVEL_POW));
+    const level = Math.floor(Math.pow((user.power || 0) / ScreepsConstants.POWER_LEVEL_MULTIPLY, 1 / ScreepsConstants.POWER_LEVEL_POW));
     const used = userPowerCreeps.length + _.sum(userPowerCreeps, 'level');
     return level - used;
 }
@@ -43,7 +42,7 @@ router.post('/create', auth.tokenAuth, jsonResponse((request: any) => {
             if (calcFreePowerLevels(request.user, userPowerCreeps) <= 0) {
                 return q.reject('not enough power level');
             }
-            if (Object.values(C.POWER_CLASS).indexOf(request.body.className) === -1) {
+            if (Object.values(ScreepsConstants.POWER_CLASS).indexOf(request.body.className) === -1) {
                 return q.reject('invalid class');
             }
 
@@ -86,7 +85,7 @@ router.post('/delete', auth.tokenAuth, jsonResponse((request: any) => {
             }
             else {
                 return db['users.power_creeps'].update({ _id: request.body.id },
-                    { $set: { deleteTime: Date.now() + C.POWER_CREEP_DELETE_COOLDOWN } })
+                    { $set: { deleteTime: Date.now() + ScreepsConstants.POWER_CREEP_DELETE_COOLDOWN } })
                     .then((data: any) => ({ result: data.result }));
             }
         })
@@ -121,7 +120,7 @@ router.post('/upgrade', auth.tokenAuth, jsonResponse((request: any) => {
                 return q.reject('invalid powers');
             }
             for (var power in request.body.powers) {
-                const powerInfo = C.POWER_INFO[power];
+                const powerInfo = POWER_INFO[power];
                 if (!powerInfo) {
                     return q.reject('invalid power ' + power);
                 }
@@ -147,7 +146,7 @@ router.post('/upgrade', auth.tokenAuth, jsonResponse((request: any) => {
                 }
             }
             const newLevel = _.sum(request.body.powers);
-            if (newLevel > C.POWER_CREEP_MAX_LEVEL) {
+            if (newLevel > ScreepsConstants.POWER_CREEP_MAX_LEVEL) {
                 return q.reject('max level');
             }
             const $merge: any = { powers: {} };
@@ -155,7 +154,7 @@ router.post('/upgrade', auth.tokenAuth, jsonResponse((request: any) => {
                 if (request.body.powers[power] === 0) {
                     continue;
                 }
-                if (newLevel < C.POWER_INFO[power].level[request.body.powers[power] - 1]) {
+                if (newLevel < POWER_INFO[power].level[request.body.powers[power] - 1]) {
                     return q.reject('not enough level for power ' + power);
                 }
                 $merge.powers[power] = { level: request.body.powers[power] };

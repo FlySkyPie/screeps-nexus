@@ -7,8 +7,6 @@ import StorageInstance from '@screeps/common/src/storage';
 import * as utils from '../utils';
 
 const config = common.configManager.config;
-const C = config.common.constants;
-const db = StorageInstance.db;
 const env = StorageInstance.env;
 const pubsub = StorageInstance.pubsub;
 
