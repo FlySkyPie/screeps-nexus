@@ -9,6 +9,8 @@ import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { ListItems } from '@screeps/common/src/tables/list-items';
 
 import * as auth from './auth';
+import marketRouter from './market';
+import powerCreepsRouter from './power-creeps';
 
 const router = express.Router();
 
@@ -724,7 +726,7 @@ pubsub.subscribe('roomsDone', () => {
 });
 
 
-router.use('/market', require('./market'));
-router.use('/power-creeps', require('./power-creeps'));
+router.use('/market', marketRouter);
+router.use('/power-creeps', powerCreepsRouter);
 
 export default router;

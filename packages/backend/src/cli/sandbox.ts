@@ -1,6 +1,14 @@
 import vm from 'vm';
 import util from 'util';
+
 import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
+
+import * as map from './map';
+import * as bots from './bots';
+import * as strongholds from './strongholds';
+import * as system from './system';
+import help from './help';
 
 const config = common.configManager.config;
 
@@ -13,14 +21,14 @@ Object.assign(config.cli, {
             print() {
                 outputCallback(Array.prototype.slice.apply(arguments).map(i => util.inspect(i)).join(" "));
             },
-            storage: common.storage,
-            map: require('./map'),
-            bots: require('./bots'),
-            strongholds: require('./strongholds'),
-            system: require('./system')
+            storage: StorageInstance,
+            map,
+            bots,
+            strongholds,
+            system,
         };
 
-        require('./help')(sandbox);
+        help(sandbox);
 
         config.cli.emit('cliSandbox', sandbox);
 
@@ -52,7 +60,7 @@ function create(outputCallback: any) {
             }
 
         }
-        catch (e:any) {
+        catch (e: any) {
             outputCallback(e.toString(), true);
         }
     };

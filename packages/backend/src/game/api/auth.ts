@@ -5,6 +5,7 @@ import jsonResponse from 'q-json-response';
 import passport from 'passport';
 import { Strategy as TokenStrategy } from 'passport-token';
 import steamApi from 'steam-webapi';
+import greenworks from 'greenworks';
 
 import StorageInstance from '@screeps/common/src/storage';
 
@@ -145,7 +146,6 @@ router.post('/steam-ticket', jsonResponse((request: any) => {
         if (!useNativeAuth) {
             return q.reject('authentication method is not supported');
         }
-        const greenworks = require('../../../greenworks/greenworks');
 
         const decryptedTicket = greenworks.decryptAppTicket(
             Buffer.from(request.body.ticket, 'hex'),

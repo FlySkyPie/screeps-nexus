@@ -11,6 +11,7 @@ import * as utils from '../../utils';
 
 import * as auth from './auth';
 import badge from './badge';
+import messageRouter from './user-messages';
 
 const router = express.Router();
 const db = StorageInstance.db;
@@ -18,7 +19,7 @@ const env = StorageInstance.env;
 const pubsub = StorageInstance.pubsub;
 
 
-router.use('/messages', require('./user-messages'));
+router.use('/messages', messageRouter);
 
 router.get('/world-start-room', auth.tokenAuth, jsonResponse((request: any) => {
 

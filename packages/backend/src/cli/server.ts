@@ -4,6 +4,8 @@ import readline from 'readline';
 
 import * as common from '@screeps/common/src';
 
+import { SCREEPS_VERSION } from '../constanst';
+
 import * as  cliSandbox from './sandbox';
 
 const config = common.configManager.config;
@@ -31,7 +33,7 @@ Object.assign(config.cli, {
 
         let buildString = '';
         try {
-            buildString = `v${require('screeps').version} `;
+            buildString = `v${SCREEPS_VERSION} `;
         }
         catch (e) { }
 

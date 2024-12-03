@@ -7,6 +7,10 @@ import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 
 import * as authlib from '../../authlib';
+import system from './system';
+import rooms from './rooms';
+import user from './user';
+import map from './map';
 
 const config = common.configManager.config;
 
@@ -15,10 +19,10 @@ const pubsub = StorageInstance.pubsub;
 
 Object.assign(config.backend, {
     socketModules: {
-        system: require('./system'),
-        rooms: require('./rooms'),
-        user: require('./user'),
-        map: require('./map')
+        system,
+        rooms,
+        user,
+        map,
     },
     socketUpdateThrottle: 200
 });

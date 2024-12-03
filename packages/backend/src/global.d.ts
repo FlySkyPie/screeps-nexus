@@ -26,3 +26,14 @@ declare module "passport-token" {
 
     export const Strategy: any;
 }
+
+declare module "greenworks" {
+    /**
+     * @deprecated
+     */
+    const foo: any;
+
+    export = foo;
+
+    export const Strategy: any;
+}

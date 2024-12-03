@@ -6,16 +6,21 @@ import steamApi from 'steam-webapi';
 import jsonResponse from 'q-json-response';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
+import greenworks from 'greenworks';
 
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 
+import { SCREEPS_VERSION } from '../constanst';
+
 import socketServer from './socket/server';
 import * as auth from './api/auth';
+import userRouter from './api/user';
+import registerRouter from './api/register';
+import gameRouter from './api/game';
+import leaderboardRouter from './api/leaderboard';
 
 const config = common.configManager.config;
-
-let greenworks;
 const db = StorageInstance.db;
 
 steamApi.key = process.env.STEAM_KEY;
@@ -58,7 +63,7 @@ config.backend.router.get('/version', jsonResponse((_request: any) => {
                 serverData: getServerData()
             };
             try {
-                result.packageVersion = require('screeps').version;
+                result.packageVersion = SCREEPS_VERSION;
             }
             catch (e) {
             }
@@ -87,10 +92,10 @@ function connectToSteam(defer?: any) {
 function startServer() {
 
     config.backend.router.use('/auth', auth.router);
-    config.backend.router.use('/user', require('./api/user'));
-    config.backend.router.use('/register', require('./api/register'));
-    config.backend.router.use('/game', require('./api/game'));
-    config.backend.router.use('/leaderboard', require('./api/leaderboard'));
+    config.backend.router.use('/user', userRouter);
+    config.backend.router.use('/register', registerRouter);
+    config.backend.router.use('/game', gameRouter);
+    config.backend.router.use('/leaderboard', leaderboardRouter);
 
     if (!process.env.GAME_PORT) {
         throw new Error('GAME_PORT environment variable is not set!');
@@ -109,7 +114,7 @@ function startServer() {
     else {
         console.log("STEAM_KEY environment variable is not found, trying to connect to local Steam client");
         try {
-            greenworks = require('greenworks');
+            // greenworks = import('greenworks');
         }
         catch (e) {
             throw new Error('Cannot find greenworks library, please either install it in the /greenworks folder or provide STEAM_KEY environment variable');
@@ -135,7 +140,7 @@ function startServer() {
 
         let buildString = '';
         try {
-            buildString = ` v${require('screeps').version} `;
+            buildString = ` v${SCREEPS_VERSION} `;
         }
         catch (e) { }
 
