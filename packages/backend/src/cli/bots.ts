@@ -3,10 +3,10 @@ import _ from 'lodash';
 
 import * as  common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
 import * as  utils from '../utils';
 
-const C = common.configManager.config.common.constants;
 const bots = common.configManager.config.common.bots;
 const db = StorageInstance.db;
 const env = StorageInstance.env;
@@ -74,7 +74,7 @@ export var spawn = utils.withHelp([
                         username,
                         usernameLower: username.toLowerCase(),
                         cpu: opts.cpu || 100,
-                        gcl: opts.gcl ? C.GCL_MULTIPLY * Math.pow(opts.gcl - 1, C.GCL_POW) : 0,
+                        gcl: opts.gcl ? ScreepsConstants.GCL_MULTIPLY * Math.pow(opts.gcl - 1, ScreepsConstants.GCL_POW) : 0,
                         cpuAvailable: 0,
                         registeredDate: new Date(),
                         bot: botAiName,
@@ -98,7 +98,7 @@ export var spawn = utils.withHelp([
                 .then((terrainItem: any) => {
                     let x = opts.x || Math.floor(3 + Math.random() * 46);
                     let y = opts.y || Math.floor(3 + Math.random() * 46);
-                    while (common.checkTerrain(terrainItem.terrain, x, y, C.TERRAIN_MASK_WALL)) {
+                    while (common.checkTerrain(terrainItem.terrain, x, y, ScreepsConstants.TERRAIN_MASK_WALL)) {
                         x = Math.floor(3 + Math.random() * 46);
                         y = Math.floor(3 + Math.random() * 46);
                     }
@@ -109,10 +109,10 @@ export var spawn = utils.withHelp([
                         y,
                         name: 'Spawn1',
                         user: user._id,
-                        store: { energy: C.SPAWN_ENERGY_START },
-                        storeCapacityResource: { energy: C.SPAWN_ENERGY_CAPACITY },
-                        hits: C.SPAWN_HITS,
-                        hitsMax: C.SPAWN_HITS,
+                        store: { energy: ScreepsConstants.SPAWN_ENERGY_START },
+                        storeCapacityResource: { energy: ScreepsConstants.SPAWN_ENERGY_CAPACITY },
+                        hits: ScreepsConstants.SPAWN_HITS,
+                        hitsMax: ScreepsConstants.SPAWN_HITS,
                         spawning: null,
                         notifyWhenAttacked: false
                     });

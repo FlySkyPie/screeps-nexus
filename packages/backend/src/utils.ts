@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import q from 'q';
-import { PNG as png } from 'pngjs';
+import { PNG } from 'pngjs';
 import fs from 'fs';
 import path from 'path';
 
@@ -10,16 +10,17 @@ import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
 const config = common.configManager.config;
 const db = StorageInstance.db;
-// const env = StorageInstance.env;
 
-export function roomNameFromXY(x: any, y: any) {
-    if (x < 0) {
+export function roomNameFromXY(_x: number, _y: number) {
+    let x = "", y = "";
+
+    if (_x < 0) {
         x = 'W' + (-x - 1);
     }
     else {
         x = 'E' + (x);
     }
-    if (y < 0) {
+    if (_y < 0) {
         y = 'N' + (-y - 1);
     }
     else {
@@ -28,20 +29,22 @@ export function roomNameFromXY(x: any, y: any) {
     return "" + x + y;
 }
 
-export function roomNameToXY(name: any) {
-    let [match, hor, x, ver, y] = name.match(/^(\w)(\d+)(\w)(\d+)$/);
+export function roomNameToXY(name: string) {
+    let [_, hor, _x, ver, _y] = name.match(/^(\w)(\d+)(\w)(\d+)$/)!;
+    let x: number, y: number;
+
     if (hor == 'W') {
-        x = -x - 1;
+        x = -_x - 1;
     }
     else {
-        x = +x;
+        x = +_x;
         //x--;
     }
     if (ver == 'N') {
-        y = -y - 1;
+        y = -_y - 1;
     }
     else {
-        y = +y;
+        y = +_y;
         //y--;
     }
     return [x, y];
@@ -170,19 +173,19 @@ export async function respawnUser(userId: any) {
         .then(() => db['users'].update({ _id: "" + userId }, { $set: { rooms: [] } }));
 }
 
-export function withHelp(array: any) {
+export function withHelp(array: [string, Function]) {
     const fn = array[1];
-    fn._help = array[0];
+    (fn as any)._help = array[0];
     return fn;
 }
 
-export function generateCliHelp(prefix: any, container: any) {
+export function generateCliHelp(prefix: string, container: any) {
     return `Available methods:\r\n` + Object.keys(container).filter(i => typeof container[i] == 'function').map(i => ' - ' + prefix + (container[i]._help || i)).join('\r\n');
 }
 
 export function writePng(colors: any, width: any, height: any, filename: any) {
 
-    const image = new png({ width, height });
+    const image = new PNG({ width, height });
 
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
@@ -302,9 +305,17 @@ export function isBus(coord: any) {
     return coord < 0 && (coord + 1) % 10 == 0 || coord > 0 && (coord) % 10 == 0 || coord == 0;
 }
 
-export function isCenter(x: any, y: any) {
-    return (x < 0 && Math.abs(x + 1) % 10 >= 4 && Math.abs(x + 1) % 10 <= 6 || x >= 0 && Math.abs(x) % 10 >= 4 && Math.abs(x) % 10 <= 6) &&
-        (y < 0 && Math.abs(y + 1) % 10 >= 4 && Math.abs(y + 1) % 10 <= 6 || y >= 0 && Math.abs(y) % 10 >= 4 && Math.abs(y) % 10 <= 6);
+export function isCenter(x: number, y: number) {
+    return (x < 0 &&
+        Math.abs(x + 1) % 10 >= 4 &&
+        Math.abs(x + 1) % 10 <= 6 ||
+        x >= 0 && Math.abs(x) % 10 >= 4 &&
+        Math.abs(x) % 10 <= 6) && (
+            y < 0 &&
+            Math.abs(y + 1) % 10 >= 4 &&
+            Math.abs(y + 1) % 10 <= 6 ||
+            y >= 0 && Math.abs(y) % 10 >= 4 &&
+            Math.abs(y) % 10 <= 6);
 }
 
 export function isVeryCenter(x: any, y: any) {

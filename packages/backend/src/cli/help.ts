@@ -1,5 +1,7 @@
 import StorageInstance from '@screeps/common/src/storage';
 
+import type { ISandboxObject } from '../interfaces/sandbox-object';
+
 const help = `The supported commands are:\r
     * help() - Print this help text.\r
     * print(value) - Print a value to the console.\r
@@ -42,7 +44,7 @@ Example: storage.pubsub.subscribe(storage.pubsub.keys.ROOMS_DONE, (gameTime) => 
 
 
 
-function helpFn(object: any) {
+function helpFn(this: ISandboxObject, object: any) {
     if (object === undefined) {
         return help;
     }
@@ -64,6 +66,6 @@ function helpFn(object: any) {
     return 'There is no help page for this object.';
 }
 
-export default function cliHelp(sandbox: any) {
+export default function cliHelp(sandbox: ISandboxObject) {
     sandbox.help = helpFn.bind(sandbox);
 };
