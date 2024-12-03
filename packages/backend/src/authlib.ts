@@ -12,7 +12,7 @@ export function genToken(id: any) {
         .then(() => token);
 }
 
-export function checkToken(token: any, noConsume: any) {
+export function checkToken(token: any, noConsume?: any) {
 
     const authKey = `auth_${token}`;
 

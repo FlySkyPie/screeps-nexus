@@ -1,7 +1,8 @@
 import q from 'q';
 import _ from 'lodash';
-import utils from '../../utils';
+
 import * as common from '@screeps/common/src';
+
 const config = common.configManager.config.backend;
 const db = common.storage.db;
 const env = common.storage.env;
@@ -9,15 +10,15 @@ const env = common.storage.env;
 const USER_LIMIT = 2;
 
 const roomBuiltinUsers = {
-    '2': {_id: '2', username: 'Invader'},
-    '3': {_id: '3', username: 'Source Keeper'}
+    '2': { _id: '2', username: 'Invader' },
+    '3': { _id: '3', username: 'Source Keeper' }
 };
 
-export default (listen, emit) => {
-    const connectedToRooms = {};
+export default (listen: any, _emit: any) => {
+    const connectedToRooms: Record<string, any> = {};
     let m;
 
-    let usersLimit = {};
+    let usersLimit: Record<string, any> = {};
 
     listen(/^roomsDone$/, _.throttle(() => {
 
@@ -27,11 +28,11 @@ export default (listen, emit) => {
 
         roomNames.forEach(roomName => {
 
-            if(connectedToRooms[roomName].length > 0) {
+            if (connectedToRooms[roomName].length > 0) {
 
                 let skip = true;
 
-                connectedToRooms[roomName].forEach((i) => {
+                connectedToRooms[roomName].forEach((i: any) => {
                     usersLimit[i.user._id] = usersLimit[i.user._id] || 0;
                     usersLimit[i.user._id]++;
                     if (usersLimit[i.user._id] > USER_LIMIT) {
@@ -45,16 +46,16 @@ export default (listen, emit) => {
                     }
                 });
 
-                if(skip) {
+                if (skip) {
                     return;
                 }
 
-                const startTime = Date.now();
+                // const startTime = Date.now();
 
                 let promises = [
-                    db['rooms.objects'].find({room: roomName}),
+                    db['rooms.objects'].find({ room: roomName }),
                     common.getGametime(),
-                    db['rooms.flags'].find({room: roomName})
+                    db['rooms.flags'].find({ room: roomName })
                 ];
 
                 q.all(promises).then(result => {
@@ -63,15 +64,15 @@ export default (listen, emit) => {
                         gameTime = parseInt(result[1]),
                         flags = result[2];
 
-                    connectedToRooms[roomName].forEach((i) => {
+                    connectedToRooms[roomName].forEach((i: any) => {
 
-                        if(i._skip) {
+                        if (i._skip) {
                             return;
                         }
 
-                        let userFlagsData = _.find(flags, {user: ""+i.user._id});
+                        let userFlagsData: any = _.find(flags, { user: "" + i.user._id });
 
-                        let eventResult = {
+                        let eventResult: any = {
                             objects: common.getDiff(i.objects, roomObjects),
                             flags: userFlagsData && userFlagsData.data,
                             gameTime
@@ -79,14 +80,14 @@ export default (listen, emit) => {
 
                         let eventResultPromises = [
                             env.mget([
-                                env.keys.ROOM_VISUAL+`${i.user._id},,${gameTime-1}`,
-                                env.keys.ROOM_VISUAL+`${i.user._id},${roomName},${gameTime-1}`
-                            ]).then(data => {
+                                env.keys.ROOM_VISUAL + `${i.user._id},,${gameTime - 1}`,
+                                env.keys.ROOM_VISUAL + `${i.user._id},${roomName},${gameTime - 1}`
+                            ]).then((data: any) => {
                                 eventResult.visual = "";
-                                if(data[0]) {
+                                if (data[0]) {
                                     eventResult.visual += data[0];
                                 }
-                                if(data[1]) {
+                                if (data[1]) {
                                     eventResult.visual += data[1];
                                 }
                             })
@@ -94,27 +95,27 @@ export default (listen, emit) => {
 
                         i.objects = roomObjects;
 
-                        let unknownUserIds = [];
-                        roomObjects.forEach((object) => {
-                            if(object.user && !i.users[object.user]) {
+                        let unknownUserIds: any[] = [];
+                        roomObjects.forEach((object: any) => {
+                            if (object.user && !i.users[object.user]) {
                                 unknownUserIds.push(object.user);
                             }
-                            if(object.reservation && !i.users[object.reservation.user]) {
+                            if (object.reservation && !i.users[object.reservation.user]) {
                                 unknownUserIds.push(object.reservation.user);
                             }
-                            if(object.sign && !i.users[object.sign.user]) {
+                            if (object.sign && !i.users[object.sign.user]) {
                                 unknownUserIds.push(object.sign.user);
                             }
                         });
-                        if(unknownUserIds.length) {
+                        if (unknownUserIds.length) {
 
                             unknownUserIds = _.uniq(unknownUserIds);
 
                             eventResultPromises.push(
-                                db.users.find({_id: {$in: unknownUserIds}},{ username: true, badge: true })
-                                    .then((unknownUsers) => {
-                                        unknownUsers.forEach((user) => i.users[user._id.toString()] = user);
-                                        unknownUsers = _.reduce(unknownUsers, (result, user) => {
+                                db.users.find({ _id: { $in: unknownUserIds } }, { username: true, badge: true })
+                                    .then((unknownUsers: any) => {
+                                        unknownUsers.forEach((user: any) => i.users[user._id.toString()] = user);
+                                        unknownUsers = _.reduce(unknownUsers, (result: any, user: any) => {
                                             result[user._id.toString()] = user;
                                             return result;
                                         }, {});
@@ -123,7 +124,7 @@ export default (listen, emit) => {
                             );
                         }
 
-                        if(/^(W|E)\d+(N|S)\d+$/.test(roomName)) {
+                        if (/^(W|E)\d+(N|S)\d+$/.test(roomName)) {
                             eventResult.info = {
                                 mode: 'world'
                             };
@@ -139,23 +140,24 @@ export default (listen, emit) => {
     }, config.socketUpdateThrottle));
 
     return {
-        onSubscribe(channel, user, conn) {
+        onSubscribe(channel: any, user: any, conn: any) {
 
-            if(!user) {
+            if (!user) {
                 return false;
             }
 
-            if(m = channel.match(/^room:([a-zA-Z0-9_-]+)$/)) {
+            if (m = channel.match(/^room:([a-zA-Z0-9_-]+)$/)) {
 
-                let roomName = m[1], roomObjects;
+                let roomName = m[1],
+                    roomObjects: any;
 
-                db.rooms.findOne({_id: roomName})
-                    .then((data) => {
-                        if(!data) {
+                db.rooms.findOne({ _id: roomName })
+                    .then((data: any) => {
+                        if (!data) {
                             return q.reject('invalid room');
                         }
 
-                        if(usersLimit[user._id] > USER_LIMIT) {
+                        if (usersLimit[user._id] > USER_LIMIT) {
                             connectedToRooms[roomName] = connectedToRooms[roomName] || [];
                             connectedToRooms[roomName].push({
                                 conn,
@@ -167,11 +169,11 @@ export default (listen, emit) => {
                             return q.reject();
                         }
                     })
-                    .then(() => db['rooms.objects'].find({room: roomName}))
+                    .then(() => db['rooms.objects'].find({ room: roomName }))
 
-                    .then((_roomObjects) => {
+                    .then((_roomObjects: any) => {
                         roomObjects = _roomObjects;
-                        let userIds = _.reduce(roomObjects, (result, object) => {
+                        let userIds = _.reduce(roomObjects, (result: any, object: any) => {
                             if (object.user && object.user != '2' && object.user != '3') {
                                 result.push(object.user);
                             }
@@ -179,12 +181,12 @@ export default (listen, emit) => {
                         }, []);
                         userIds = _.uniq(userIds);
                         return q.all([
-                            db.users.find({_id: {$in: userIds}},{ username: true, badge: true }),
-                            db['rooms.flags'].findOne({$and: [{room: roomName}, {user: ""+user._id}]})
+                            db.users.find({ _id: { $in: userIds } }, { username: true, badge: true }),
+                            db['rooms.flags'].findOne({ $and: [{ room: roomName }, { user: "" + user._id }] })
                         ]);
                     })
-                    .then((result) => {
-                        let roomUsers = _.reduce(result[0], (result, i) => {
+                    .then((result: any) => {
+                        let roomUsers = _.reduce(result[0], (result: any, i: any) => {
                             result[i._id.toString()] = i;
                             return result;
                         }, {});
@@ -204,13 +206,13 @@ export default (listen, emit) => {
                             objects: common.getDiff([], roomObjects),
                             users: roomUsers,
                             flags: roomFlags && roomFlags.data,
-                            info: {mode: 'world'}
+                            info: { mode: 'world' }
                         });
                     })
                     .catch(console.error);
 
                 conn.on('close', () => {
-                    if(connectedToRooms[roomName]) {
+                    if (connectedToRooms[roomName]) {
                         _.remove(connectedToRooms[roomName], (i) => i.conn === conn);
                     }
                 });
@@ -221,10 +223,10 @@ export default (listen, emit) => {
             return false;
         },
 
-        onUnsubscribe(channel, user, conn) {
+        onUnsubscribe(channel: any, _user: any, conn: any) {
 
-            if(m = channel.match(/^room:([a-zA-Z0-9_-]+)$/)) {
-                if(connectedToRooms[m[1]]) {
+            if (m = channel.match(/^room:([a-zA-Z0-9_-]+)$/)) {
+                if (connectedToRooms[m[1]]) {
                     _.remove(connectedToRooms[m[1]], (i) => i.conn === conn);
                 }
             }

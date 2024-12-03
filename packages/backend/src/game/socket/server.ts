@@ -1,14 +1,14 @@
-import * as common from '@screeps/common/src';
-const config = common.configManager.config;
-import authlib from '../../authlib';
-import q from 'q';
-import path from 'path';
+import { EventEmitter } from 'node:events';
 import _ from 'lodash';
-import net from 'net';
-import http from 'http';
 import sockjs from 'sockjs';
 import zlib from 'zlib';
-import {EventEmitter} from 'events';
+
+import * as common from '@screeps/common/src';
+
+import * as authlib from '../../authlib';
+
+const config = common.configManager.config;
+
 const storage = common.storage;
 const db = storage.db;
 const env = storage.env;
@@ -24,15 +24,15 @@ Object.assign(config.backend, {
     socketUpdateThrottle: 200
 });
 
-export default function installSocketServer(server, PROTOCOL) {
+export default function installSocketServer(server: any, PROTOCOL: any) {
     const socketServer = sockjs.createServer();
     const eventEmitter = new EventEmitter();
-    let socketModules = [];
-    let m;
+    let socketModules: any[] = [];
+    let m: any;
 
     eventEmitter.setMaxListeners(0);
 
-    socketServer.on('connection', conn => {
+    socketServer.on('connection', (conn: any) => {
 
         if (!conn) {
             return;
@@ -42,9 +42,9 @@ export default function installSocketServer(server, PROTOCOL) {
 
         let gzip = false;
 
-        conn._writeEventRaw = (message) => {
+        conn._writeEventRaw = (message: any) => {
             if (gzip) {
-                zlib.deflate(message, {level: 1}, (err, data) => {
+                zlib.deflate(message, { level: 1 }, (_err, data) => {
                     const gzippedMessage = 'gz:' + data.toString('base64');
                     if (gzippedMessage.length < message.length) {
                         message = gzippedMessage;
@@ -57,12 +57,12 @@ export default function installSocketServer(server, PROTOCOL) {
             }
         };
 
-        conn._writeEvent = (channel, data) => {
+        conn._writeEvent = (channel: any, data: any) => {
             const message = JSON.stringify([channel, data]);
             conn._writeEventRaw(message);
         };
 
-        const listener = (channel, data) => {
+        const listener = (channel: any, data: any) => {
             if (conn.readyState != 1) {
                 eventEmitter.removeListener(channel, listener);
                 eventsListening[channel] = 0;
@@ -72,27 +72,27 @@ export default function installSocketServer(server, PROTOCOL) {
             conn._writeEvent(channel, data);
         };
 
-        var eventsListening = {};
+        var eventsListening: Record<string, any> = {};
 
-        const registerListener = channel => {
+        const registerListener = (channel: any) => {
             if (!eventsListening[channel])
                 eventsListening[channel] = 0;
             eventsListening[channel]++;
             if (eventsListening[channel] == 1)
                 eventEmitter.addListener(channel, listener);
         };
-        const unregisterListener = channel => {
+        const unregisterListener = (channel: any) => {
             eventsListening[channel]--;
             if (eventsListening[channel] == 0)
                 eventEmitter.removeListener(channel, listener);
         };
 
-        let user = null;
+        let user: any = null;
 
         conn.write('time ' + new Date().getTime());
         conn.write('protocol ' + PROTOCOL);
 
-        conn.on('data', message => {
+        conn.on('data', (message: any) => {
 
             if (m = message.match(/^subscribe (.*)$/)) {
                 socketModules.forEach(socketMod => {
@@ -121,15 +121,15 @@ export default function installSocketServer(server, PROTOCOL) {
             if (m = message.match(/^auth (.*)$/)) {
 
                 authlib.checkToken(m[1])
-                .then((_user) => {
-                    user = _user;
-                    env.set(env.keys.USER_ONLINE+user._id, Date.now());
-                    return authlib.genToken(user._id);
-                })
-                .then((token) => {
-                    conn.write('auth ok ' + token);
-                })
-                .catch(() => conn.write('auth failed'));
+                    .then((_user: any) => {
+                        user = _user;
+                        env.set(env.keys.USER_ONLINE + user._id, Date.now());
+                        return authlib.genToken(user._id);
+                    })
+                    .then((token: any) => {
+                        conn.write('auth ok ' + token);
+                    })
+                    .catch(() => conn.write('auth failed'));
             }
 
             if (message == 'gzip on') {
@@ -146,21 +146,21 @@ export default function installSocketServer(server, PROTOCOL) {
         });
     });
 
-    socketServer.installHandlers(server, {prefix: '/socket'});
+    socketServer.installHandlers(server, { prefix: '/socket' });
 
     /**
      * Modules
      */
 
-    function emit(channel, data) {
+    function emit(channel: any, data: any) {
         eventEmitter.emit(channel, channel, data);
     }
 
-    const regexps = [];
+    const regexps: any[] = [];
 
-    function listen(regexp, fn) {
+    function listen(regexp: any, fn: any) {
         regexps.push({
-            regexp, fn: function (data, match) {
+            regexp, fn: function (data: any, match: any) {
                 try {
                     fn(data, match);
                 }
@@ -171,7 +171,7 @@ export default function installSocketServer(server, PROTOCOL) {
         });
     }
 
-    pubsub.subscribe('*', function(data) {
+    pubsub.subscribe('*', function (data: any) {
         let match;
         regexps.forEach((i) => {
             if (match = i.regexp.exec(this.channel)) {
@@ -180,5 +180,5 @@ export default function installSocketServer(server, PROTOCOL) {
         })
     });
 
-    socketModules = _.values(config.backend.socketModules).map(i => i(listen, emit));
+    socketModules = _.values(config.backend.socketModules).map((i: any) => i(listen, emit));
 };

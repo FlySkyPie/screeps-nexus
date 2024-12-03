@@ -1,24 +1,22 @@
-import q from 'q';
 import _ from 'lodash';
-import utils from '../../utils';
 
-export default (listen, emit) => {
+export default (listen: any, emit: any) => {
 
-    listen(/^serverMessage$/, (e) => {
+    listen(/^serverMessage$/, (e: any) => {
         emit('server-message', e);
     });
 
     return {
-        onSubscribe(channel, user, conn) {
+        onSubscribe(channel: any, _user: any, _conn: any) {
 
-            if(channel == 'server-message') {
+            if (channel == 'server-message') {
                 return true;
             }
 
             return false;
         },
 
-        onUnsubscribe(channel, user, conn) {
+        onUnsubscribe(_channel: any, _user: any, _conn: any) {
 
         }
     };

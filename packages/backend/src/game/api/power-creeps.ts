@@ -1,41 +1,44 @@
 import express from 'express';
-const router = express.Router();
 import q from 'q';
 import _ from 'lodash';
 import jsonResponse from 'q-json-response';
-import auth from './auth';
-import utils from '../../utils';
+
 import * as common from '@screeps/common/src';
+
+import * as auth from './auth';
+
+const router = express.Router();
+
 const db = common.storage.db;
 const env = common.storage.env;
 const C = common.configManager.config.common.constants;
 
-function calcFreePowerLevels(user, userPowerCreeps) {
+function calcFreePowerLevels(user: any, userPowerCreeps: any) {
     const level = Math.floor(Math.pow((user.power || 0) / C.POWER_LEVEL_MULTIPLY, 1 / C.POWER_LEVEL_POW));
     const used = userPowerCreeps.length + _.sum(userPowerCreeps, 'level');
     return level - used;
 }
 
-router.get('/list', auth.tokenAuth, jsonResponse((request) => {
+router.get('/list', auth.tokenAuth, jsonResponse((request: any) => {
     return q.all([
-        db['users.power_creeps'].find({user: request.user._id}),
-        db['rooms.objects'].find({type: 'powerCreep', user: request.user._id})
+        db['users.power_creeps'].find({ user: request.user._id }),
+        db['rooms.objects'].find({ type: 'powerCreep', user: request.user._id })
     ])
         .then(([userPowerCreeps, roomPowerCreeps]) => {
-            userPowerCreeps.forEach(creep => {
-                const roomObject = _.find(roomPowerCreeps, i => i._id == creep._id);
-                if(roomObject) {
+            userPowerCreeps.forEach((creep: any) => {
+                const roomObject = _.find(roomPowerCreeps, (i: any) => i._id == creep._id);
+                if (roomObject) {
                     Object.assign(creep, roomObject);
                 }
             });
-            return {list: userPowerCreeps};
+            return { list: userPowerCreeps };
         });
 }));
 
-router.post('/create', auth.tokenAuth, jsonResponse((request) => {
+router.post('/create', auth.tokenAuth, jsonResponse((request: any) => {
 
-    return db['users.power_creeps'].find({user: request.user._id})
-        .then(userPowerCreeps => {
+    return db['users.power_creeps'].find({ user: request.user._id })
+        .then((userPowerCreeps: any) => {
             if (calcFreePowerLevels(request.user, userPowerCreeps) <= 0) {
                 return q.reject('not enough power level');
             }
@@ -45,7 +48,7 @@ router.post('/create', auth.tokenAuth, jsonResponse((request) => {
 
             const name = ("" + request.body.name).substring(0, 50);
 
-            if (_.any(userPowerCreeps, {name})) {
+            if (_.any(userPowerCreeps, { name })) {
                 return q.reject('name already exists');
             }
 
@@ -63,98 +66,98 @@ router.post('/create', auth.tokenAuth, jsonResponse((request) => {
         });
 }));
 
-router.post('/delete', auth.tokenAuth, jsonResponse((request) => {
-    return db['users.power_creeps'].findOne({_id: request.body.id})
-        .then(creep => {
-            if(!creep || creep.user != ""+request.user._id) {
+router.post('/delete', auth.tokenAuth, jsonResponse((request: any) => {
+    return db['users.power_creeps'].findOne({ _id: request.body.id })
+        .then((creep: any) => {
+            if (!creep || creep.user != "" + request.user._id) {
                 return q.reject('invalid id');
             }
-            if(creep.spawnCooldownTime === null || creep.shard) {
+            if (creep.spawnCooldownTime === null || creep.shard) {
                 return q.reject('spawned');
             }
-            if(creep.deleteTime) {
+            if (creep.deleteTime) {
                 return q.reject('already being deleted')
             }
 
-            if((request.user.powerExperimentationTime || 0) > Date.now()) {
-                return db['users.power_creeps'].remove({_id: request.body.id})
-                    .then(data => ({result: data.result}));
+            if ((request.user.powerExperimentationTime || 0) > Date.now()) {
+                return db['users.power_creeps'].remove({ _id: request.body.id })
+                    .then((data: any) => ({ result: data.result }));
             }
             else {
-                return db['users.power_creeps'].update({_id: request.body.id},
-                    {$set: {deleteTime: Date.now() + C.POWER_CREEP_DELETE_COOLDOWN}})
-                    .then(data => ({result: data.result}));
+                return db['users.power_creeps'].update({ _id: request.body.id },
+                    { $set: { deleteTime: Date.now() + C.POWER_CREEP_DELETE_COOLDOWN } })
+                    .then((data: any) => ({ result: data.result }));
             }
         })
 }));
 
-router.post('/cancel-delete', auth.tokenAuth, jsonResponse((request) => {
-    return db['users.power_creeps'].findOne({_id: request.body.id})
-        .then(creep => {
-            if(!creep || creep.user != ""+request.user._id) {
+router.post('/cancel-delete', auth.tokenAuth, jsonResponse((request: any) => {
+    return db['users.power_creeps'].findOne({ _id: request.body.id })
+        .then((creep: any) => {
+            if (!creep || creep.user != "" + request.user._id) {
                 return q.reject('invalid id');
             }
-            if(!creep.deleteTime) {
+            if (!creep.deleteTime) {
                 return q.reject('not being deleted')
             }
 
-            return db['users.power_creeps'].update({_id: request.body.id},
-                {$unset: {deleteTime: true}})
-                .then(data => ({result: data.result}));
+            return db['users.power_creeps'].update({ _id: request.body.id },
+                { $unset: { deleteTime: true } })
+                .then((data: any) => ({ result: data.result }));
         })
 }));
 
-router.post('/upgrade', auth.tokenAuth, jsonResponse((request) => {
+router.post('/upgrade', auth.tokenAuth, jsonResponse((request: any) => {
 
-    return db['users.power_creeps'].find({user: request.user._id})
-        .then(userPowerCreeps => {
+    return db['users.power_creeps'].find({ user: request.user._id })
+        .then((userPowerCreeps: any) => {
 
-            const creep = _.find(userPowerCreeps, i => "" + i._id == request.body.id);
+            const creep: any = _.find(userPowerCreeps, i => "" + i._id == request.body.id);
             if (!creep) {
                 return q.reject('invalid id');
             }
-            if(!_.isObject(request.body.powers)) {
+            if (!_.isObject(request.body.powers)) {
                 return q.reject('invalid powers');
             }
-            for(var power in request.body.powers) {
+            for (var power in request.body.powers) {
                 const powerInfo = C.POWER_INFO[power];
                 if (!powerInfo) {
-                    return q.reject('invalid power '+power);
+                    return q.reject('invalid power ' + power);
                 }
                 if (powerInfo.className !== creep.className) {
-                    return q.reject('invalid class for power '+power);
+                    return q.reject('invalid class for power ' + power);
                 }
                 if (!creep.powers[power]) {
-                    creep.powers[power] = {level: 0};
+                    creep.powers[power] = { level: 0 };
                 }
-                if(!_.isNumber(request.body.powers[power])) {
-                    return q.reject('invalid value for power '+power);
+                if (!_.isNumber(request.body.powers[power])) {
+                    return q.reject('invalid value for power ' + power);
                 }
-                if(request.body.powers[power] < creep.powers[power].level) {
-                    return q.reject('cannot downgrade power '+power);
+                if (request.body.powers[power] < creep.powers[power].level) {
+                    return q.reject('cannot downgrade power ' + power);
                 }
-                if(request.body.powers[power] > 5) {
-                    return q.reject('invalid max value for power '+power);
+                if (request.body.powers[power] > 5) {
+                    return q.reject('invalid max value for power ' + power);
                 }
             }
-            for(var power in creep.powers) {
-                if((request.body.powers[power] || 0) < creep.powers[power].level) {
-                    return q.reject('cannot downgrade power '+power);
+            for (var power in creep.powers) {
+                if ((request.body.powers[power] || 0) < creep.powers[power].level) {
+                    return q.reject('cannot downgrade power ' + power);
                 }
             }
             const newLevel = _.sum(request.body.powers);
             if (newLevel > C.POWER_CREEP_MAX_LEVEL) {
                 return q.reject('max level');
             }
-            const $merge = {powers: {}};
-            for(var power in request.body.powers) {
-                if(request.body.powers[power] === 0) {
+            const $merge: any = { powers: {} };
+            for (var power in request.body.powers) {
+                if (request.body.powers[power] === 0) {
                     continue;
                 }
-                if(newLevel < C.POWER_INFO[power].level[request.body.powers[power]-1]) {
-                    return q.reject('not enough level for power '+power);
+                if (newLevel < C.POWER_INFO[power].level[request.body.powers[power] - 1]) {
+                    return q.reject('not enough level for power ' + power);
                 }
-                $merge.powers[power] = {level: request.body.powers[power]};
+                $merge.powers[power] = { level: request.body.powers[power] };
             }
 
             if (calcFreePowerLevels(request.user, userPowerCreeps) < newLevel - creep.level) {
@@ -166,39 +169,40 @@ router.post('/upgrade', auth.tokenAuth, jsonResponse((request) => {
             $merge.storeCapacity = 100 * (newLevel + 1);
 
             return q.all([
-                db['users.power_creeps'].update({_id: request.body.id}, {$merge}),
-                db['rooms.objects'].update({_id: request.body.id}, {$merge})
+                db['users.power_creeps'].update({ _id: request.body.id }, { $merge }),
+                db['rooms.objects'].update({ _id: request.body.id }, { $merge })
             ]);
         });
 }));
 
-router.post('/rename', auth.tokenAuth, jsonResponse((request) => {
-    return db['users.power_creeps'].find({user: request.user._id})
-        .then(powerCreeps => {
-            const creep = _.find(powerCreeps, i => i._id == request.body.id);
-            if(!creep) {
+router.post('/rename', auth.tokenAuth, jsonResponse((request: any) => {
+    return db['users.power_creeps'].find({ user: request.user._id })
+        .then((powerCreeps: any) => {
+            const creep: any = _.find(powerCreeps, i => i._id == request.body.id);
+            if (!creep) {
                 return q.reject('invalid id');
             }
-            if(creep.spawnCooldownTime === null || creep.shard) {
+            if (creep.spawnCooldownTime === null || creep.shard) {
                 return q.reject('spawned');
             }
             const name = ("" + request.body.name).substring(0, 50);
 
-            if (_.any(powerCreeps, {name})) {
+            if (_.any(powerCreeps, { name })) {
                 return q.reject('name already exists');
             }
 
-            return db['users.power_creeps'].update({_id: request.body.id}, {$set: {name}})
-                .then(data => ({result: data.result}));
+            return db['users.power_creeps'].update({ _id: request.body.id }, { $set: { name } })
+                .then((data: any) => ({ result: data.result }));
         });
 }));
 
-router.post('/experimentation', auth.tokenAuth, jsonResponse(request => {
-    if((request.user.powerExperimentations || 0) <= 0) {
+router.post('/experimentation', auth.tokenAuth, jsonResponse((request: any) => {
+    if ((request.user.powerExperimentations || 0) <= 0) {
         return q.reject('no power resets');
     }
-    return db['users'].update({_id: request.user._id}, {
-        $inc: {powerExperimentations: -1}, $set: {powerExperimentationTime: Date.now() + 24*3600*1000}});
+    return db['users'].update({ _id: request.user._id }, {
+        $inc: { powerExperimentations: -1 }, $set: { powerExperimentationTime: Date.now() + 24 * 3600 * 1000 }
+    });
 }));
 
 

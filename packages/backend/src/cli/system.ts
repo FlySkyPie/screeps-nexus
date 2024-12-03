@@ -1,16 +1,15 @@
-import util from 'util';
+import q from 'q';
+import _ from 'lodash';
+
 import * as common from '@screeps/common/src';
+
+import * as utils from '../utils';
+
 const config = common.configManager.config;
 const C = config.common.constants;
 const db = common.storage.db;
 const env = common.storage.env;
 const pubsub = common.storage.pubsub;
-import q from 'q';
-import fs from 'fs';
-import _ from 'lodash';
-import zlib from 'zlib';
-import utils from '../utils';
-import path from 'path';
 
 export var resetAllData = utils.withHelp([
     "resetAllData() - Wipe all world data and reset the database to the default state.",
@@ -21,7 +20,7 @@ export var resetAllData = utils.withHelp([
 
 export var sendServerMessage = utils.withHelp([
     'sendServerMessage(message) - Send a text server message to all currently connected players.',
-    function sendServerMessage(message) {
+    function sendServerMessage(message: any) {
         return pubsub.publish('serverMessage', message);
     }
 ]);
@@ -42,8 +41,8 @@ export var resumeSimulation = utils.withHelp([
 
 export var runCronjob = utils.withHelp([
     'runCronjob(jobName) - Run a cron job immediately.',
-    function runCronjob(jobName) {
-        if(!config.cronjobs[jobName]) {
+    function runCronjob(jobName: any) {
+        if (!config.cronjobs[jobName]) {
             return q.reject(`Cronjob "${jobName}" not found`);
         }
 

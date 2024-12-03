@@ -118,6 +118,15 @@ importers:
         specifier: ^0.6.5
         version: 0.6.5
     devDependencies:
+      '@types/body-parser':
+        specifier: ^1.0.0
+        version: 1.19.5
+      '@types/btoa':
+        specifier: ^1.0.0
+        version: 1.2.5
+      '@types/cookie-parser':
+        specifier: ^1.0.0
+        version: 1.4.8(@types/express@4.17.21)
       '@types/express':
         specifier: ^4.0.0
         version: 4.17.21
@@ -127,12 +136,18 @@ importers:
       '@types/node':
         specifier: ^16.0.0
         version: 16.18.121
+      '@types/passport':
+        specifier: ^0.3.0
+        version: 0.3.5
       '@types/pngjs':
         specifier: ^3.0.0
         version: 3.4.2
       '@types/q':
         specifier: ^1.0.0
         version: 1.5.8
+      '@types/sockjs':
+        specifier: ^0.3.0
+        version: 0.3.36
       '@vercel/ncc':
         specifier: ^0.38.3
         version: 0.38.3
@@ -456,8 +471,16 @@ packages:
   '@types/body-parser@1.19.5':
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
 
+  '@types/btoa@1.2.5':
+    resolution: {integrity: sha512-BItINdjZRlcGdI2efwK4bwxY5vEAT0SnIVfMOZVT18wp4900F1Lurqk/9PNdF9hMP1zgFmWbjVEtAsQKVcbqxA==}
+
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
+
+  '@types/cookie-parser@1.4.8':
+    resolution: {integrity: sha512-l37JqFrOJ9yQfRQkljb41l0xVphc7kg5JTjjr+pLRZ0IyZ49V4BQ8vbF4Ut2C2e+WH4al3xD3ZwYwIUfnbT4NQ==}
+    peerDependencies:
+      '@types/express': '*'
 
   '@types/express-serve-static-core@4.19.6':
     resolution: {integrity: sha512-N4LZ2xG7DatVqhCZzOGb1Yi5lMbXSZcmdLDe9EzSndPV2HpWYWzRbaerl2n27irrm94EPpprqa8KpskPT085+A==}
@@ -492,6 +515,9 @@ packages:
   '@types/node@8.10.66':
     resolution: {integrity: sha512-tktOkFUA4kXx2hhhrB8bIFb5TbwzS4uOhKEmwiD+NoiL0qtP2OQ9mFldbgD4dV1djrlBYP6eBuQZiWjuHUpqFw==}
 
+  '@types/passport@0.3.5':
+    resolution: {integrity: sha512-J7mdY1nnhjdbkXT84S3WsyrTtDf2KqUJ9JW3Y9vxA5GuXlejIuvwHw9A2TdNklAqPG2Q0TWqlsA2a2GIeV1jYA==}
+
   '@types/pngjs@3.4.2':
     resolution: {integrity: sha512-LJVPDraJ5YFEnMHnzxTN4psdWz1M61MtaAAWPn3qnDk5fvs7BAmmQ9pd3KPlrdrvozMyne4ktanD4pg0L7x1Pw==}
 
@@ -515,6 +541,9 @@ packages:
 
   '@types/serve-static@1.15.7':
     resolution: {integrity: sha512-W8Ym+h8nhuRwaKPaDw34QUkwsGi6Rc4yYqvKFo5rm2FUEhCFbzVWrxXUxuKK8TASjWsysJY0nsmNCGhCOIsrOw==}
+
+  '@types/sockjs@0.3.36':
+    resolution: {integrity: sha512-MK9V6NzAS1+Ud7JV9lJLFqW85VbC9dq3LmwZCuBe4wBDgKC0Kj/jd8Xl+nSviU+Qc3+m7umHHyHg//2KSa0a0Q==}
 
   '@vercel/ncc@0.38.3':
     resolution: {integrity: sha512-rnK6hJBS6mwc+Bkab+PGPs9OiS0i/3kdTO+CkI8V0/VrW3vmz7O2Pxjw/owOlmo6PKEIxRSeZKv/kuL9itnpYA==}
@@ -5010,9 +5039,17 @@ snapshots:
       '@types/connect': 3.4.38
       '@types/node': 22.10.1
 
+  '@types/btoa@1.2.5':
+    dependencies:
+      '@types/node': 22.10.1
+
   '@types/connect@3.4.38':
     dependencies:
       '@types/node': 22.10.1
+
+  '@types/cookie-parser@1.4.8(@types/express@4.17.21)':
+    dependencies:
+      '@types/express': 4.17.21
 
   '@types/express-serve-static-core@4.19.6':
     dependencies:
@@ -5050,6 +5087,10 @@ snapshots:
 
   '@types/node@8.10.66': {}
 
+  '@types/passport@0.3.5':
+    dependencies:
+      '@types/express': 4.17.21
+
   '@types/pngjs@3.4.2':
     dependencies:
       '@types/node': 22.10.1
@@ -5077,6 +5118,10 @@ snapshots:
       '@types/http-errors': 2.0.4
       '@types/node': 22.10.1
       '@types/send': 0.17.4
+
+  '@types/sockjs@0.3.36':
+    dependencies:
+      '@types/node': 22.10.1
 
   '@vercel/ncc@0.38.3': {}
 

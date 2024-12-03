@@ -1,34 +1,35 @@
 import express from 'express';
-const router = express.Router();
 import q from 'q';
 import _ from 'lodash';
 import jsonResponse from 'q-json-response';
-import auth from './auth';
-import utils from '../../utils';
+
 import * as common from '@screeps/common/src';
+
+const router = express.Router();
+
 const db = common.storage.db;
 const env = common.storage.env;
 const C = common.configManager.config.common.constants;
 
 
-router.get('/list', jsonResponse((request) => {
+router.get('/list', jsonResponse((_request: any) => {
     // TODO
-    return {list: [], count: 0, users: {}};
+    return { list: [], count: 0, users: {} };
 }));
 
-router.get('/find', jsonResponse((request) => {
+router.get('/find', jsonResponse((request:any) => {
     // TODO
-    if(request.query.season) {
+    if (request.query.season) {
         return q.reject('result not found');
     }
     else {
-        return {list: []};
+        return { list: [] };
     }
 
 }));
 
 router.get('/seasons', jsonResponse(() => {
-    return {seasons: [{_id: 'empty1', name: '—'}, {_id: 'empty2', name: '—'}]};
+    return { seasons: [{ _id: 'empty1', name: '—' }, { _id: 'empty2', name: '—' }] };
 }));
 
 

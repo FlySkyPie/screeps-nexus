@@ -1,114 +1,117 @@
 import express from 'express';
-const router = express.Router();
 import q from 'q';
 import _ from 'lodash';
-import * as common from '@screeps/common/src';
-const db = common.storage.db;
-const env = common.storage.env;
 import jsonResponse from 'q-json-response';
 import passport from 'passport';
-import {Strategy as TokenStrategy} from 'passport-token';
-import session from 'express-session';
-import authlib from '../../authlib';
+import { Strategy as TokenStrategy } from 'passport-token';
 import steamApi from 'steam-webapi';
-let steam;
+
+import * as common from '@screeps/common/src';
+
+import * as authlib from '../../authlib';
+
+const router = express.Router();
+
+const db = common.storage.db;
+const env = common.storage.env;
+let steam: any;
 
 const sessionSecret = 'gwoif31m947j925hxcy6cj4l62he';
 const steamAppId = 464350;
 let useNativeAuth = false;
 
-function steamFindOrCreateUser(request, steamId) {
+function steamFindOrCreateUser(request: any, steamId: any) {
 
-    let user;
+    let user: any;
 
-    return (request.user ? q.when(request.user) : db.users.findOne({'steam.id': steamId}))
-    .then((data) => {
+    return (request.user ? q.when(request.user) : db.users.findOne({ 'steam.id': steamId }))
+        .then((data: any) => {
 
-        let steamData = {
-            id: steamId
-        };
-
-        if(data) {
-            user = data;
-
-            steamData = _.extend(user.steam, steamData);
-
-            const $set = {
-                steam: steamData
+            let steamData = {
+                id: steamId
             };
 
-            user.steam = steamData;
-            return db.users.update({_id: user._id}, {$set});
-        }
-        else {
+            if (data) {
+                user = data;
 
-            user = {
-                steam: steamData,
-                cpu: 100,
-                cpuAvailable: 0,
-                registeredDate: new Date(),
-                credits: 0,
-                gcl: 0,
-                powerExperimentations: 30
-            };
+                steamData = _.extend(user.steam, steamData);
 
-            return db.users.insert(user)
-            .then(result => {
-                user = result;
-                return db['users.code'].insert({
-                    user: user._id,
-                    modules: {main: ''},
-                    branch: 'default',
-                    activeWorld: true,
-                    activeSim: true
-                })
-            })
-            .then(() => env.set('scrUserMemory:'+user._id, JSON.stringify({})))
-        }
-    })
-    .then(() => user);
+                const $set = {
+                    steam: steamData
+                };
+
+                user.steam = steamData;
+                return db.users.update({ _id: user._id }, { $set });
+            }
+            else {
+
+                user = {
+                    steam: steamData,
+                    cpu: 100,
+                    cpuAvailable: 0,
+                    registeredDate: new Date(),
+                    credits: 0,
+                    gcl: 0,
+                    powerExperimentations: 30
+                };
+
+                return db.users.insert(user)
+                    .then((result: any) => {
+                        user = result;
+                        return db['users.code'].insert({
+                            user: user._id,
+                            modules: { main: '' },
+                            branch: 'default',
+                            activeWorld: true,
+                            activeSim: true
+                        })
+                    })
+                    .then(() => env.set('scrUserMemory:' + user._id, JSON.stringify({})))
+            }
+        })
+        .then(() => user);
 }
 
-function setup(app, _useNativeAuth) {
+function setup(app: any, _useNativeAuth: any) {
 
     useNativeAuth = _useNativeAuth;
 
-    if(!useNativeAuth) {
+    if (!useNativeAuth) {
         steam = new steamApi();
     }
 
-    passport.use( new TokenStrategy( (email, token, done) => {
+    passport.use(new TokenStrategy((_email: any, token: any, done: any) => {
 
         authlib.checkToken(token)
-        .then((user) => {
-            done(null, user);
-        })
-        .catch((error) => {
-            error === false ? done(null, false) : done(error)
-        });
+            .then((user: any) => {
+                done(null, user);
+            })
+            .catch((error: any) => {
+                error === false ? done(null, false) : done(error)
+            });
     }));
 
     app.use(passport.initialize());
 }
 
-function tokenAuth (request, response, next) {
-    passport.authenticate('token', {session: false}, (err, user) => {
+function tokenAuth(request: any, response: any, next: any) {
+    passport.authenticate('token', { session: false }, (err: any, user: any) => {
         if (err) {
             return next(err);
         }
         if (!user) {
-            response.status(401).send({error: 'unauthorized'});
+            response.status(401).send({ error: 'unauthorized' });
             return;
         }
         request.user = user;
-        authlib.genToken(user._id).then((token) => {
+        authlib.genToken(user._id).then((token: any) => {
             response.set('X-Token', token);
             next();
         });
     })(request, response, next);
 }
 
-router.get('/me', tokenAuth, jsonResponse((request, response) => {
+router.get('/me', tokenAuth, jsonResponse((request: any, _response: any) => {
 
     const result = {
         _id: request.user._id,
@@ -134,12 +137,12 @@ router.get('/me', tokenAuth, jsonResponse((request, response) => {
     return result;
 }));
 
-router.post('/steam-ticket', jsonResponse(request => {
+router.post('/steam-ticket', jsonResponse((request: any) => {
 
     let doAuth;
 
-    if(request.body.useNativeAuth) {
-        if(!useNativeAuth) {
+    if (request.body.useNativeAuth) {
+        if (!useNativeAuth) {
             return q.reject('authentication method is not supported');
         }
         const greenworks = require('../../../greenworks/greenworks');
@@ -148,36 +151,36 @@ router.post('/steam-ticket', jsonResponse(request => {
             Buffer.from(request.body.ticket, 'hex'),
             Buffer.from('ed66a45b50c848a0c463ec18e0eab308fe9b8d3edcb0484b2def7e52f7297e75', 'hex')
         );
-        if(!greenworks.isTicketForApp(decryptedTicket, greenworks.getAppId())) {
+        if (!greenworks.isTicketForApp(decryptedTicket, greenworks.getAppId())) {
             return q.reject('invalid encrypted ticket');
         }
         doAuth = q.when(greenworks.getTicketSteamId(decryptedTicket).getRawSteamID());
     }
     else {
-        if(useNativeAuth) {
+        if (useNativeAuth) {
             return q.reject('authentication method is not supported');
         }
-        doAuth = q.ninvoke(steam, 'authenticateUserTicket', {appid: steamAppId, ticket: request.body.ticket})
-        .then(data => {
-            if (data.params.result != 'OK') {
-                return q.reject('could not authenticate');
-            }
-            return data.params.steamid;
-        });
+        doAuth = q.ninvoke(steam, 'authenticateUserTicket', { appid: steamAppId, ticket: request.body.ticket })
+            .then((data: any) => {
+                if (data.params.result != 'OK') {
+                    return q.reject('could not authenticate');
+                }
+                return data.params.steamid;
+            });
     }
 
     return doAuth
-    .then(steamId => {
-        return steamFindOrCreateUser(request, steamId)
-        .then(user => {
-            console.log(`Sign in: ${user.username} (${user._id}), IP=${request.ip}, steamid=${steamId}`);
-            return authlib.genToken(user._id);
-        })
-        .then(token => ({token, steamid: steamId}));
-    });
+        .then(steamId => {
+            return steamFindOrCreateUser(request, steamId)
+                .then((user: any) => {
+                    console.log(`Sign in: ${user.username} (${user._id}), IP=${request.ip}, steamid=${steamId}`);
+                    return authlib.genToken(user._id);
+                })
+                .then((token: any) => ({ token, steamid: steamId }));
+        });
 }));
 
 
-export {router};
-export {tokenAuth};
-export {setup};
+export { router };
+export { tokenAuth };
+export { setup };

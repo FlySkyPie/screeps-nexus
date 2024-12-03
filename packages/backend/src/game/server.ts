@@ -1,21 +1,19 @@
-import * as common from '@screeps/common/src';
-const config = common.configManager.config;
-import authlib from '../authlib';
+import http from 'node:http';
 import q from 'q';
-import path from 'path';
 import _ from 'lodash';
-import net from 'net';
-import http from 'http';
-import sockjs from 'sockjs';
 import express from 'express';
 import steamApi from 'steam-webapi';
-import auth from './api/auth';
 import jsonResponse from 'q-json-response';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
-import zlib from 'zlib';
-import {EventEmitter} from 'events';
+
+import * as common from '@screeps/common/src';
+
 import socketServer from './socket/server';
+import * as auth from './api/auth';
+
+const config = common.configManager.config;
+
 let greenworks;
 const storage = common.storage;
 const db = storage.db;
@@ -26,12 +24,12 @@ steamApi.key = process.env.STEAM_KEY;
 
 const PROTOCOL = 14;
 
-let useNativeAuth;
+let useNativeAuth: any;
 
 Object.assign(config.backend, {
     welcomeText: `<h4>Welcome to your own Screeps private server!</h4>This text can be changed by adding a mod to your server, see <code>mods.json</code> file in your server folder.`,
     router: express.Router(),
-    onGetRoomHistory(roomName, baseTime, callback) {
+    onGetRoomHistory(_roomName: any, _baseTime: any, callback: any) {
         callback('not implemented');
     },
     customObjectTypes: {},
@@ -52,10 +50,10 @@ function getServerData() {
     }
 }
 
-config.backend.router.get('/version', jsonResponse(request => {
-    return db['users'].count({$and: [{active: {$ne: 0}}, {cpu: {$gt: 0}}, {bot: {$aeq: null}}]})
-        .then(users => {
-            const result = {
+config.backend.router.get('/version', jsonResponse((_request: any) => {
+    return db['users'].count({ $and: [{ active: { $ne: 0 } }, { cpu: { $gt: 0 } }, { bot: { $aeq: null } }] })
+        .then((users: any) => {
+            const result: any = {
                 protocol: PROTOCOL,
                 useNativeAuth,
                 users,
@@ -70,14 +68,14 @@ config.backend.router.get('/version', jsonResponse(request => {
         });
 }));
 
-function connectToSteam(defer?) {
-    if(!defer) {
+function connectToSteam(defer?: any) {
+    if (!defer) {
         defer = q.defer();
     }
 
     console.log(`Connecting to Steam Web API`);
 
-    steamApi.ready(err => {
+    steamApi.ready((err: any) => {
         if (err) {
             setTimeout(() => connectToSteam(defer), 1000);
             console.log('Steam Web API connection error', err);
@@ -115,7 +113,7 @@ function startServer() {
         try {
             greenworks = require('greenworks');
         }
-        catch(e) {
+        catch (e) {
             throw new Error('Cannot find greenworks library, please either install it in the /greenworks folder or provide STEAM_KEY environment variable');
         }
         if (!greenworks.isSteamRunning()) {
@@ -133,17 +131,17 @@ function startServer() {
 
         const app = express();
 
-        config.backend.emit('expressPreConfig',app);
+        config.backend.emit('expressPreConfig', app);
 
-        app.use('/assets', express.static(process.env.ASSET_DIR));
+        app.use('/assets', express.static(process.env.ASSET_DIR ?? ""));
 
         let buildString = '';
         try {
             buildString = ` v${require('screeps').version} `;
         }
-        catch(e) {}
+        catch (e) { }
 
-        app.get('/', (request, response) => {
+        app.get('/', (_request, response) => {
             response.send(`<html><body>
                             Screeps server ${buildString} is running on ${process.env.GAME_HOST}:${process.env.GAME_PORT}.
                             Use your <a href="http://store.steampowered.com/app/464350">Steam game client</a> to connect.
@@ -156,15 +154,15 @@ function startServer() {
                     next();
                     return;
                 }
-                response.json({error: 'incorrect server password'});
+                response.json({ error: 'incorrect server password' });
             })
         }
 
-        app.use(bodyParser.urlencoded({limit: '8mb', extended: true}));
+        app.use(bodyParser.urlencoded({ limit: '8mb', extended: true }));
         app.use(bodyParser.json({
             limit: '8mb',
-            verify(request, response, buf, encoding) {
-                request.rawBody = buf.toString(encoding);
+            verify(request, _response, buf, encoding) {
+                request.rawBody = buf.toString(encoding as any);
             }
         }));
 
@@ -175,17 +173,20 @@ function startServer() {
         app.use('/api', config.backend.router);
 
         app.use('/room-history', (request, response) => {
-            config.backend.onGetRoomHistory(request.query.room, request.query.time, (error, result) => {
-                if(error) {
-                    response.status(500).send(error);
-                }
-                else {
-                    response.send(result);
-                }
-            });
+            config.backend.onGetRoomHistory(
+                request.query.room,
+                request.query.time,
+                (error: any, result: any) => {
+                    if (error) {
+                        response.status(500).send(error);
+                    }
+                    else {
+                        response.send(result);
+                    }
+                });
         });
 
-        config.backend.emit('expressPostConfig',app);
+        config.backend.emit('expressPostConfig', app);
 
         const server = http.createServer(app);
 
@@ -197,9 +198,9 @@ function startServer() {
                 console.log(`Server password is ${process.env.SERVER_PASSWORD}`);
             }
         });
-        server.listen(process.env.GAME_PORT, process.env.GAME_HOST);
+        server.listen(parseInt(process.env.GAME_PORT ?? ""), process.env.GAME_HOST);
 
     });
 }
 
-export {startServer};
+export { startServer };

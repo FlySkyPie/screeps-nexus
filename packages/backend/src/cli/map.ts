@@ -23,7 +23,7 @@ export var generateRoom = utils.withHelp([
     * mineral - the type of the mineral deposit in this room or false if no mineral, default is random type\r
     * controller - whether this room should have the controller, default is true\r
     * keeperLairs - whether this room should have source keeper lairs, default is false`,
-    function generateRoom(roomName, opts) {
+    function generateRoom(roomName: any, opts: any) {
         opts = opts || {};
 
         opts.exits = opts.exits || {};
@@ -32,7 +32,7 @@ export var generateRoom = utils.withHelp([
             return q.reject("Invalid room name");
         }
 
-        function _exitsArray(terrain, x, y) {
+        function _exitsArray(terrain: any, x: any, y: any) {
             const exits = [];
             for (let i = 0; i < 50; i++) {
                 if (!common.checkTerrain(terrain, x === undefined ? i : x, y === undefined ? i : y, C.TERRAIN_MASK_WALL)) {
@@ -47,7 +47,7 @@ export var generateRoom = utils.withHelp([
             const intervalsCnt = [0, 0, 1, 1, 2][Math.floor(Math.random() * 5)];
             const exit = [];
             const exitStart = Math.floor(Math.random() * (46 - exitLength)) + 2;
-            const intervals = {};
+            const intervals: Record<string, any> = {};
             let curStart = exitStart;
 
             for (let j = 0; j < intervalsCnt; j++) {
@@ -81,7 +81,7 @@ export var generateRoom = utils.withHelp([
             return exit;
         }
 
-        function _matchExitWithNeighbors(exits, dir, neighbor) {
+        function _matchExitWithNeighbors(exits: any, dir: any, neighbor: any) {
             let x, y;
             if (dir == 'top') {
                 y = 49;
@@ -115,7 +115,7 @@ export var generateRoom = utils.withHelp([
             }
         }
 
-        function _checkFlood(terrain) {
+        function _checkFlood(terrain: any) {
 
             let startX, startY;
 
@@ -132,7 +132,7 @@ export var generateRoom = utils.withHelp([
                 }
             }
 
-            const visited = {};
+            const visited: Record<string, any> = {};
             for (var y = 0; y < 50; y++) {
                 visited[y] = {};
                 for (var x = 0; x < 50; x++) {
@@ -142,7 +142,9 @@ export var generateRoom = utils.withHelp([
 
             const list = [[startX, startY]];
             do {
-                const i = list.pop(), x = i[0], y = i[1];
+                const i: any = list.pop(),
+                    x = i[0],
+                    y = i[1];
 
                 visited[y][x] = true;
                 for (let dx = -1; dx <= 1; dx++) {
@@ -170,8 +172,8 @@ export var generateRoom = utils.withHelp([
             return true;
         }
 
-        function _smoothTerrain(terrain, factor, key) {
-            const newTerrain = {};
+        function _smoothTerrain(terrain: any, factor: any, key: any) {
+            const newTerrain: Record<string, any> = {};
 
             for (let y = 0; y < 50; y++) {
                 newTerrain[y] = {};
@@ -201,8 +203,14 @@ export var generateRoom = utils.withHelp([
             return newTerrain;
         }
 
-        function _genTerrain(wallType, swampType, exits, sources, controller, keeperLair) {
-            const types = {
+        function _genTerrain(
+            wallType: any,
+            swampType: any,
+            exits: any,
+            sources: any,
+            controller: any,
+            keeperLair: any) {
+            const types: any = {
                 1: { fill: 0.4, smooth: 10, factor: 5 },
                 2: { fill: 0.2, smooth: 20, factor: 4 },
                 3: { fill: 0.2, smooth: 20, factor: 4 },
@@ -236,7 +244,7 @@ export var generateRoom = utils.withHelp([
                 28: { fill: 0.2, smooth: 20, factor: 4 },
             };
 
-            const swampTypes = {
+            const swampTypes: any = {
                 1: { fill: 0.3, smooth: 3, factor: 5 },
                 2: { fill: 0.35, smooth: 3, factor: 5 },
                 3: { fill: 0.45, smooth: 3, factor: 5 },
@@ -254,7 +262,7 @@ export var generateRoom = utils.withHelp([
                 14: { fill: 0.35, smooth: 3, factor: 5 },
             };
 
-            let terrain;
+            let terrain: any;
             var tries = 0;
 
             do {
@@ -318,7 +326,7 @@ export var generateRoom = utils.withHelp([
 
             for (var i = 0; i < sources; i++) {
 
-                var x, y;
+                let x: any, y: any;
                 var tries = 0;
 
                 do {
@@ -355,7 +363,7 @@ export var generateRoom = utils.withHelp([
                     const visited = { [`${x},${y}`]: 0 };
 
                     do {
-                        const [cx, cy] = list.pop();
+                        const [cx, cy] = list.pop()!;
                         for (var dx = -1; dx <= 1; dx++) {
                             for (var dy = -1; dy <= 1; dy++) {
                                 if (!dx && !dy || !_.isUndefined(visited[`${cx + dx},${cy + dy}`])) {
@@ -391,7 +399,7 @@ export var generateRoom = utils.withHelp([
             }
 
             if (controller) {
-                var x, y;
+                let x: any, y: any;
                 do {
                     x = Math.floor(Math.random() * 40) + 5;
                     y = Math.floor(Math.random() * 40) + 5;
@@ -416,7 +424,7 @@ export var generateRoom = utils.withHelp([
         }
 
         return db.rooms.findOne({ _id: roomName })
-            .then(data => data ? q.reject('This room already exists') : undefined)
+            .then((data: any) => data ? q.reject('This room already exists') : undefined)
             .then(() => {
                 const [x, y] = utils.roomNameToXY(roomName);
                 return q.all([
@@ -426,7 +434,7 @@ export var generateRoom = utils.withHelp([
                     db['rooms.terrain'].findOne({ room: utils.roomNameFromXY(x - 1, y) })
                 ]);
             })
-            .then(neighborRooms => {
+            .then((neighborRooms: any) => {
                 if (!_matchExitWithNeighbors(opts.exits, 'top', neighborRooms[0])) {
                     return q.reject(`Exits in room ${neighborRooms[0].room} don't match`);
                 }
@@ -464,15 +472,15 @@ export var generateRoom = utils.withHelp([
                 const roomData = _genTerrain(opts.terrainType, opts.swampType, opts.exits, opts.sources, opts.controller, opts.keeperLairs);
 
                 const objects = [];
-                let terrain = [];
-                var x;
-                var y;
+                let terrain: any = [];
+                let x: any;
+                let y: any;
                 let sourceKeepers = false;
 
-                for (var y in roomData) {
-                    y = parseInt(y);
-                    for (var x in roomData[y]) {
-                        x = parseInt(x);
+                for (let _y in roomData) {
+                    y = parseInt(_y);
+                    for (let _x in roomData[y]) {
+                        x = parseInt(_x);
                         if (roomData[y][x].wall) {
                             terrain.push({ type: 'wall', x, y });
                         }
@@ -522,7 +530,11 @@ export var generateRoom = utils.withHelp([
                 }
 
                 if (opts.mineral) {
-                    let mx, my, isWall, hasSpot, hasObjects;
+                    let mx: any,
+                        my: any,
+                        isWall,
+                        hasSpot,
+                        hasObjects;
                     do {
                         mx = 4 + Math.floor(Math.random() * 42);
                         my = 4 + Math.floor(Math.random() * 42);
@@ -540,7 +552,7 @@ export var generateRoom = utils.withHelp([
                     while (!isWall || !hasSpot || hasObjects);
 
                     const random = Math.random();
-                    let density;
+                    let density: any;
                     for (const d in C.MINERAL_DENSITY_PROBABILITY) {
                         if (random <= C.MINERAL_DENSITY_PROBABILITY[d]) {
                             density = +d;
@@ -573,9 +585,9 @@ export var generateRoom = utils.withHelp([
 
 export var openRoom = utils.withHelp([
     "openRoom(roomName, [timestamp]) - Make a room available for use. Specify a timestamp in the future if you want it to be opened later automatically.",
-    function openRoom(roomName, timestamp) {
+    function openRoom(roomName: any, timestamp: any) {
 
-        const $set = { status: 'normal' };
+        const $set: any = { status: 'normal' };
 
         if (timestamp) {
             $set.openTime = timestamp;
@@ -587,16 +599,16 @@ export var openRoom = utils.withHelp([
 
 export var closeRoom = utils.withHelp([
     "closeRoom(roomName) - Make a room not available.",
-    function closeRoom(roomName) {
+    function closeRoom(roomName: any) {
         return db.rooms.update({ $and: [{ _id: roomName }, { status: 'normal' }] }, { $set: { status: 'out of borders' } });
     }
 ]);
 
 export var removeRoom = utils.withHelp([
     "removeRoom(roomName) - Delete the room and all room objects from the database.",
-    function removeRoom(roomName) {
+    function removeRoom(roomName: any) {
         return db.rooms.findOne({ _id: roomName })
-            .then(data => !data ? q.reject(`The room ${roomName} is not found`) :
+            .then((data: any) => !data ? q.reject(`The room ${roomName} is not found`) :
                 q.all([
                     db.rooms.removeWhere({ _id: roomName }),
                     db['rooms.objects'].removeWhere({ room: roomName }),
@@ -608,7 +620,7 @@ export var removeRoom = utils.withHelp([
                 ])
                     .then(() => exports.updateTerrainData())
                     .then(() => {
-                        fs.unlinkSync(path.resolve(process.env.ASSET_DIR, 'map', roomName + '.png'));
+                        fs.unlinkSync(path.resolve(process.env.ASSET_DIR ?? "", 'map', roomName + '.png'));
                     })
                     .then(() => 'OK'));
     }
@@ -616,11 +628,11 @@ export var removeRoom = utils.withHelp([
 
 export var updateRoomImageAssets = utils.withHelp([
     "updateRoomImageAssets(roomName) - Update images in assets folder for the specified room.",
-    function updateRoomImageAssets(roomName) {
+    function updateRoomImageAssets(roomName: any) {
 
         return db['rooms.terrain'].findOne({ room: roomName })
-            .then(terrainItem => utils.writeTerrainToPng(terrainItem.terrain,
-                path.resolve(process.env.ASSET_DIR, 'map', roomName + '.png'), true))
+            .then((terrainItem: any) => utils.writeTerrainToPng(terrainItem.terrain,
+                path.resolve(process.env.ASSET_DIR ?? "", 'map', roomName + '.png'), true))
             .then(() => {
                 let [x, y] = utils.roomNameToXY(roomName);
                 x = Math.floor(x / 4) * 4;
@@ -633,8 +645,8 @@ export var updateRoomImageAssets = utils.withHelp([
                     }
                 }
                 return db['rooms.terrain'].find({ room: { $in: allRoomNames } })
-                    .then(data => {
-                        const mergedColors = {};
+                    .then((data: any) => {
+                        const mergedColors: Record<string, any> = {};
                         for (var yy = 0; yy < 200; yy++) {
                             mergedColors[yy] = {};
                             for (var xx = 0; xx < 200; xx++) {
@@ -644,7 +656,7 @@ export var updateRoomImageAssets = utils.withHelp([
                         for (var xx = 0; xx < 4; xx++) {
                             for (var yy = 0; yy < 4; yy++) {
 
-                                const terrainItem = _.find(data, { room: utils.roomNameFromXY(xx + x, yy + y) });
+                                const terrainItem: any = _.find(data, { room: utils.roomNameFromXY(xx + x, yy + y) });
                                 if (!terrainItem) {
                                     continue;
                                 }
@@ -659,7 +671,7 @@ export var updateRoomImageAssets = utils.withHelp([
                         }
 
                         return utils.writePng(mergedColors, 200, 200,
-                            path.resolve(process.env.ASSET_DIR, 'map/zoom2', firstRoomName + '.png'));
+                            path.resolve(process.env.ASSET_DIR ?? "", 'map/zoom2', firstRoomName + '.png'));
                     });
             });
     }]);
@@ -680,9 +692,9 @@ export var updateTerrainData = utils.withHelp([
             .then(result => {
                 const [rooms, terrain] = result;
 
-                rooms.forEach(room => {
+                rooms.forEach((room: any) => {
                     if (room.status == 'out of borders') {
-                        _.find(terrain, { room: room._id }).terrain = walled;
+                        (_.find(terrain, { room: room._id }) as any).terrain = walled;
                     }
                     const m = room._id.match(/(W|E)(\d+)(N|S)(\d+)/);
                     const roomH = m[1] + (+m[2] + 1) + m[3] + m[4], roomV = m[1] + m[2] + m[3] + (+m[4] + 1);
@@ -696,7 +708,7 @@ export var updateTerrainData = utils.withHelp([
 
                 return q.ninvoke(zlib, 'deflate', JSON.stringify(terrain));
             })
-            .then(compressed => env.set(env.keys.TERRAIN_DATA, compressed.toString('base64')))
+            .then((compressed: any) => env.set(env.keys.TERRAIN_DATA, compressed.toString('base64')))
             .then(() => 'OK');
     }]);
 

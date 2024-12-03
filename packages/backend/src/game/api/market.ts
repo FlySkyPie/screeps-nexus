@@ -1,20 +1,22 @@
 import express from 'express';
-const router = express.Router();
-import q from 'q';
 import _ from 'lodash';
 import jsonResponse from 'q-json-response';
-import auth from './auth';
-import utils from '../../utils';
+
 import * as common from '@screeps/common/src';
+
+import * as auth from './auth';
+
+const router = express.Router();
+
 const db = common.storage.db;
 const env = common.storage.env;
 const C = common.configManager.config.common.constants;
 
 
 router.get('/orders-index', auth.tokenAuth, jsonResponse(() => {
-    return db['market.orders'].find({active: true})
+    return db['market.orders'].find({ active: true })
         .then((data = []) => {
-            const list = {};
+            const list: Record<string, any> = {};
 
             data.forEach(({ resourceType, type }) => {
                 list[resourceType] = list[resourceType] || {
@@ -34,25 +36,25 @@ router.get('/orders-index', auth.tokenAuth, jsonResponse(() => {
         })
 }));
 
-router.get('/orders', auth.tokenAuth, jsonResponse((request) => {
-    return db['market.orders'].find({$and: [{active: true}, {resourceType: request.query.resourceType}]})
-        .then(list => {
-            list.forEach(i => i.price /= 1000);
-            return {list};
+router.get('/orders', auth.tokenAuth, jsonResponse((request: any) => {
+    return db['market.orders'].find({ $and: [{ active: true }, { resourceType: request.query.resourceType }] })
+        .then((list: any) => {
+            list.forEach((i: any) => i.price /= 1000);
+            return { list };
         })
 }));
 
-router.get('/my-orders', auth.tokenAuth, jsonResponse((request) => {
-    return db['market.orders'].find({user: request.user._id})
-        .then(list => {
-            list.forEach(i => i.price /= 1000);
-            return {list};
+router.get('/my-orders', auth.tokenAuth, jsonResponse((request: any) => {
+    return db['market.orders'].find({ user: request.user._id })
+        .then((list: any) => {
+            list.forEach((i: any) => i.price /= 1000);
+            return { list };
         })
 }));
 
-router.get('/stats', auth.tokenAuth, jsonResponse((request) => {
-    return db['market.stats'].findEx({resourceType: request.query.resourceType}, {sort: {date: -1}})
-    .then(data => ({stats: data}))
+router.get('/stats', auth.tokenAuth, jsonResponse((request: any) => {
+    return db['market.stats'].findEx({ resourceType: request.query.resourceType }, { sort: { date: -1 } })
+        .then((data: any) => ({ stats: data }))
 }));
 
 
