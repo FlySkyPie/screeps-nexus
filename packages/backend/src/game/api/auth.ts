@@ -17,7 +17,7 @@ const db = StorageInstance.db;
 const env = StorageInstance.env;
 let steam: any;
 
-const sessionSecret = 'gwoif31m947j925hxcy6cj4l62he';
+// const sessionSecret = 'gwoif31m947j925hxcy6cj4l62he';
 const steamAppId = 464350;
 let useNativeAuth = false;
 

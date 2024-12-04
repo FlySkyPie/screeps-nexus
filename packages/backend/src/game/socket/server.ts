@@ -174,7 +174,7 @@ export default function installSocketServer(server: any, PROTOCOL: any) {
         });
     }
 
-    pubsub.subscribe('*', function (data: any) {
+    pubsub.subscribe('*', function (this: any, data: any) {
         let match;
         regexps.forEach((i) => {
             if (match = i.regexp.exec(this.channel)) {

@@ -197,7 +197,7 @@ router.post('/map-stats', auth.tokenAuth, jsonResponse((request: any) => {
         return q.reject('invalid params');
     }
 
-    const [, statName, interval] = match;
+    const [, _statName, _interval] = match;
     const stats: Record<string, any> = {};
     const users: Record<string, any> = {};
     let gameTime: any;

@@ -423,10 +423,10 @@ router.post('/notify-prefs', auth.tokenAuth, jsonResponse((request: any) => {
 router.get('/overview', auth.tokenAuth, jsonResponse((request: any) => {
     let roomIds;
 
-    const interval = parseInt(request.query.interval) || 8;
-    const intervalsCnt = { 8: 8, 180: 8, 1440: 7 }[interval];
-    const endTime = Math.ceil(Date.now() / (interval * 60 * 1000));
-    const statName = request.query.statName || 'energyHarvested';
+    // const interval = parseInt(request.query.interval) || 8;
+    // const intervalsCnt = { 8: 8, 180: 8, 1440: 7 }[interval];
+    // const endTime = Math.ceil(Date.now() / (interval * 60 * 1000));
+    // const statName = request.query.statName || 'energyHarvested';
     let statsMax: any;
     const stats = {};
     const totals = {};
@@ -493,7 +493,7 @@ router.get('/badge-svg', (request: any, response: any, _next: any) => {
             response.type('svg');
             response.send(badgeCache[username].svg);
         })
-        .catch((e) => {
+        .catch((_e) => {
             response.sendStatus(404);
         });
 });

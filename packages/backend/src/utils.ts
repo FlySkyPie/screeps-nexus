@@ -358,7 +358,7 @@ export function findFreePos(roomName: any, distance: any, rect: any, exclude?: a
                 hasObjects = _.any(objects, (i: any) =>
                     Math.abs(i.x - x) <= distance &&
                     Math.abs(i.y - y) <= distance &&
-                    ScreepsConstants.OBSTACLE_OBJECT_TYPES.concat(['rampart', 'portal']).indexOf(object.type) != -1);
+                    ScreepsConstants.OBSTACLE_OBJECT_TYPES.concat(['rampart', 'portal']).indexOf(i.type) != -1);
                 counter++;
             }
             while ((!spot || hasObjects) && counter < 500);

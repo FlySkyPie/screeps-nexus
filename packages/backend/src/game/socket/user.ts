@@ -54,7 +54,7 @@ export default (listen: any, emit: any) => {
 
     listen(/^roomsDone$/, _.throttle(() => {
         _.forEach(connectedToMemory, (memoryPaths: any, userId) => {
-            const startTime = Date.now();
+            // const startTime = Date.now();
             env.get(env.keys.MEMORY + userId)
                 .then((data: any) => {
                     if (data) {

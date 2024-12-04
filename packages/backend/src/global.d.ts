@@ -37,3 +37,12 @@ declare module "greenworks" {
 
     export const Strategy: any;
 }
+
+/**
+ * @link https://stackoverflow.com/a/58052244
+ */
+declare module 'http' {
+    interface IncomingMessage {
+        rawBody: any;
+    }
+}

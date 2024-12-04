@@ -1,9 +1,16 @@
 import _ from 'lodash';
 
+interface IPathItem {
+    calc(this: IPathItem, param: any): void;
+    path1?: string;
+    path2?: string;
+    flip?: string;
+}
+
 const BadgePaths: any = {
 
     1: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let vert = 0, hor = 0;
             if (param > 0) {
                 vert = param * 30 / 100;
@@ -18,7 +25,7 @@ const BadgePaths: any = {
     },
 
     2: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let x = 0, y = 0;
 
             if (param > 0) {
@@ -34,7 +41,7 @@ const BadgePaths: any = {
     },
 
     3: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             const angle = Math.PI / 4 + Math.PI / 4 * (param + 100) / 200, angle1 = -Math.PI / 2, angle2 = Math.PI / 2 + Math.PI / 3, angle3 = Math.PI / 2 - Math.PI / 3;
 
             this.path1 = `M 50 50 L ${50 + 100 * Math.cos(angle1 - angle / 2)} ${50 + 100 * Math.sin(angle1 - angle / 2)} L ${50 + 100 * Math.cos(angle1 + angle / 2)} ${50 + 100 * Math.sin(angle1 + angle / 2)} Z`;
@@ -45,7 +52,7 @@ const BadgePaths: any = {
     },
 
     4: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             param += 100;
             const y1 = 50 - param * 30 / 200, y2 = 50 + param * 30 / 200;
 
@@ -56,7 +63,7 @@ const BadgePaths: any = {
     },
 
     5: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             param += 100;
             const x1 = 50 - param * 10 / 200 - 10, x2 = 50 + param * 10 / 200 + 10;
 
@@ -67,7 +74,7 @@ const BadgePaths: any = {
     },
 
     6: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             const width = 5 + (param + 100) * 8 / 200, x1 = 50, x2 = 20, x3 = 80;
 
             this.path1 = `M ${x1 - width} 0 H ${x1 + width} V 100 H ${x1 - width}`;
@@ -78,7 +85,7 @@ const BadgePaths: any = {
     },
 
     7: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             const w = 20 + param * 10 / 100;
 
             this.path1 = `M 0 50 Q 25 30 50 50 T 100 50 V 100 H 0 Z`;
@@ -89,7 +96,7 @@ const BadgePaths: any = {
     },
 
     8: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             const y = param * 20 / 100;
 
             this.path1 = `M 0 50 H 100 V 100 H 0 Z`;
@@ -99,7 +106,7 @@ const BadgePaths: any = {
     },
 
     9: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let y1 = 0;
             let y2 = 50;
             const h = 70;
@@ -113,7 +120,7 @@ const BadgePaths: any = {
     },
 
     10: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let r = 30, d = 7;
 
             if (param > 0) r += param * 50 / 100;
@@ -126,7 +133,7 @@ const BadgePaths: any = {
     },
 
     11: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let a1 = 30;
             let a2 = 30;
             const x = 50 - 50 * Math.cos(Math.PI / 4);
@@ -149,7 +156,7 @@ const BadgePaths: any = {
     },
 
     12: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let a1 = 30, a2 = 35;
 
             if (param > 0) a1 += param * 30 / 100;
@@ -164,7 +171,7 @@ const BadgePaths: any = {
     },
 
     13: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let r = 30, d = 0;
 
             if (param > 0) r += param * 50 / 100;
@@ -178,7 +185,7 @@ const BadgePaths: any = {
     },
 
     14: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let a = Math.PI / 4;
             const d = 0;
 
@@ -191,7 +198,7 @@ const BadgePaths: any = {
     },
 
     15: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             const w = 13 + param * 6 / 100, r1 = 80, r2 = 45, d = 10;
 
             this.path1 = `M ${50 - r1 - w} ${100 + d} A ${r1 + w} ${r1 + w} 0 0 1 ${50 + r1 + w} ${100 + d}
@@ -204,7 +211,7 @@ const BadgePaths: any = {
     },
 
     16: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let a = 30 * Math.PI / 180, d = 25;
 
             if (param > 0) {
@@ -240,7 +247,7 @@ const BadgePaths: any = {
     },
 
     17: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let w = 35, h = 45;
 
             if (param > 0) {
@@ -258,7 +265,7 @@ const BadgePaths: any = {
     },
 
     18: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let a = 90 * Math.PI / 180, d = 10;
 
             if (param > 0) {
@@ -290,7 +297,7 @@ const BadgePaths: any = {
     },
 
     19: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let w2 = 20, w1 = 60;
 
             w1 += param * 20 / 100;
@@ -306,7 +313,7 @@ const BadgePaths: any = {
     },
 
     20: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let w = 10, h = 20;
 
             if (param > 0) w += param * 20 / 100;
@@ -319,7 +326,7 @@ const BadgePaths: any = {
     },
 
     21: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let w = 40, h = 50;
 
             if (param > 0) w -= param * 20 / 100;
@@ -334,7 +341,7 @@ const BadgePaths: any = {
     },
 
     22: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let w = 20;
 
             w += param * 10 / 100;
@@ -353,7 +360,7 @@ const BadgePaths: any = {
     },
 
     23: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let w = 17, h = 25;
 
             if (param > 0) w += param * 35 / 100;
@@ -372,7 +379,7 @@ const BadgePaths: any = {
     },
 
     24: {
-        calc(param: any) {
+        calc(this: IPathItem, param: any) {
             let w = 50, h = 45;
 
             if (param > 0) w += param * 60 / 100;
