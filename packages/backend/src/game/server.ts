@@ -15,10 +15,6 @@ import { SCREEPS_VERSION } from '../constanst';
 
 import socketServer from './socket/server';
 import * as auth from './api/auth';
-import userRouter from './api/user';
-import registerRouter from './api/register';
-import gameRouter from './api/game';
-import leaderboardRouter from './api/leaderboard';
 
 const config = common.configManager.config;
 const db = StorageInstance.db;
@@ -89,7 +85,11 @@ function connectToSteam(defer?: any) {
     return defer.promise;
 }
 
-function startServer() {
+const startServer = async () => {
+    const userRouter = await import('./api/user');
+    const registerRouter = await import('./api/register');
+    const gameRouter = await import('./api/game');
+    const leaderboardRouter = await import('./api/leaderboard');
 
     config.backend.router.use('/auth', auth.router);
     config.backend.router.use('/user', userRouter);

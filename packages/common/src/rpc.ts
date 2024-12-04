@@ -1,6 +1,6 @@
-import { Writable } from 'stream';
+import { EventEmitter } from 'node:events';
+import { Writable } from 'node:stream';
 import q from 'q';
-import { EventEmitter } from 'events';
 
 class JSONFrameStream extends Writable {
     public handler: any;
