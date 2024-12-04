@@ -83,16 +83,6 @@ class StorageInstance {
         const defer = q.defer();
         const resetDefer = q.defer();
 
-        function resetInterceptor(fn: any) {
-            /*return function() {
-                var promise = fn.apply(null, Array.prototype.slice.call(arguments));
-                return q.any([promise, resetDefer.promise])
-                .then(result => result === 'reset' ? q.reject('Storage connection lost') : result);
-            }*/
-            // TODO
-            return fn;
-        }
-
         function wrapCollection(collectionName: any) {
             const wrap: any = {};
             ['find', 'findOne', 'by', 'clear', 'count', 'ensureIndex', 'removeWhere', 'insert'].forEach(method => {
@@ -100,15 +90,15 @@ class StorageInstance {
                     return rpcClient.request('dbRequest', collectionName, method, Array.prototype.slice.call(arguments));
                 }
             });
-            wrap.update = resetInterceptor((query: any, update: any, params: any) => {
+            wrap.update = (query: any, update: any, params: any) => {
                 return rpcClient.request('dbUpdate', collectionName, query, update, params);
-            });
-            wrap.bulk = resetInterceptor((bulk: any) => {
+            };
+            wrap.bulk = (bulk: any) => {
                 return rpcClient.request('dbBulk', collectionName, bulk);
-            });
-            wrap.findEx = resetInterceptor((query: any, opts: any) => {
+            };
+            wrap.findEx = (query: any, opts: any) => {
                 return rpcClient.request('dbFindEx', collectionName, query, opts);
-            });
+            };
             return wrap;
         }
 
@@ -117,32 +107,32 @@ class StorageInstance {
         StorageInstance.resetAllData = () => rpcClient.request('dbResetAllData');
 
         Object.assign(StorageInstance.queue, {
-            fetch: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueFetch')),
-            add: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueAdd')),
-            addMulti: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueAddMulti')),
-            markDone: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueMarkDone')),
-            whenAllDone: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueWhenAllDone')),
-            reset: resetInterceptor(rpcClient.request.bind(rpcClient, 'queueReset'))
+            fetch: rpcClient.request.bind(rpcClient, 'queueFetch'),
+            add: rpcClient.request.bind(rpcClient, 'queueAdd'),
+            addMulti: rpcClient.request.bind(rpcClient, 'queueAddMulti'),
+            markDone: rpcClient.request.bind(rpcClient, 'queueMarkDone'),
+            whenAllDone: rpcClient.request.bind(rpcClient, 'queueWhenAllDone'),
+            reset: rpcClient.request.bind(rpcClient, 'queueReset')
         });
 
         Object.assign(StorageInstance.env, {
-            get: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvGet')),
-            mget: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvMget')),
-            set: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvSet')),
-            setex: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvSetex')),
-            expire: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvExpire')),
-            ttl: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvTtl')),
-            del: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvDel')),
-            hmget: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvHmget')),
-            hmset: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvHmset')),
-            hget: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvHget')),
-            hset: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvHset')),
-            sadd: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvSadd')),
-            smembers: resetInterceptor(rpcClient.request.bind(rpcClient, 'dbEnvSmembers')),
+            get: rpcClient.request.bind(rpcClient, 'dbEnvGet'),
+            mget: rpcClient.request.bind(rpcClient, 'dbEnvMget'),
+            set: rpcClient.request.bind(rpcClient, 'dbEnvSet'),
+            setex: rpcClient.request.bind(rpcClient, 'dbEnvSetex'),
+            expire: rpcClient.request.bind(rpcClient, 'dbEnvExpire'),
+            ttl: rpcClient.request.bind(rpcClient, 'dbEnvTtl'),
+            del: rpcClient.request.bind(rpcClient, 'dbEnvDel'),
+            hmget: rpcClient.request.bind(rpcClient, 'dbEnvHmget'),
+            hmset: rpcClient.request.bind(rpcClient, 'dbEnvHmset'),
+            hget: rpcClient.request.bind(rpcClient, 'dbEnvHget'),
+            hset: rpcClient.request.bind(rpcClient, 'dbEnvHset'),
+            sadd: rpcClient.request.bind(rpcClient, 'dbEnvSadd'),
+            smembers: rpcClient.request.bind(rpcClient, 'dbEnvSmembers'),
         });
 
         Object.assign(StorageInstance.pubsub, {
-            publish: resetInterceptor(rpcClient.request.bind(rpcClient, 'publish')),
+            publish: rpcClient.request.bind(rpcClient, 'publish'),
             subscribe(channel: any, cb: any) {
                 rpcClient.subscribe(channel, cb);
             }
