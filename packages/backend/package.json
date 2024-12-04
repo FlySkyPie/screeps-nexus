@@ -4,7 +4,7 @@
   "description": "",
   "main": "lib/index.js",
   "bin": {
-    "screeps-backend": "bin/start.js"
+    "screeps-backend": "dist/index.js"
   },
   "author": "Artem Chivchalov <contact@screeps.com>",
   "license": "ISC",
@@ -13,7 +13,7 @@
     "url": "https://github.com/screeps/backend-local.git"
   },
   "scripts": {
-    "build": " ncc build src/index.ts -o dist -s"
+    "build": " ncc build src/bin.ts -o dist -s"
   },
   "dependencies": {
     "@screeps/common": "workspace:*",
