@@ -4,6 +4,7 @@ import _ from 'lodash';
 
 import * as configManager from './config-manager';
 import * as storage from './storage';
+import StorageInstance from './storage';
 import * as rpc from './rpc';
 
 export { configManager, storage, rpc };
@@ -68,7 +69,7 @@ export function checkTerrain(terrain: any, x: any, y: any, mask: any) {
 }
 
 export function getGametime() {
-    return exports.storage.env.get(exports.storage.env.keys.GAMETIME).then((data: any) => parseInt(data));
+    return StorageInstance.env.get(StorageInstance.env.keys.GAMETIME).then((data: any) => parseInt(data));
 }
 
 export function getDiff(oldData: any, newData: any) {
