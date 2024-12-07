@@ -3,7 +3,7 @@
   "version": "5.0.0",
   "main": "lib/index.js",
   "bin": {
-    "screeps-storage": "bin/start.js"
+    "screeps-storage": "dist/index.js"
   },
   "license": "ISC",
   "author": "Artem Chivchalov <contact@screeps.com>",

@@ -193,7 +193,7 @@ export default async function start(_opts: IOptions, output: any) {
 
     if (!opts.storage_disabled) {
         const storageProcess = await _startProcess('storage',
-            path.resolve(path.dirname(require.resolve('@screeps/storage')), '../bin/start.js'), {
+            path.resolve(path.dirname(require.resolve('@screeps/storage')), '../dist/index.js'), {
             STORAGE_PORT: result.storagePort,
             MODFILE: opts.modfile,
             DB_PATH: opts.db
