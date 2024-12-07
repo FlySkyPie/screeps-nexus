@@ -75,9 +75,10 @@ class StorageInstance {
             throw new Error('STORAGE_PORT environment variable is not set!');
         }
 
-        console.log('Connecting to storage');
-
-        const socket = net.connect(parseInt(process.env.STORAGE_PORT), process.env.STORAGE_HOST);
+        /**
+         * `process.env.STORAGE_PORT` chould be `storage.sock`.
+         */
+        const socket = net.connect((process.env.STORAGE_PORT) as any, process.env.STORAGE_HOST);
         const rpcClient = new RpcClient(socket);
 
         const defer = q.defer();
