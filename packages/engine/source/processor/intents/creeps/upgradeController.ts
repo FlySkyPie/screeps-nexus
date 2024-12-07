@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 import config from '../../../config';
 
 export default (object, intent, {roomObjects, bulk, bulkUsers, stats, gameTime, eventLog}) => {
@@ -25,21 +25,21 @@ export default (object, intent, {roomObjects, bulk, bulkUsers, stats, gameTime, 
 
     target._upgraded = target._upgraded || 0;
 
-    const buildPower = _.filter(object.body, (i) => (i.hits > 0 || i._oldHits > 0) && i.type == C.WORK).length * C.UPGRADE_CONTROLLER_POWER || 0;
+    const buildPower = _.filter(object.body, (i) => (i.hits > 0 || i._oldHits > 0) && i.type == ScreepsConstants.WORK).length * ScreepsConstants.UPGRADE_CONTROLLER_POWER || 0;
     let buildEffect = Math.min(buildPower, object.store.energy);
 
     let boostedParts = _.map(object.body, i => {
-        if(i.type == C.WORK && i.boost && C.BOOSTS[C.WORK][i.boost].upgradeController > 0) {
-            return C.BOOSTS[C.WORK][i.boost].upgradeController-1;
+        if(i.type == ScreepsConstants.WORK && i.boost && ScreepsConstants.BOOSTS[ScreepsConstants.WORK][i.boost].upgradeController > 0) {
+            return ScreepsConstants.BOOSTS[ScreepsConstants.WORK][i.boost].upgradeController-1;
         }
         return 0;
     });
 
     if(target.level == 8) {
-        let limit = C.CONTROLLER_MAX_UPGRADE_PER_TICK;
-        const effect = _.find(target.effects, {power: C.PWR_OPERATE_CONTROLLER});
+        let limit = ScreepsConstants.CONTROLLER_MAX_UPGRADE_PER_TICK;
+        const effect = _.find(target.effects, {power: ScreepsConstants.PWR_OPERATE_CONTROLLER});
         if(effect && effect.endTime >= gameTime) {
-            limit += C.POWER_INFO[C.PWR_OPERATE_CONTROLLER].effect[effect.level-1];
+            limit += ScreepsConstants.POWER_INFO[ScreepsConstants.PWR_OPERATE_CONTROLLER].effect[effect.level-1];
         }
         if(target._upgraded >= limit) {
             return;
@@ -53,7 +53,7 @@ export default (object, intent, {roomObjects, bulk, bulkUsers, stats, gameTime, 
     const boostedEffect = Math.floor(buildEffect + _.sum(boostedParts));
 
     if(target.level < 8) {
-        let nextLevelProgress = C.CONTROLLER_LEVELS[target.level];
+        let nextLevelProgress = ScreepsConstants.CONTROLLER_LEVELS[target.level];
         if(config.ptr) {
             nextLevelProgress = 1000;
         }
@@ -61,11 +61,11 @@ export default (object, intent, {roomObjects, bulk, bulkUsers, stats, gameTime, 
             nextLevelProgress = 4;
         }
         if (target.progress + boostedEffect >= nextLevelProgress &&
-            target.downgradeTime >= gameTime + C.CONTROLLER_DOWNGRADE[target.level]) {
+            target.downgradeTime >= gameTime + ScreepsConstants.CONTROLLER_DOWNGRADE[target.level]) {
 
             target.progress = target.progress + boostedEffect - nextLevelProgress;
             target.level++;
-            target.downgradeTime = gameTime + C.CONTROLLER_DOWNGRADE[target.level]/2;
+            target.downgradeTime = gameTime + ScreepsConstants.CONTROLLER_DOWNGRADE[target.level]/2;
             driver.sendNotification(target.user, `Your Controller in room ${target.room} has been upgraded to level ${target.level}.`);
             if(target.level == 8) {
                 target.progress = 0;
@@ -98,7 +98,7 @@ export default (object, intent, {roomObjects, bulk, bulkUsers, stats, gameTime, 
         downgradeTime: target.downgradeTime
     });
 
-    eventLog.push({event: C.EVENT_UPGRADE_CONTROLLER, objectId: object._id, data: {
+    eventLog.push({event: ScreepsConstants.EVENT_UPGRADE_CONTROLLER, objectId: object._id, data: {
         amount: boostedEffect, energySpent: buildEffect
     }});
 };

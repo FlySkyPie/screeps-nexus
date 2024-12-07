@@ -1,12 +1,12 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, scope) => {
     const {gameTime, roomObjects, roomController, bulk} = scope;
 
-    if(!object ||!object.store || !C.COMMODITIES[intent.resourceType] || !!C.COMMODITIES[intent.resourceType].level && object.level != C.COMMODITIES[intent.resourceType].level) {
+    if(!object ||!object.store || !ScreepsConstants.COMMODITIES[intent.resourceType] || !!ScreepsConstants.COMMODITIES[intent.resourceType].level && object.level != ScreepsConstants.COMMODITIES[intent.resourceType].level) {
         return;
     }
 
@@ -18,27 +18,27 @@ export default (object, intent, scope) => {
         return;
     }
 
-    if(!!C.COMMODITIES[intent.resourceType].level && (object.level > 0) && !_.some(object.effects, e => e.power == C.PWR_OPERATE_FACTORY && e.level == C.COMMODITIES[intent.resourceType].level && e.endTime >= gameTime)) {
+    if(!!ScreepsConstants.COMMODITIES[intent.resourceType].level && (object.level > 0) && !_.some(object.effects, e => e.power == ScreepsConstants.PWR_OPERATE_FACTORY && e.level == ScreepsConstants.COMMODITIES[intent.resourceType].level && e.endTime >= gameTime)) {
         return;
     }
 
-    if(_.some(_.keys(C.COMMODITIES[intent.resourceType].components), p => (object.store[p]||0)<C.COMMODITIES[intent.resourceType].components[p])) {
+    if(_.some(_.keys(ScreepsConstants.COMMODITIES[intent.resourceType].components), p => (object.store[p]||0)<ScreepsConstants.COMMODITIES[intent.resourceType].components[p])) {
         return;
     }
 
     const targetTotal = utils.calcResources(object);
-    const componentsTotal = _.sum(C.COMMODITIES[intent.resourceType].components);
-    if (targetTotal - componentsTotal + (C.COMMODITIES[intent.resourceType].amount||1) > object.storeCapacity) {
+    const componentsTotal = _.sum(ScreepsConstants.COMMODITIES[intent.resourceType].components);
+    if (targetTotal - componentsTotal + (ScreepsConstants.COMMODITIES[intent.resourceType].amount||1) > object.storeCapacity) {
         return;
     }
 
-    for(let part in C.COMMODITIES[intent.resourceType].components) {
-        object.store[part] = object.store[part] - C.COMMODITIES[intent.resourceType].components[part];
+    for(let part in ScreepsConstants.COMMODITIES[intent.resourceType].components) {
+        object.store[part] = object.store[part] - ScreepsConstants.COMMODITIES[intent.resourceType].components[part];
     }
-    object.store[intent.resourceType] = (object.store[intent.resourceType]||0) + (C.COMMODITIES[intent.resourceType].amount || 1);
+    object.store[intent.resourceType] = (object.store[intent.resourceType]||0) + (ScreepsConstants.COMMODITIES[intent.resourceType].amount || 1);
     bulk.update(object, {store: object.store});
 
     object.actionLog.produce = {x: object.x, y: object.y, resourceType: intent.resourceType};
 
-    bulk.update(object, {cooldownTime: C.COMMODITIES[intent.resourceType].cooldown + gameTime});
+    bulk.update(object, {cooldownTime: ScreepsConstants.COMMODITIES[intent.resourceType].cooldown + gameTime});
 };

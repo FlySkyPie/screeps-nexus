@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, {roomObjects, bulk, bulkUsers, users}) => {
 
@@ -25,7 +25,7 @@ export default (object, intent, {roomObjects, bulk, bulkUsers, users}) => {
     if(target.level > 0) {
         return;
     }
-    if ((_.filter(object.body, (i) => i.hits > 0 && i.type == C.CLAIM).length) === 0) {
+    if ((_.filter(object.body, (i) => i.hits > 0 && i.type == ScreepsConstants.CLAIM).length) === 0) {
         return;
     }
     if(target.reservation && target.reservation.user != object.user) {

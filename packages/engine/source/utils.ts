@@ -1154,7 +1154,7 @@ export function calcBodyEffectiveness(
     bodyPartType: any,
     methodName: any,
     basePower: any,
-    withoutOldHits: any) {
+    withoutOldHits?: any) {
     let power = 0;
     body.forEach((i: any) => {
         if (!(i.hits || !withoutOldHits && i._oldHits) || i.type != bodyPartType) {

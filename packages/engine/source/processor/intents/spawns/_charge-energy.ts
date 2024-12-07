@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 function oldEnergyHandling(spawn, cost, {roomObjects, bulk}){
     const spawns = _.filter(roomObjects, i => i.type == 'spawn' && i.user == spawn.user && !i.off);

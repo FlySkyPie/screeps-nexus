@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 import movement from '../movement';
 
 export default (object, intent, {roomObjects}) => {
@@ -35,7 +35,7 @@ export default (object, intent, {roomObjects}) => {
 
     const targetObjects = _.filter(roomObjects, {x: object.x+dx, y: object.y+dy});
 
-    if(!_.any(targetObjects, (target) => _.contains(C.OBSTACLE_OBJECT_TYPES, target.type) &&
+    if(!_.any(targetObjects, (target) => _.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, target.type) &&
         target.type != 'creep' && target.type != 'powerCreep' ||
         target.type == 'rampart' && !target.isPublic && object.user != target.user ||
         object.type == 'powerCreep' && target.type == 'portal' && target.destination.shard)) {

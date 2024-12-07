@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import utils from './../utils';
 const driver = utils.getRuntimeDriver();
-const C = driver.constants;
+
 
 let runtimeData, intents, register, globals;
 
@@ -66,7 +66,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
                 if(target[name] !== undefined) {
                     return target[name];
                 }
-                if(C.RESOURCES_ALL.indexOf(name) !== -1) {
+                if(ScreepsConstants.RESOURCES_ALL.indexOf(name) !== -1) {
                     return 0;
                 }
             }

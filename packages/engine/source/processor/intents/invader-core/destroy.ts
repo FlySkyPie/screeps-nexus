@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 const strongholds = driver.strongholds;
 
 export default (object, scope) => {

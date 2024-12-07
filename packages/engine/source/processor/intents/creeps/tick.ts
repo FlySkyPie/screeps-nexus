@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 import movement from '../movement';
 
 function _applyDamage(object, damage) {
@@ -14,8 +14,8 @@ function _applyDamage(object, damage) {
                 break;
             }
             let bodyPart = object.body[i], damageRatio = 1;
-            if(bodyPart.boost && C.BOOSTS[bodyPart.type][bodyPart.boost] && C.BOOSTS[bodyPart.type][bodyPart.boost].damage) {
-                damageRatio = C.BOOSTS[bodyPart.type][bodyPart.boost].damage;
+            if(bodyPart.boost && ScreepsConstants.BOOSTS[bodyPart.type][bodyPart.boost] && ScreepsConstants.BOOSTS[bodyPart.type][bodyPart.boost].damage) {
+                damageRatio = ScreepsConstants.BOOSTS[bodyPart.type][bodyPart.boost].damage;
             }
             let bodyPartHitsEffective = bodyPart.hits / damageRatio;
             damageReduce += Math.min(bodyPartHitsEffective, damageEffective) * (1 - damageRatio);
@@ -74,7 +74,7 @@ export default (object, scope) => {
 
             bulk.update(object, {interRoom: {room, x, y}});
 
-            eventLog.push({event: C.EVENT_EXIT, objectId: object._id, data: {room, x, y}});
+            eventLog.push({event: ScreepsConstants.EVENT_EXIT, objectId: object._id, data: {room, x, y}});
         }
 
         if(object.ageTime) { // since NPC creeps may appear right on portals without `ageTime` defined at the first tick
@@ -86,7 +86,7 @@ export default (object, scope) => {
 
         if(!object.tutorial) {
             if(!object.ageTime) {
-                object.ageTime = gameTime + (_.any(object.body, {type: C.CLAIM}) ? C.CREEP_CLAIM_LIFE_TIME : C.CREEP_LIFE_TIME);
+                object.ageTime = gameTime + (_.any(object.body, {type: ScreepsConstants.CLAIM}) ? ScreepsConstants.CREEP_CLAIM_LIFE_TIME : ScreepsConstants.CREEP_LIFE_TIME);
                 bulk.update(object, {ageTime: object.ageTime});
             }
 
@@ -102,7 +102,7 @@ export default (object, scope) => {
     }
 
 
-    const moves = utils.calcBodyEffectiveness(object.body, C.MOVE, 'fatigue', 1);
+    const moves = utils.calcBodyEffectiveness(object.body, ScreepsConstants.MOVE, 'fatigue', 1);
     if(moves > 0) {
         require('./_add-fatigue')(object, -2*moves, scope);
     }

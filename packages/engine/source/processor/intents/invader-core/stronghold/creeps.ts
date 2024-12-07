@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../../utils';
+import * as utils from '../../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 const makeBody = description => {
     return _.reduce(description, (result, segment) => {
@@ -12,28 +12,28 @@ const makeBody = description => {
 
 export default {
     'fortifier': makeBody([
-        {part: C.WORK, count: 15, boost: 'XLH2O'},
-        {part: C.CARRY, count: 15},
-        {part: C.MOVE, count: 15}
+        {part: ScreepsConstants.WORK, count: 15, boost: 'XLH2O'},
+        {part: ScreepsConstants.CARRY, count: 15},
+        {part: ScreepsConstants.MOVE, count: 15}
     ]),
     'weakDefender': makeBody([
-        {part: C.ATTACK, count: 15},
-        {part: C.MOVE, count: 15}
+        {part: ScreepsConstants.ATTACK, count: 15},
+        {part: ScreepsConstants.MOVE, count: 15}
     ]),
     'fullDefender': makeBody([
-        {part: C.ATTACK, count: 25},
-        {part: C.MOVE, count: 25}
+        {part: ScreepsConstants.ATTACK, count: 25},
+        {part: ScreepsConstants.MOVE, count: 25}
     ]),
     'boostedDefender': makeBody([
-        {part: C.ATTACK, count: 25, boost: 'UH2O'},
-        {part: C.MOVE, count: 25}
+        {part: ScreepsConstants.ATTACK, count: 25, boost: 'UH2O'},
+        {part: ScreepsConstants.MOVE, count: 25}
     ]),
     'fullBoostedMelee': makeBody([
-        {part: C.ATTACK, count: 44, boost: 'XUH2O'},
-        {part: C.MOVE, count: 6, boost: 'XZHO2'}
+        {part: ScreepsConstants.ATTACK, count: 44, boost: 'XUH2O'},
+        {part: ScreepsConstants.MOVE, count: 6, boost: 'XZHO2'}
     ]),
     'fullBoostedRanger': makeBody([
-        {part: C.RANGED_ATTACK, count: 44, boost: 'XKHO2'},
-        {part: C.MOVE, count: 6, boost: 'XZHO2'}
+        {part: ScreepsConstants.RANGED_ATTACK, count: 44, boost: 'XKHO2'},
+        {part: ScreepsConstants.MOVE, count: 6, boost: 'XZHO2'}
     ]),
 };

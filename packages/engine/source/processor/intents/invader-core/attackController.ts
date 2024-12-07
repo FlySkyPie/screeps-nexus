@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (
     object,
@@ -28,19 +28,19 @@ export default (
         return;
     }
     if(target.reservation) {
-        var effect = Math.floor(C.INVADER_CORE_CONTROLLER_POWER * C.CONTROLLER_RESERVE);
+        var effect = Math.floor(ScreepsConstants.INVADER_CORE_CONTROLLER_POWER * ScreepsConstants.CONTROLLER_RESERVE);
         const endTime = target.reservation.endTime - effect;
         bulk.update(target, {reservation: {endTime}});
     }
     if(target.user) {
-        var effect = Math.floor(C.INVADER_CORE_CONTROLLER_POWER * C.CONTROLLER_CLAIM_DOWNGRADE);
+        var effect = Math.floor(ScreepsConstants.INVADER_CORE_CONTROLLER_POWER * ScreepsConstants.CONTROLLER_CLAIM_DOWNGRADE);
         const downgradeTime = target.downgradeTime - effect;
         bulk.update(target, {downgradeTime});
-        target._upgradeBlocked = gameTime + C.CONTROLLER_ATTACK_BLOCKED_UPGRADE;
+        target._upgradeBlocked = gameTime + ScreepsConstants.CONTROLLER_ATTACK_BLOCKED_UPGRADE;
     }
     object.actionLog.reserveController = {x: target.x, y: target.y};
 
     roomInfo.active = true;
 
-    eventLog.push({event: C.EVENT_ATTACK_CONTROLLER, objectId: object._id})
+    eventLog.push({event: ScreepsConstants.EVENT_ATTACK_CONTROLLER, objectId: object._id})
 };

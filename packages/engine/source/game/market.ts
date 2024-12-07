@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import utils from '../utils';
 const driver = utils.getRuntimeDriver();
-const C = driver.constants;
+
 import util from 'util';
 
 export function make(runtimeData, intents, register) {
@@ -17,7 +17,7 @@ export function make(runtimeData, intents, register) {
             resourceType = 'all';
         }
         if(!cachedOrders[resourceType]) {
-            if(resourceType != 'all' && !_.contains(C.RESOURCES_ALL, resourceType) && !_.contains(C.INTERSHARD_RESOURCES, resourceType)) {
+            if(resourceType != 'all' && !_.contains(ScreepsConstants.RESOURCES_ALL, resourceType) && !_.contains(ScreepsConstants.INTERSHARD_RESOURCES, resourceType)) {
                 return {};
             }
             cachedOrders[resourceType] = JSON.parse(JSON.stringify(runtimeData.market.orders[resourceType]) || '{}');
@@ -46,7 +46,7 @@ export function make(runtimeData, intents, register) {
             }
 
             if(!cachedHistory[resourceType]) {
-                if(resourceType != 'all' && !_.contains(C.RESOURCES_ALL, resourceType) && !_.contains(C.INTERSHARD_RESOURCES, resourceType)) {
+                if(resourceType != 'all' && !_.contains(ScreepsConstants.RESOURCES_ALL, resourceType) && !_.contains(ScreepsConstants.INTERSHARD_RESOURCES, resourceType)) {
                     return {};
                 }
                 cachedHistory[resourceType] = JSON.parse(JSON.stringify(runtimeData.market.history[resourceType] || {}));
@@ -68,126 +68,126 @@ export function make(runtimeData, intents, register) {
             if(_.isObject(type)) {
                 var {type, resourceType, price, totalAmount, roomName} = type;
             }
-            if(!_.contains(C.RESOURCES_ALL, resourceType) && !_.contains(C.INTERSHARD_RESOURCES, resourceType)) {
-                return C.ERR_INVALID_ARGS;
+            if(!_.contains(ScreepsConstants.RESOURCES_ALL, resourceType) && !_.contains(ScreepsConstants.INTERSHARD_RESOURCES, resourceType)) {
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
-            if(type != C.ORDER_BUY && type != C.ORDER_SELL) {
-                return C.ERR_INVALID_ARGS;
+            if(type != ScreepsConstants.ORDER_BUY && type != ScreepsConstants.ORDER_SELL) {
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
             price = parseFloat(price);
             totalAmount = parseInt(totalAmount);
             if(!price || price <= 0 || !totalAmount) {
-                return C.ERR_INVALID_ARGS;
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
-            if(price * totalAmount * C.MARKET_FEE > this.credits) {
-                return C.ERR_NOT_ENOUGH_RESOURCES;
+            if(price * totalAmount * ScreepsConstants.MARKET_FEE > this.credits) {
+                return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
             }
-            if(!_.contains(C.INTERSHARD_RESOURCES, resourceType) &&
+            if(!_.contains(ScreepsConstants.INTERSHARD_RESOURCES, resourceType) &&
                 (!roomName || !_.any(runtimeData.userObjects, {type: 'terminal', room: roomName}))) {
-                return C.ERR_NOT_OWNER;
+                return ScreepsConstants.ERR_NOT_OWNER;
             }
-            if(_.size(this.orders) + ordersCreatedDuringTick >= C.MARKET_MAX_ORDERS) {
-                return C.ERR_FULL;
+            if(_.size(this.orders) + ordersCreatedDuringTick >= ScreepsConstants.MARKET_MAX_ORDERS) {
+                return ScreepsConstants.ERR_FULL;
             }
             ordersCreatedDuringTick++;
             intents.pushByName('global', 'createOrder', {
                 type, resourceType, price, totalAmount, roomName
             });
-            return C.OK;
+            return ScreepsConstants.OK;
         }),
 
         cancelOrder: register.wrapFn(function(orderId) {
             if(!this.orders[orderId]) {
-                return C.ERR_INVALID_ARGS;
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
             intents.pushByName('global', 'cancelOrder', {orderId}, 50);
-            return C.OK;
+            return ScreepsConstants.OK;
         }),
 
         deal: register.wrapFn(function(orderId, amount, targetRoomName) {
             const order = runtimeData.market.orders.all[orderId];
             if(!order) {
-                return C.ERR_INVALID_ARGS;
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
             amount = parseInt(amount);
             if(!amount || amount < 0) {
-                return C.ERR_INVALID_ARGS;
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
-            if(_.contains(C.INTERSHARD_RESOURCES, order.resourceType)) {
-                if(order.resourceType == C.SUBSCRIPTION_TOKEN) {
-                    if(order.type == C.ORDER_BUY && (runtimeData.user.subscriptionTokens||0) < amount) {
-                        return C.ERR_NOT_ENOUGH_RESOURCES;
+            if(_.contains(ScreepsConstants.INTERSHARD_RESOURCES, order.resourceType)) {
+                if(order.resourceType == ScreepsConstants.SUBSCRIPTION_TOKEN) {
+                    if(order.type == ScreepsConstants.ORDER_BUY && (runtimeData.user.subscriptionTokens||0) < amount) {
+                        return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
                     }
                 }
             }
             else {
                 if(!targetRoomName) {
-                    return C.ERR_INVALID_ARGS;
+                    return ScreepsConstants.ERR_INVALID_ARGS;
                 }
                 const terminal = _.find(runtimeData.userObjects, {type: 'terminal', room: targetRoomName}), transferCost = this.calcTransactionCost(amount, targetRoomName, order.roomName);
                 if(!terminal) {
-                    return C.ERR_NOT_OWNER;
+                    return ScreepsConstants.ERR_NOT_OWNER;
                 }
-                if(!terminal.store || terminal.store[C.RESOURCE_ENERGY] < transferCost) {
-                    return C.ERR_NOT_ENOUGH_RESOURCES;
+                if(!terminal.store || terminal.store[ScreepsConstants.RESOURCE_ENERGY] < transferCost) {
+                    return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
                 }
                 if(terminal.cooldownTime > runtimeData.time) {
-                    return C.ERR_TIRED;
+                    return ScreepsConstants.ERR_TIRED;
                 }
-                if(order.type == C.ORDER_BUY) {
-                    if(order.resourceType != C.RESOURCE_ENERGY && (!terminal.store[order.resourceType] || terminal.store[order.resourceType] < amount) ||
-                         order.resourceType == C.RESOURCE_ENERGY && terminal.store[C.RESOURCE_ENERGY] < amount + transferCost) {
-                        return C.ERR_NOT_ENOUGH_RESOURCES;
+                if(order.type == ScreepsConstants.ORDER_BUY) {
+                    if(order.resourceType != ScreepsConstants.RESOURCE_ENERGY && (!terminal.store[order.resourceType] || terminal.store[order.resourceType] < amount) ||
+                         order.resourceType == ScreepsConstants.RESOURCE_ENERGY && terminal.store[ScreepsConstants.RESOURCE_ENERGY] < amount + transferCost) {
+                        return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
                     }
                 }
             }
 
-            if(order.type == C.ORDER_SELL && (runtimeData.user.money || 0) < amount * order.price) {
-                return C.ERR_NOT_ENOUGH_RESOURCES;
+            if(order.type == ScreepsConstants.ORDER_SELL && (runtimeData.user.money || 0) < amount * order.price) {
+                return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
             }
 
             if(!intents.pushByName('global', 'deal', {orderId, targetRoomName, amount}, 10)) {
-                return C.ERR_FULL;
+                return ScreepsConstants.ERR_FULL;
             }
-            return C.OK;
+            return ScreepsConstants.OK;
         }),
 
         changeOrderPrice: register.wrapFn(function(orderId, newPrice) {
             const order = this.orders[orderId];
             if(!order) {
-                return C.ERR_INVALID_ARGS;
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
             newPrice = parseFloat(newPrice);
             if(!newPrice || newPrice <= 0) {
-                return C.ERR_INVALID_ARGS;
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
-            if(newPrice > order.price && (newPrice - order.price) * order.remainingAmount * C.MARKET_FEE > this.credits) {
-                return C.ERR_NOT_ENOUGH_RESOURCES;
+            if(newPrice > order.price && (newPrice - order.price) * order.remainingAmount * ScreepsConstants.MARKET_FEE > this.credits) {
+                return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
             }
 
             intents.pushByName('global', 'changeOrderPrice', {
                 orderId, newPrice
             }, 50);
-            return C.OK;
+            return ScreepsConstants.OK;
         }),
 
         extendOrder: register.wrapFn(function(orderId, addAmount) {
             const order = this.orders[orderId];
             if(!order) {
-                return C.ERR_INVALID_ARGS;
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
             addAmount = parseInt(addAmount);
             if(!addAmount || addAmount <= 0) {
-                return C.ERR_INVALID_ARGS;
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
-            if(order.price * addAmount * C.MARKET_FEE > this.credits) {
-                return C.ERR_NOT_ENOUGH_RESOURCES;
+            if(order.price * addAmount * ScreepsConstants.MARKET_FEE > this.credits) {
+                return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
             }
 
             intents.pushByName('global', 'extendOrder', {
                 orderId, addAmount
             }, 50);
-            return C.OK;
+            return ScreepsConstants.OK;
         }),
     };
 

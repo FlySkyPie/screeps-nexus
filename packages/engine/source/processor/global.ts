@@ -7,7 +7,7 @@ import marketProcessor from './global-intents/market';
 import powerProcessor from './global-intents/power';
 
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default () => {
 

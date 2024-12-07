@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, scope, attackType) => {
     const {gameTime, bulk, roomObjects} = scope;
@@ -18,7 +18,7 @@ export default (object, scope, attackType) => {
         require('../invader-core/destroy')(object, scope);
     }
 
-    if(!attackType || attackType != C.EVENT_ATTACK_TYPE_NUKE) {
+    if(!attackType || attackType != ScreepsConstants.EVENT_ATTACK_TYPE_NUKE) {
         const ruin = {
             type: 'ruin',
             room: object.room,
@@ -32,7 +32,7 @@ export default (object, scope, attackType) => {
                 user: object.user
             },
             destroyTime: gameTime,
-            decayTime: gameTime + (C.RUIN_DECAY_STRUCTURES[object.type] || C.RUIN_DECAY)
+            decayTime: gameTime + (ScreepsConstants.RUIN_DECAY_STRUCTURES[object.type] || ScreepsConstants.RUIN_DECAY)
         };
         if(object.user) {
             ruin.user = object.user
@@ -40,7 +40,7 @@ export default (object, scope, attackType) => {
         ruin.store = object.store || {};
 
         if(object.effects) {
-            const collapseEffect = _.find(object.effects, {effect: C.EFFECT_COLLAPSE_TIMER});
+            const collapseEffect = _.find(object.effects, {effect: ScreepsConstants.EFFECT_COLLAPSE_TIMER});
             if(collapseEffect) {
                 ruin.decayTime = _.max([ruin.decayTime, collapseEffect.endTime]);
             }

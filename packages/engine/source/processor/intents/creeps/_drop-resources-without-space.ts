@@ -1,11 +1,11 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default function dropResourcesWithoutSpace(object, scope) {
-    for(let i=0; i<C.RESOURCES_ALL.length; i++) {
-        const resourceType = C.RESOURCES_ALL[i];
+    for(let i=0; i<ScreepsConstants.RESOURCES_ALL.length; i++) {
+        const resourceType = ScreepsConstants.RESOURCES_ALL[i];
         const totalAmount = utils.calcResources(object);
         if(totalAmount <= object.storeCapacity) {
             break;

@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import utils from '../../../../utils';
+import * as utils from '../../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
-import fakeRuntime from '../../../common/fake-runtime';
+
+import * as fakeRuntime from '../../../common/fake-runtime';
 
 export default (creep, scope) => {
     const {roomObjects, bulk} = scope;

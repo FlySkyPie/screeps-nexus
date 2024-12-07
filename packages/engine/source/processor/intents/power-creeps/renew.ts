@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, {roomObjects, roomController, bulk, gameTime}) => {
 
@@ -17,7 +17,7 @@ export default (object, intent, {roomObjects, roomController, bulk, gameTime}) =
         return;
     }
 
-    bulk.update(object, {ageTime: gameTime + C.POWER_CREEP_LIFE_TIME});
+    bulk.update(object, {ageTime: gameTime + ScreepsConstants.POWER_CREEP_LIFE_TIME});
 
     object.actionLog.healed = {x: object.x, y: object.y};
 };

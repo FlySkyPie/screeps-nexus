@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (spawn, intent, scope) => {
     const {roomObjects, bulk, roomController, stats, gameTime} = scope;
@@ -31,7 +31,7 @@ export default (spawn, intent, scope) => {
         }
     }
 
-    intent.body = intent.body.slice(0, C.MAX_CREEP_SIZE);
+    intent.body = intent.body.slice(0, ScreepsConstants.MAX_CREEP_SIZE);
 
     const cost = utils.calcCreepCost(intent.body);
     const result = require('./_charge-energy')(spawn, cost, intent.energyStructures, scope);
@@ -44,11 +44,11 @@ export default (spawn, intent, scope) => {
 
     stats.inc('creepsProduced', spawn.user, intent.body.length);
 
-    let needTime = C.CREEP_SPAWN_TIME * intent.body.length;
+    let needTime = ScreepsConstants.CREEP_SPAWN_TIME * intent.body.length;
 
-    const effect = _.find(spawn.effects, {power: C.PWR_OPERATE_SPAWN});
+    const effect = _.find(spawn.effects, {power: ScreepsConstants.PWR_OPERATE_SPAWN});
     if(effect && effect.endTime > gameTime) {
-        needTime = Math.ceil(needTime * C.POWER_INFO[C.PWR_OPERATE_SPAWN].effect[effect.level-1]);
+        needTime = Math.ceil(needTime * ScreepsConstants.POWER_INFO[ScreepsConstants.PWR_OPERATE_SPAWN].effect[effect.level-1]);
     }
 
     bulk.update(spawn, {
@@ -64,15 +64,15 @@ export default (spawn, intent, scope) => {
     let storeCapacity = 0;
 
     intent.body.forEach((i) => {
-        if(_.contains(C.BODYPARTS_ALL, i)) {
+        if(_.contains(ScreepsConstants.BODYPARTS_ALL, i)) {
             body.push({
                 type: i,
                 hits: 100
             });
         }
 
-        if(i == C.CARRY)
-            storeCapacity += C.CARRY_CAPACITY;
+        if(i == ScreepsConstants.CARRY)
+            storeCapacity += ScreepsConstants.CARRY_CAPACITY;
     });
 
     const creep = {

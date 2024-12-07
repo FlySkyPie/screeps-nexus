@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import config from '../../../config';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 let createdStructureCounter = 0;
 
@@ -20,7 +20,7 @@ export default (
 
     const target = roomObjects[intent.id];
     if(!target || target.type != 'constructionSite' ||
-        !C.CONSTRUCTION_COST[target.structureType]) {
+        !ScreepsConstants.CONSTRUCTION_COST[target.structureType]) {
         return;
     }
     if(Math.abs(target.x - object.x) > 3 || Math.abs(target.y - object.y) > 3) {
@@ -50,8 +50,8 @@ export default (
         return;
     }
 
-    if(_.contains(C.OBSTACLE_OBJECT_TYPES, target.structureType)) {
-        if(_.any(objectsInTile, i => _.contains(C.OBSTACLE_OBJECT_TYPES, i.type))) {
+    if(_.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, target.structureType)) {
+        if(_.any(objectsInTile, i => _.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, i.type))) {
             return;
         }
 
@@ -63,17 +63,17 @@ export default (
     }
 
     if(target.structureType != 'extractor' && target.structureType != 'road' &&
-        utils.checkTerrain(roomTerrain, target.x, target.y, C.TERRAIN_MASK_WALL)) {
+        utils.checkTerrain(roomTerrain, target.x, target.y, ScreepsConstants.TERRAIN_MASK_WALL)) {
         return;
     }
 
-    const buildPower = _.filter(object.body, (i) => (i.hits > 0 || i._oldHits > 0) && i.type == C.WORK).length * C.BUILD_POWER || 0;
+    const buildPower = _.filter(object.body, (i) => (i.hits > 0 || i._oldHits > 0) && i.type == ScreepsConstants.WORK).length * ScreepsConstants.BUILD_POWER || 0;
     const buildRemaining = target.progressTotal - target.progress;
     const buildEffect = Math.min(buildPower, buildRemaining, object.store.energy);
 
     let boostedParts = _.map(object.body, i => {
-        if(i.type == C.WORK && i.boost && C.BOOSTS[C.WORK][i.boost].build > 0) {
-            return (C.BOOSTS[C.WORK][i.boost].build-1) * C.BUILD_POWER;
+        if(i.type == ScreepsConstants.WORK && i.boost && ScreepsConstants.BOOSTS[ScreepsConstants.WORK][i.boost].build > 0) {
+            return (ScreepsConstants.BOOSTS[ScreepsConstants.WORK][i.boost].build-1) * ScreepsConstants.BUILD_POWER;
         }
         return 0;
     });
@@ -91,7 +91,7 @@ export default (
     object.actionLog.build = {x: target.x, y: target.y};
     bulk.update(object, {store:{energy: object.store.energy}});
 
-    eventLog.push({event: C.EVENT_BUILD, objectId: object._id, data: {targetId: target._id, amount: boostedEffect}});
+    eventLog.push({event: ScreepsConstants.EVENT_BUILD, objectId: object._id, data: {targetId: target._id, amount: boostedEffect}});
 
     if(target.progress < target.progressTotal) {
         bulk.update(target, {
@@ -114,9 +114,9 @@ export default (
                 name: target.name,
                 user: target.user,
                 store: {energy: 0},
-                storeCapacityResource: {energy: C.SPAWN_ENERGY_CAPACITY},
-                hits: C.SPAWN_HITS,
-                hitsMax: C.SPAWN_HITS
+                storeCapacityResource: {energy: ScreepsConstants.SPAWN_ENERGY_CAPACITY},
+                hits: ScreepsConstants.SPAWN_HITS,
+                hitsMax: ScreepsConstants.SPAWN_HITS
             });
         }
 
@@ -125,8 +125,8 @@ export default (
                 user: target.user,
                 store: {energy: 0},
                 storeCapacityResource: {energy: 0},
-                hits: C.EXTENSION_HITS,
-                hitsMax: C.EXTENSION_HITS
+                hits: ScreepsConstants.EXTENSION_HITS,
+                hitsMax: ScreepsConstants.EXTENSION_HITS
             });
         }
 
@@ -134,10 +134,10 @@ export default (
             _.extend(newObject, {
                 user: target.user,
                 store: {energy: 0},
-                storeCapacityResource: {energy: C.LINK_CAPACITY},
+                storeCapacityResource: {energy: ScreepsConstants.LINK_CAPACITY},
                 cooldown: 0,
-                hits: C.LINK_HITS,
-                hitsMax: C.LINK_HITS_MAX
+                hits: ScreepsConstants.LINK_HITS,
+                hitsMax: ScreepsConstants.LINK_HITS_MAX
             });
         }
 
@@ -145,44 +145,44 @@ export default (
             _.extend(newObject, {
                 user: target.user,
                 store: { energy: 0 },
-                storeCapacity: C.STORAGE_CAPACITY,
-                hits: C.STORAGE_HITS,
-                hitsMax: C.STORAGE_HITS
+                storeCapacity: ScreepsConstants.STORAGE_CAPACITY,
+                hits: ScreepsConstants.STORAGE_HITS,
+                hitsMax: ScreepsConstants.STORAGE_HITS
             });
         }
 
-        const hitsMax = (!!roomController && roomController.user == object.user) ? C.RAMPART_HITS_MAX[roomController.level] || 0 : 0;
+        const hitsMax = (!!roomController && roomController.user == object.user) ? ScreepsConstants.RAMPART_HITS_MAX[roomController.level] || 0 : 0;
         if (target.structureType == 'rampart') {
             _.extend(newObject, {
                 user: target.user,
-                hits: C.RAMPART_HITS,
+                hits: ScreepsConstants.RAMPART_HITS,
                 hitsMax,
-                nextDecayTime: gameTime + C.RAMPART_DECAY_TIME
+                nextDecayTime: gameTime + ScreepsConstants.RAMPART_DECAY_TIME
             });
         }
 
         if (target.structureType == 'road') {
-            let hits = C.ROAD_HITS;
+            let hits = ScreepsConstants.ROAD_HITS;
 
             if(_.any(roomObjects, {x: target.x, y: target.y, type: 'swamp'}) ||
-                utils.checkTerrain(roomTerrain, target.x, target.y, C.TERRAIN_MASK_SWAMP)) {
-                hits *= C.CONSTRUCTION_COST_ROAD_SWAMP_RATIO;
+                utils.checkTerrain(roomTerrain, target.x, target.y, ScreepsConstants.TERRAIN_MASK_SWAMP)) {
+                hits *= ScreepsConstants.CONSTRUCTION_COST_ROAD_SWAMP_RATIO;
             }
             if(_.any(roomObjects, {x: target.x, y: target.y, type: 'wall'}) ||
-                utils.checkTerrain(roomTerrain, target.x, target.y, C.TERRAIN_MASK_WALL)) {
-                hits *= C.CONSTRUCTION_COST_ROAD_WALL_RATIO;
+                utils.checkTerrain(roomTerrain, target.x, target.y, ScreepsConstants.TERRAIN_MASK_WALL)) {
+                hits *= ScreepsConstants.CONSTRUCTION_COST_ROAD_WALL_RATIO;
             }
             _.extend(newObject, {
                 hits,
                 hitsMax: hits,
-                nextDecayTime: gameTime + C.ROAD_DECAY_TIME
+                nextDecayTime: gameTime + ScreepsConstants.ROAD_DECAY_TIME
             });
         }
 
         if (target.structureType == 'constructedWall') {
             _.extend(newObject, {
-                hits: C.WALL_HITS,
-                hitsMax: C.WALL_HITS_MAX
+                hits: ScreepsConstants.WALL_HITS,
+                hitsMax: ScreepsConstants.WALL_HITS_MAX
             });
         }
 
@@ -190,38 +190,38 @@ export default (
             _.extend(newObject, {
                 user: target.user,
                 store: {energy: 0},
-                storeCapacityResource: {energy: C.TOWER_CAPACITY},
-                hits: C.TOWER_HITS,
-                hitsMax: C.TOWER_HITS
+                storeCapacityResource: {energy: ScreepsConstants.TOWER_CAPACITY},
+                hits: ScreepsConstants.TOWER_HITS,
+                hitsMax: ScreepsConstants.TOWER_HITS
             });
         }
 
         if (target.structureType == 'observer') {
             _.extend(newObject, {
                 user: target.user,
-                hits: C.OBSERVER_HITS,
-                hitsMax: C.OBSERVER_HITS
+                hits: ScreepsConstants.OBSERVER_HITS,
+                hitsMax: ScreepsConstants.OBSERVER_HITS
             });
         }
 
         if (target.structureType == 'extractor') {
             _.extend(newObject, {
                 user: target.user,
-                hits: C.EXTRACTOR_HITS,
-                hitsMax: C.EXTRACTOR_HITS
+                hits: ScreepsConstants.EXTRACTOR_HITS,
+                hitsMax: ScreepsConstants.EXTRACTOR_HITS
             });
         }
 
         if (target.structureType == 'lab') {
             _.extend(newObject, {
                 user: target.user,
-                hits: C.LAB_HITS,
-                hitsMax: C.LAB_HITS,
+                hits: ScreepsConstants.LAB_HITS,
+                hitsMax: ScreepsConstants.LAB_HITS,
                 mineralAmount: 0,
                 cooldown: 0,
                 store: {energy: 0},
-                storeCapacity: C.LAB_ENERGY_CAPACITY + C.LAB_MINERAL_CAPACITY,
-                storeCapacityResource: {energy: C.LAB_ENERGY_CAPACITY}
+                storeCapacity: ScreepsConstants.LAB_ENERGY_CAPACITY + ScreepsConstants.LAB_MINERAL_CAPACITY,
+                storeCapacityResource: {energy: ScreepsConstants.LAB_ENERGY_CAPACITY}
             });
         }
 
@@ -229,9 +229,9 @@ export default (
             _.extend(newObject, {
                 user: target.user,
                 store: {energy: 0},
-                storeCapacityResource: {energy: C.POWER_SPAWN_ENERGY_CAPACITY, power: C.POWER_SPAWN_POWER_CAPACITY},
-                hits: C.POWER_SPAWN_HITS,
-                hitsMax: C.POWER_SPAWN_HITS
+                storeCapacityResource: {energy: ScreepsConstants.POWER_SPAWN_ENERGY_CAPACITY, power: ScreepsConstants.POWER_SPAWN_POWER_CAPACITY},
+                hits: ScreepsConstants.POWER_SPAWN_HITS,
+                hitsMax: ScreepsConstants.POWER_SPAWN_HITS
             });
         }
 
@@ -239,19 +239,19 @@ export default (
             _.extend(newObject, {
                 user: target.user,
                 store: {energy: 0},
-                storeCapacity: C.TERMINAL_CAPACITY,
-                hits: C.TERMINAL_HITS,
-                hitsMax: C.TERMINAL_HITS
+                storeCapacity: ScreepsConstants.TERMINAL_CAPACITY,
+                hits: ScreepsConstants.TERMINAL_HITS,
+                hitsMax: ScreepsConstants.TERMINAL_HITS
             });
         }
 
         if (target.structureType == 'container') {
             _.extend(newObject, {
                 store: {energy: 0},
-                storeCapacity: C.CONTAINER_CAPACITY,
-                hits: C.CONTAINER_HITS,
-                hitsMax: C.CONTAINER_HITS,
-                nextDecayTime: gameTime + C.CONTAINER_DECAY_TIME
+                storeCapacity: ScreepsConstants.CONTAINER_CAPACITY,
+                hits: ScreepsConstants.CONTAINER_HITS,
+                hitsMax: ScreepsConstants.CONTAINER_HITS,
+                nextDecayTime: gameTime + ScreepsConstants.CONTAINER_DECAY_TIME
             });
         }
 
@@ -259,10 +259,10 @@ export default (
             _.extend(newObject, {
                 user: target.user,
                 store: {energy: 0},
-                storeCapacityResource: {energy: config.ptr ? 1 : C.NUKER_ENERGY_CAPACITY, G: config.ptr ? 1 : C.NUKER_GHODIUM_CAPACITY},
-                hits: C.NUKER_HITS,
-                hitsMax: C.NUKER_HITS,
-                cooldownTime: gameTime + (config.ptr ? 100 : C.NUKER_COOLDOWN)
+                storeCapacityResource: {energy: config.ptr ? 1 : ScreepsConstants.NUKER_ENERGY_CAPACITY, G: config.ptr ? 1 : ScreepsConstants.NUKER_GHODIUM_CAPACITY},
+                hits: ScreepsConstants.NUKER_HITS,
+                hitsMax: ScreepsConstants.NUKER_HITS,
+                cooldownTime: gameTime + (config.ptr ? 100 : ScreepsConstants.NUKER_COOLDOWN)
             });
         }
 
@@ -270,9 +270,9 @@ export default (
             _.extend(newObject, {
                 user: target.user,
                 store: {energy: 0},
-                storeCapacity: C.FACTORY_CAPACITY,
-                hits: C.FACTORY_HITS,
-                hitsMax: C.FACTORY_HITS,
+                storeCapacity: ScreepsConstants.FACTORY_CAPACITY,
+                hits: ScreepsConstants.FACTORY_HITS,
+                hitsMax: ScreepsConstants.FACTORY_HITS,
                 cooldown: 0
             });
         }

@@ -1,7 +1,7 @@
 import utils from './../utils';
 import rooms from './rooms';
 const driver = utils.getRuntimeDriver();
-const C = driver.constants;
+
 
 let runtimeData, intents, register, globals;
 
@@ -34,8 +34,8 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
     utils.defineGameObjectProperties(Resource.prototype, data, {
         energy: (o) => o.energy,
-        amount: (o) => o[o.resourceType || C.RESOURCE_ENERGY],
-        resourceType: (o) => o.resourceType || C.RESOURCE_ENERGY
+        amount: (o) => o[o.resourceType || ScreepsConstants.RESOURCE_ENERGY],
+        resourceType: (o) => o.resourceType || ScreepsConstants.RESOURCE_ENERGY
     });
 
     Resource.prototype.toString = register.wrapFn(function() {

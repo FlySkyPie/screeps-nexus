@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 import movement from '../movement';
 
 export default (spawn, creep, scope) => {
@@ -10,8 +10,8 @@ export default (spawn, creep, scope) => {
 
     let newX, newY, isOccupied, hostileOccupied;
     const checkObstacleFn = (i) => (i.x == newX && i.y == newY) && (
-        _.contains(C.OBSTACLE_OBJECT_TYPES, i.type) ||                                          // just unwalkable
-        (i.type == 'constructionSite' && _.contains(C.OBSTACLE_OBJECT_TYPES, i.structureType))  // unwalkable site
+        _.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, i.type) ||                                          // just unwalkable
+        (i.type == 'constructionSite' && _.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, i.structureType))  // unwalkable site
     );
 
     let directions = [1,2,3,4,5,6,7,8];
@@ -26,7 +26,7 @@ export default (spawn, creep, scope) => {
         newX = spawn.x + dx;
         newY = spawn.y + dy;
         isOccupied = _.any(roomObjects, checkObstacleFn) ||
-            utils.checkTerrain(roomTerrain, newX, newY, C.TERRAIN_MASK_WALL) ||
+            utils.checkTerrain(roomTerrain, newX, newY, ScreepsConstants.TERRAIN_MASK_WALL) ||
             movement.isTileBusy(newX, newY);
 
         if (!isOccupied) {
@@ -58,7 +58,7 @@ export default (spawn, creep, scope) => {
             newX = spawn.x + dx;
             newY = spawn.y + dy;
             isOccupied = _.any(roomObjects, checkObstacleFn) ||
-                utils.checkTerrain(roomTerrain, newX, newY, C.TERRAIN_MASK_WALL) ||
+                utils.checkTerrain(roomTerrain, newX, newY, ScreepsConstants.TERRAIN_MASK_WALL) ||
                 movement.isTileBusy(newX, newY);
 
             if (!isOccupied) {

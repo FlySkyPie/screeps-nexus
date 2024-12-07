@@ -1,11 +1,11 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, {roomObjects, bulk, roomController, gameTime, eventLog}) => {
 
-    if(!_.contains(C.RESOURCES_ALL, intent.resourceType)) {
+    if(!_.contains(ScreepsConstants.RESOURCES_ALL, intent.resourceType)) {
         return;
     }
 
@@ -22,7 +22,7 @@ export default (object, intent, {roomObjects, bulk, roomController, gameTime, ev
     if(!target) {
         return;
     }
-    if(object.user != target.user && _.any(roomObjects, i => i.type == C.STRUCTURE_RAMPART && i.user != object.user && !i.isPublic && i.x == target.x && i.y == target.y)) {
+    if(object.user != target.user && _.any(roomObjects, i => i.type == ScreepsConstants.STRUCTURE_RAMPART && i.user != object.user && !i.isPublic && i.x == target.x && i.y == target.y)) {
         return;
     }
     if(Math.abs(target.x - object.x) > 1 || Math.abs(target.y - object.y) > 1) {
@@ -34,7 +34,7 @@ export default (object, intent, {roomObjects, bulk, roomController, gameTime, ev
     }
 
     if(target.type == 'terminal') {
-        const effect = _.find(target.effects, {power: C.PWR_DISRUPT_TERMINAL});
+        const effect = _.find(target.effects, {power: ScreepsConstants.PWR_DISRUPT_TERMINAL});
         if(effect && effect.endTime > gameTime) {
             return;
         }
@@ -52,10 +52,10 @@ export default (object, intent, {roomObjects, bulk, roomController, gameTime, ev
     if(target.type == 'lab' && intent.resourceType != 'energy' && !target.store[intent.resourceType]) {
         bulk.update(target, {
             storeCapacityResource: {[intent.resourceType]: null},
-            storeCapacity: C.LAB_ENERGY_CAPACITY + C.LAB_MINERAL_CAPACITY
+            storeCapacity: ScreepsConstants.LAB_ENERGY_CAPACITY + ScreepsConstants.LAB_MINERAL_CAPACITY
         });
     }
 
-    eventLog.push({event: C.EVENT_TRANSFER, objectId: target._id, data: {targetId: object._id, resourceType: intent.resourceType, amount}});
+    eventLog.push({event: ScreepsConstants.EVENT_TRANSFER, objectId: target._id, data: {targetId: object._id, resourceType: intent.resourceType, amount}});
 
 };

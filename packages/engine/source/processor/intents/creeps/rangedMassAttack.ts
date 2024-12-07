@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, scope) => {
 
@@ -14,7 +14,7 @@ export default (object, intent, scope) => {
         return;
     }
 
-    const attackPower = utils.calcBodyEffectiveness(object.body, C.RANGED_ATTACK, 'rangedMassAttack', C.RANGED_ATTACK_POWER);
+    const attackPower = utils.calcBodyEffectiveness(object.body, ScreepsConstants.RANGED_ATTACK, 'rangedMassAttack', ScreepsConstants.RANGED_ATTACK_POWER);
 
     if(attackPower == 0) {
         return;
@@ -44,7 +44,7 @@ export default (object, intent, scope) => {
         if(target.type == 'creep' && target.spawning) {
             continue;
         }
-        if(_.some(target.effects, e => e.endTime >= gameTime && (e.power == C.PWR_FORTIFY || e.effect == C.EFFECT_INVULNERABILITY))) {
+        if(_.some(target.effects, e => e.endTime >= gameTime && (e.power == ScreepsConstants.PWR_FORTIFY || e.effect == ScreepsConstants.EFFECT_INVULNERABILITY))) {
             continue;
         }
 
@@ -52,7 +52,7 @@ export default (object, intent, scope) => {
 
         const targetAttackPower = Math.round(attackPower * distanceRate[distance]);
 
-        require('../_damage')(object, target, targetAttackPower, C.EVENT_ATTACK_TYPE_MASS_RANGED, scope);
+        require('../_damage')(object, target, targetAttackPower, ScreepsConstants.EVENT_ATTACK_TYPE_MASS_RANGED, scope);
     }
 
     object.actionLog.rangedMassAttack = {};

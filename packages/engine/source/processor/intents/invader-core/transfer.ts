@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, {roomObjects, bulk, roomController, eventLog}) => {
     if(object.type != 'invaderCore') {
@@ -34,5 +34,5 @@ export default (object, intent, {roomObjects, bulk, roomController, eventLog}) =
     bulk.update(object, {actionLog: object.actionLog});
     bulk.update(target, { store: { energy: target.store.energy }});
 
-    eventLog.push({event: C.EVENT_TRANSFER, objectId: object._id, data: {targetId: target._id, resourceType: C.RESOURCE_ENERGY, amount}});
+    eventLog.push({event: ScreepsConstants.EVENT_TRANSFER, objectId: object._id, data: {targetId: target._id, resourceType: ScreepsConstants.RESOURCE_ENERGY, amount}});
 };

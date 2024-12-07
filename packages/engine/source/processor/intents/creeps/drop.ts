@@ -1,13 +1,13 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, scope) => {
 
     const {bulk} = scope;
 
-    if(!_.contains(C.RESOURCES_ALL, intent.resourceType)) {
+    if(!_.contains(ScreepsConstants.RESOURCES_ALL, intent.resourceType)) {
         return;
     }
     if(object.spawning || !object.store || !(object.store[intent.resourceType] >= intent.amount) ) {

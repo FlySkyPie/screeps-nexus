@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import utils from '../../../../utils';
+import * as utils from '../../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
-import fakeRuntime from '../../../common/fake-runtime';
+
+import * as fakeRuntime from '../../../common/fake-runtime';
 const strongholds = driver.strongholds;
 import defence from './defence';
 import creeps from './creeps';
@@ -25,20 +25,20 @@ const deployStronghold = function deployStronghold(context) {
     const { roomObjects } = scope;
 
     if(core.deployTime && (core.deployTime <= (1+gameTime))) {
-        const duration = Math.round(C.STRONGHOLD_DECAY_TICKS * (0.9 + Math.random() * 0.2));
+        const duration = Math.round(ScreepsConstants.STRONGHOLD_DECAY_TICKS * (0.9 + Math.random() * 0.2));
         const decayTime = gameTime + duration;
 
         core.effects.push({
-            effect: C.EFFECT_COLLAPSE_TIMER,
-            power: C.EFFECT_COLLAPSE_TIMER,
+            effect: ScreepsConstants.EFFECT_COLLAPSE_TIMER,
+            power: ScreepsConstants.EFFECT_COLLAPSE_TIMER,
             endTime: gameTime + duration,
             duration
         });
         bulk.update(core, {
             deployTime: null,
             decayTime,
-            hits: C.INVADER_CORE_HITS,
-            hitsMax: C.INVADER_CORE_HITS,
+            hits: ScreepsConstants.INVADER_CORE_HITS,
+            hitsMax: ScreepsConstants.INVADER_CORE_HITS,
             effects: core.effects
         });
 
@@ -48,30 +48,30 @@ const deployStronghold = function deployStronghold(context) {
         const containerAmounts = [0, 500, 4000, 10000, 50000, 360000];
 
         const objectOptions = {};
-        objectOptions[C.STRUCTURE_RAMPART] = {
-            hits: C.STRONGHOLD_RAMPART_HITS[template.rewardLevel],
-            hitsMax: C.RAMPART_HITS_MAX[8],
+        objectOptions[ScreepsConstants.STRUCTURE_RAMPART] = {
+            hits: ScreepsConstants.STRONGHOLD_RAMPART_HITS[template.rewardLevel],
+            hitsMax: ScreepsConstants.RAMPART_HITS_MAX[8],
             nextDecayTime: decayTime
         };
-        objectOptions[C.STRUCTURE_TOWER] = {
-            hits: C.TOWER_HITS,
-            hitsMax: C.TOWER_HITS,
-            store:{ energy: C.TOWER_CAPACITY },
-            storeCapacityResource: { energy: C.TOWER_CAPACITY },
+        objectOptions[ScreepsConstants.STRUCTURE_TOWER] = {
+            hits: ScreepsConstants.TOWER_HITS,
+            hitsMax: ScreepsConstants.TOWER_HITS,
+            store:{ energy: ScreepsConstants.TOWER_CAPACITY },
+            storeCapacityResource: { energy: ScreepsConstants.TOWER_CAPACITY },
             actionLog: {attack: null, heal: null, repair: null}
         };
-        objectOptions[C.STRUCTURE_CONTAINER] = {
+        objectOptions[ScreepsConstants.STRUCTURE_CONTAINER] = {
             notifyWhenAttacked: false,
-            hits: C.CONTAINER_HITS,
-            hitsMax: C.CONTAINER_HITS,
+            hits: ScreepsConstants.CONTAINER_HITS,
+            hitsMax: ScreepsConstants.CONTAINER_HITS,
             nextDecayTime: decayTime,
             store: {},
             storeCapacity: 0
         };
-        objectOptions[C.STRUCTURE_ROAD] = {
+        objectOptions[ScreepsConstants.STRUCTURE_ROAD] = {
             notifyWhenAttacked: false,
-            hits: C.ROAD_HITS,
-            hitsMax: C.ROAD_HITS,
+            hits: ScreepsConstants.ROAD_HITS,
+            hitsMax: ScreepsConstants.ROAD_HITS,
             nextDecayTime: decayTime
         };
 
@@ -82,7 +82,7 @@ const deployStronghold = function deployStronghold(context) {
                 _.forEach(objectsToRemove, o => bulk.remove(o._id));
             }
 
-            if(i.type == C.STRUCTURE_INVADER_CORE) {
+            if(i.type == ScreepsConstants.STRUCTURE_INVADER_CORE) {
                 return;
             }
 
@@ -94,8 +94,8 @@ const deployStronghold = function deployStronghold(context) {
                     strongholdId: core.strongholdId,
                     decayTime,
                     effects: [{
-                        effect: C.EFFECT_COLLAPSE_TIMER,
-                        power: C.EFFECT_COLLAPSE_TIMER,
+                        effect: ScreepsConstants.EFFECT_COLLAPSE_TIMER,
+                        power: ScreepsConstants.EFFECT_COLLAPSE_TIMER,
                         endTime: gameTime + duration,
                         duration
                     }]
@@ -103,7 +103,7 @@ const deployStronghold = function deployStronghold(context) {
             delete s.dx;
             delete s.dy;
 
-            if(i.type == C.STRUCTURE_CONTAINER) {
+            if(i.type == ScreepsConstants.STRUCTURE_CONTAINER) {
                 s.store = utils.calcReward(strongholds.containerRewards, containerAmounts[template.rewardLevel], 3);
             }
 
@@ -117,7 +117,7 @@ const handleController = function reserveController (context) {
 
     if(roomController) {
         if(roomController.user === core.user) {
-            if(roomController.downgradeTime - gameTime < C.INVADER_CORE_CONTROLLER_DOWNGRADE - 25) {
+            if(roomController.downgradeTime - gameTime < ScreepsConstants.INVADER_CORE_CONTROLLER_DOWNGRADE - 25) {
                 intents.set(core._id, 'upgradeController', {id: roomController._id});
             }
         } else if(!roomController.reservation || roomController.reservation.user === core.user) {
@@ -134,7 +134,7 @@ const refillTowers = function refillTowers(context) {
     if(_.some(underchargedTowers)) {
         const towerToCharge = _.min(underchargedTowers, 'store.energy');
         if(towerToCharge) {
-            intents.set(core._id, 'transfer', {id: towerToCharge._id, amount: towerToCharge.storeCapacityResource.energy - towerToCharge.store.energy, resourceType: C.RESOURCE_ENERGY});
+            intents.set(core._id, 'transfer', {id: towerToCharge._id, amount: towerToCharge.storeCapacityResource.energy - towerToCharge.store.energy, resourceType: ScreepsConstants.RESOURCE_ENERGY});
             return true;
         }
     }
@@ -149,7 +149,7 @@ const refillCreeps = function refillCreeps(context) {
     if(_.some(underchargedCreeps)) {
         const creep = _.min(underchargedCreeps, 'store.energy');
         if(creep) {
-            intents.set(core._id, 'transfer', {id: creep._id, amount: creep.storeCapacity - creep.store.energy, resourceType: C.RESOURCE_ENERGY});
+            intents.set(core._id, 'transfer', {id: creep._id, amount: creep.storeCapacity - creep.store.energy, resourceType: ScreepsConstants.RESOURCE_ENERGY});
             return true;
         }
     }
@@ -172,12 +172,12 @@ const focusClosest = function focusClosest(context) {
         intents.set(t._id, 'attack', {id: target._id});
     }
 
-    const meleesNear = _.filter(defenders, d => (range(d, target) == 1) && _.some(d.body, {type: C.ATTACK}));
+    const meleesNear = _.filter(defenders, d => (range(d, target) == 1) && _.some(d.body, {type: ScreepsConstants.ATTACK}));
     for(let melee of meleesNear) {
         intents.set(melee._id, 'attack', {id: target._id, x: target.x, y: target.y});
     }
 
-    const rangersInRange = _.filter(defenders, d => (range(d, target) <= 3) && _.some(d.body, {type: C.RANGED_ATTACK}));
+    const rangersInRange = _.filter(defenders, d => (range(d, target) <= 3) && _.some(d.body, {type: ScreepsConstants.RANGED_ATTACK}));
     for(let r of rangersInRange) {
         if(range(r,target) == 1) {
             intents.set(r._id, 'rangedMassAttack', {});
@@ -196,32 +196,32 @@ const focusMax = function focusMax(context) {
         return false;
     }
 
-    const activeTowers = _.filter(towers, t => t.store.energy >= C.TOWER_ENERGY_COST);
+    const activeTowers = _.filter(towers, t => t.store.energy >= ScreepsConstants.TOWER_ENERGY_COST);
     const target = _.max(hostiles, creep => {
         let damage = _.sum(activeTowers, tower => {
             let r = utils.dist(creep, tower);
-            let amount = C.TOWER_POWER_ATTACK;
-            if(r > C.TOWER_OPTIMAL_RANGE) {
-                if(r > C.TOWER_FALLOFF_RANGE) {
-                    r = C.TOWER_FALLOFF_RANGE;
+            let amount = ScreepsConstants.TOWER_POWER_ATTACK;
+            if(r > ScreepsConstants.TOWER_OPTIMAL_RANGE) {
+                if(r > ScreepsConstants.TOWER_FALLOFF_RANGE) {
+                    r = ScreepsConstants.TOWER_FALLOFF_RANGE;
                 }
-                amount -= amount * C.TOWER_FALLOFF * (r - C.TOWER_OPTIMAL_RANGE) / (C.TOWER_FALLOFF_RANGE - C.TOWER_OPTIMAL_RANGE);
+                amount -= amount * ScreepsConstants.TOWER_FALLOFF * (r - ScreepsConstants.TOWER_OPTIMAL_RANGE) / (ScreepsConstants.TOWER_FALLOFF_RANGE - ScreepsConstants.TOWER_OPTIMAL_RANGE);
             }
-            [C.PWR_OPERATE_TOWER, C.PWR_DISRUPT_TOWER].forEach(power => {
+            [ScreepsConstants.PWR_OPERATE_TOWER, ScreepsConstants.PWR_DISRUPT_TOWER].forEach(power => {
                 const effect = _.find(tower.effects, {power});
                 if(effect && effect.endTime > gameTime) {
-                    amount *= C.POWER_INFO[power].effect[effect.level-1];
+                    amount *= ScreepsConstants.POWER_INFO[power].effect[effect.level-1];
                 }
             });
             return Math.floor(amount);
         });
         damage += _.sum(defenders, defender => {
             let d = 0;
-            if((range(defender, creep) <= 3) && _.some(defender.body, {type: C.RANGED_ATTACK})) {
-                d += utils.calcBodyEffectiveness(defender.body, C.RANGED_ATTACK, 'rangedAttack', C.RANGED_ATTACK_POWER);
+            if((range(defender, creep) <= 3) && _.some(defender.body, {type: ScreepsConstants.RANGED_ATTACK})) {
+                d += utils.calcBodyEffectiveness(defender.body, ScreepsConstants.RANGED_ATTACK, 'rangedAttack', ScreepsConstants.RANGED_ATTACK_POWER);
             }
-            if((range(defender, creep) <= 1) && _.some(defender.body, {type: C.ATTACK})) {
-                d += utils.calcBodyEffectiveness(defender.body, C.ATTACK, 'attack', C.ATTACK_POWER);
+            if((range(defender, creep) <= 1) && _.some(defender.body, {type: ScreepsConstants.ATTACK})) {
+                d += utils.calcBodyEffectiveness(defender.body, ScreepsConstants.ATTACK, 'attack', ScreepsConstants.ATTACK_POWER);
             }
             return d;
         });
@@ -229,12 +229,12 @@ const focusMax = function focusMax(context) {
         return damage;
     });
 
-    const meleesNear = _.filter(defenders, d => (range(d, target) == 1) && _.some(d.body, {type: C.ATTACK}));
+    const meleesNear = _.filter(defenders, d => (range(d, target) == 1) && _.some(d.body, {type: ScreepsConstants.ATTACK}));
     for(let melee of meleesNear) {
         intents.set(melee._id, 'attack', {id: target._id, x: target.x, y: target.y});
     }
 
-    const rangersInRange = _.filter(defenders, d => (range(d, target) <= 3) && _.some(d.body, {type: C.RANGED_ATTACK}));
+    const rangersInRange = _.filter(defenders, d => (range(d, target) <= 3) && _.some(d.body, {type: ScreepsConstants.RANGED_ATTACK}));
     for(let r of rangersInRange) {
         if(range(r,target) == 1) {
             intents.set(r._id, 'rangedMassAttack', {});
@@ -275,17 +275,17 @@ const antinuke = function antinuke(context) {
     }
     const nukes = _.filter(roomObjects, {type: 'nuke'});
 
-    const baseLevel = C.STRONGHOLD_RAMPART_HITS[core.level];
+    const baseLevel = ScreepsConstants.STRONGHOLD_RAMPART_HITS[core.level];
     for(let rampart of ramparts) {
         let hitsTarget = baseLevel;
         _.forEach(nukes, n => {
             const range = utils.dist(rampart, n);
             if(range == 0) {
-                hitsTarget += C.NUKE_DAMAGE[0];
+                hitsTarget += ScreepsConstants.NUKE_DAMAGE[0];
                 return;
             }
             if(range <= 2) {
-                hitsTarget += C.NUKE_DAMAGE[2];
+                hitsTarget += ScreepsConstants.NUKE_DAMAGE[2];
             }
         });
         if(rampart.hitsTarget != hitsTarget) {
@@ -353,8 +353,8 @@ export default {
             rangerSpots = _.unique(_.without(rangerSpots, ...meleeSpots));
             const rangers = [], melees = [];
             _.forEach(context.defenders, d => {
-                if(_.some(d.body, {type: C.ATTACK})) { melees.push(d._id.toString()); }
-                if(_.some(d.body, {type: C.RANGED_ATTACK})) { rangers.push(d._id.toString()); }
+                if(_.some(d.body, {type: ScreepsConstants.ATTACK})) { melees.push(d._id.toString()); }
+                if(_.some(d.body, {type: ScreepsConstants.RANGED_ATTACK})) { rangers.push(d._id.toString()); }
             });
 
             let spots = {};

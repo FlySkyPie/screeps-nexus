@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (
     object,
@@ -17,17 +17,17 @@ export default (
     }
 
     let amount = 1;
-    const effect = _.find(object.effects, {power: C.PWR_OPERATE_POWER});
+    const effect = _.find(object.effects, {power: ScreepsConstants.PWR_OPERATE_POWER});
     if(effect && effect.endTime >= gameTime) {
-        amount = Math.min(object.store.power, amount + C.POWER_INFO[C.PWR_OPERATE_POWER].effect[effect.level-1]);
+        amount = Math.min(object.store.power, amount + ScreepsConstants.POWER_INFO[ScreepsConstants.PWR_OPERATE_POWER].effect[effect.level-1]);
     }
 
-    if(object.store.power < amount || object.store.energy < amount * C.POWER_SPAWN_ENERGY_RATIO) {
+    if(object.store.power < amount || object.store.energy < amount * ScreepsConstants.POWER_SPAWN_ENERGY_RATIO) {
         return;
     }
 
     object.store.power -= amount;
-    object.store.energy -= amount * C.POWER_SPAWN_ENERGY_RATIO;
+    object.store.energy -= amount * ScreepsConstants.POWER_SPAWN_ENERGY_RATIO;
 
     stats.inc('powerProcessed', object.user, amount);
 

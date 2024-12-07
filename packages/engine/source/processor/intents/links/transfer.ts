@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, {roomObjects, bulk, roomController, eventLog}) => {
 
@@ -43,12 +43,12 @@ export default (object, intent, {roomObjects, bulk, roomController, eventLog}) =
 
     object.store.energy -= amount;
 
-    target.store.energy -= Math.ceil(amount * C.LINK_LOSS_RATIO);
-    object.cooldown += C.LINK_COOLDOWN * Math.max(Math.abs(target.x - object.x), Math.abs(target.y - object.y));
+    target.store.energy -= Math.ceil(amount * ScreepsConstants.LINK_LOSS_RATIO);
+    object.cooldown += ScreepsConstants.LINK_COOLDOWN * Math.max(Math.abs(target.x - object.x), Math.abs(target.y - object.y));
     object.actionLog.transferEnergy = {x: target.x, y: target.y};
     bulk.update(target, {store:{energy: target.store.energy}});
 
     bulk.update(object, {store:{energy: object.store.energy}, cooldown: object.cooldown, actionLog: object.actionLog});
 
-    eventLog.push({event: C.EVENT_TRANSFER, objectId: object._id, data: {targetId: target._id, resourceType: C.RESOURCE_ENERGY, amount}});
+    eventLog.push({event: ScreepsConstants.EVENT_TRANSFER, objectId: object._id, data: {targetId: target._id, resourceType: ScreepsConstants.RESOURCE_ENERGY, amount}});
 };

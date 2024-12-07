@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, scope) => {
     const {roomObjects, roomTerrain, bulk, roomController, gameTime} = scope;
@@ -14,7 +14,7 @@ export default (object, intent, scope) => {
     }
 
     let target = roomObjects[intent.id];
-    if(!target || !C.CONSTRUCTION_COST[target.type]) {
+    if(!target || !ScreepsConstants.CONSTRUCTION_COST[target.type]) {
         return;
     }
     if(Math.abs(target.x - object.x) > 1 || Math.abs(target.y - object.y) > 1) {
@@ -29,11 +29,11 @@ export default (object, intent, scope) => {
     }
 
 
-    const power = utils.calcBodyEffectiveness(object.body, C.WORK, 'dismantle', C.DISMANTLE_POWER);
+    const power = utils.calcBodyEffectiveness(object.body, ScreepsConstants.WORK, 'dismantle', ScreepsConstants.DISMANTLE_POWER);
     const amount = Math.min(power, target.hits);
-    let energyGain = Math.floor(amount * C.DISMANTLE_COST);
+    let energyGain = Math.floor(amount * ScreepsConstants.DISMANTLE_COST);
 
-    const effect = _.find(target.effects, e => e.endTime >= gameTime && (e.power == C.PWR_SHIELD || e.power == C.PWR_FORTIFY || e.effect == C.EFFECT_INVULNERABILITY));
+    const effect = _.find(target.effects, e => e.endTime >= gameTime && (e.power == ScreepsConstants.PWR_SHIELD || e.power == ScreepsConstants.PWR_FORTIFY || e.effect == ScreepsConstants.EFFECT_INVULNERABILITY));
     if(effect) {
         energyGain = 0;
     }
@@ -48,6 +48,6 @@ export default (object, intent, scope) => {
             require('./drop')(object, {amount: usedSpace - object.storeCapacity, resourceType: 'energy'}, scope);
         }
 
-        require('../_damage')(object, target, amount, C.EVENT_ATTACK_TYPE_DISMANTLE, scope);
+        require('../_damage')(object, target, amount, ScreepsConstants.EVENT_ATTACK_TYPE_DISMANTLE, scope);
     }
 };

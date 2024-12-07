@@ -1,17 +1,15 @@
 import _ from 'lodash';
-import utils from '../../../utils';
-const driver = utils.getDriver();
-const C = driver.constants;
 
-export default (object, scope) => {
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
-    const {roomObjects, bulk, roomController, gameTime, eventLog} = scope;
+export default (object: any, scope: any) => {
+    const { roomObjects, bulk, roomController, gameTime, } = scope;
 
-    if(!object.nextDecayTime || gameTime >= object.nextDecayTime-1) {
+    if (!object.nextDecayTime || gameTime >= object.nextDecayTime - 1) {
         object.hits = object.hits || 0;
-        object.hits -= C.CONTAINER_DECAY;
-        if(object.hits <= 0) {
-            if(object.store) {
+        object.hits -= ScreepsConstants.CONTAINER_DECAY;
+        if (object.hits <= 0) {
+            if (object.store) {
                 _.forEach(object.store, (amount, resourceType) => {
                     if (amount > 0) {
                         require('../creeps/_create-energy')(object.x, object.y, object.room,
@@ -24,13 +22,13 @@ export default (object, scope) => {
             delete roomObjects[object._id];
         }
         else {
-            object.nextDecayTime = gameTime + (roomController && roomController.level > 0 ? C.CONTAINER_DECAY_TIME_OWNED : C.CONTAINER_DECAY_TIME);
+            object.nextDecayTime = gameTime + (roomController && roomController.level > 0 ?
+                ScreepsConstants.CONTAINER_DECAY_TIME_OWNED :
+                ScreepsConstants.CONTAINER_DECAY_TIME);
             bulk.update(object, {
                 hits: object.hits,
                 nextDecayTime: object.nextDecayTime
             });
         }
     }
-
-
 };

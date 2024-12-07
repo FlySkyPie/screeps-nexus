@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, scope) => {
     const {roomObjects, bulk, roomController, gameTime} = scope;
@@ -29,22 +29,22 @@ export default (object, intent, scope) => {
     require('../creeps/_recalc-body')(target);
     bulk.update(target, {body: target.body, storeCapacity: target.storeCapacity});
 
-    const cooldown = _.reduce(C.RESOURCES_ALL, (a, r) => {
+    const cooldown = _.reduce(ScreepsConstants.RESOURCES_ALL, (a, r) => {
         if(!boostedParts[r]) {
             return a;
         }
 
-        const energyReturn = boostedParts[r]*C.LAB_UNBOOST_ENERGY;
+        const energyReturn = boostedParts[r]*ScreepsConstants.LAB_UNBOOST_ENERGY;
         if(energyReturn>0) {
-            require('../creeps/_create-energy')(target.x, target.y, target.room, energyReturn, C.RESOURCE_ENERGY, scope);
+            require('../creeps/_create-energy')(target.x, target.y, target.room, energyReturn, ScreepsConstants.RESOURCE_ENERGY, scope);
         }
 
-        const mineralReturn = boostedParts[r]*C.LAB_UNBOOST_MINERAL;
+        const mineralReturn = boostedParts[r]*ScreepsConstants.LAB_UNBOOST_MINERAL;
         if(mineralReturn > 0) {
             require('../creeps/_create-energy')(target.x, target.y, target.room, mineralReturn, r, scope);
         }
 
-        return a + boostedParts[r]*utils.calcTotalReactionsTime(r)*C.LAB_UNBOOST_MINERAL/C.LAB_REACTION_AMOUNT;
+        return a + boostedParts[r]*utils.calcTotalReactionsTime(r)*ScreepsConstants.LAB_UNBOOST_MINERAL/ScreepsConstants.LAB_REACTION_AMOUNT;
     }, 0);
 
     if(cooldown > 0) {

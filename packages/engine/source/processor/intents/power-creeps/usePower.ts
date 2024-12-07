@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, scope) => {
     const {roomObjects, roomTerrain, gameTime, bulk, eventLog, roomController} = scope;
@@ -15,7 +15,7 @@ export default (object, intent, scope) => {
         }
     }
 
-    const powerInfo = C.POWER_INFO[intent.power];
+    const powerInfo = ScreepsConstants.POWER_INFO[intent.power];
     if(!powerInfo) {
         return;
     }
@@ -54,22 +54,22 @@ export default (object, intent, scope) => {
 
     switch(intent.power) {
 
-        case C.PWR_GENERATE_OPS: {
+        case ScreepsConstants.PWR_GENERATE_OPS: {
             bulk.update(object, {
-                store:{[C.RESOURCE_OPS]: (object.store[C.RESOURCE_OPS] || 0) + powerInfo.effect[creepPower.level-1]},
+                store:{[ScreepsConstants.RESOURCE_OPS]: (object.store[ScreepsConstants.RESOURCE_OPS] || 0) + powerInfo.effect[creepPower.level-1]},
             });
             let sum = utils.calcResources(object);
 
             if (sum > object.storeCapacity) {
                 require('./drop')(object, {
-                    amount: Math.min(object.store[C.RESOURCE_OPS], sum - object.storeCapacity),
-                    resourceType: C.RESOURCE_OPS
+                    amount: Math.min(object.store[ScreepsConstants.RESOURCE_OPS], sum - object.storeCapacity),
+                    resourceType: ScreepsConstants.RESOURCE_OPS
                 }, scope);
             }
             break;
         }
 
-        case C.PWR_OPERATE_SPAWN: {
+        case ScreepsConstants.PWR_OPERATE_SPAWN: {
             if(target.type != 'spawn') {
                 return;
             }
@@ -77,7 +77,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_OPERATE_TOWER: {
+        case ScreepsConstants.PWR_OPERATE_TOWER: {
             if(target.type != 'tower') {
                 return;
             }
@@ -85,7 +85,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_OPERATE_STORAGE: {
+        case ScreepsConstants.PWR_OPERATE_STORAGE: {
             if(target.type != 'storage') {
                 return;
             }
@@ -93,7 +93,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_OPERATE_LAB: {
+        case ScreepsConstants.PWR_OPERATE_LAB: {
             if(target.type != 'lab') {
                 return;
             }
@@ -101,11 +101,11 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_OPERATE_EXTENSION: {
+        case ScreepsConstants.PWR_OPERATE_EXTENSION: {
             if(!target.store || target.type != 'storage' && target.type != 'terminal' && target.type != 'factory' && target.type !== 'container') {
                 return;
             }
-            const effect = _.find(target.effects, {power: C.PWR_DISRUPT_TERMINAL});
+            const effect = _.find(target.effects, {power: ScreepsConstants.PWR_DISRUPT_TERMINAL});
             if(effect && effect.endTime > gameTime) {
                 return;
             }
@@ -128,7 +128,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_OPERATE_OBSERVER: {
+        case ScreepsConstants.PWR_OPERATE_OBSERVER: {
             if(target.type != 'observer') {
                 return;
             }
@@ -136,7 +136,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_OPERATE_TERMINAL: {
+        case ScreepsConstants.PWR_OPERATE_TERMINAL: {
             if(target.type != 'terminal') {
                 return;
             }
@@ -144,7 +144,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_DISRUPT_SPAWN: {
+        case ScreepsConstants.PWR_DISRUPT_SPAWN: {
             if(target.type != 'spawn') {
                 return;
             }
@@ -152,7 +152,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_DISRUPT_TOWER: {
+        case ScreepsConstants.PWR_DISRUPT_TOWER: {
             if(target.type != 'tower') {
                 return;
             }
@@ -160,7 +160,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_DISRUPT_SOURCE: {
+        case ScreepsConstants.PWR_DISRUPT_SOURCE: {
             if(target.type != 'source') {
                 return;
             }
@@ -168,7 +168,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_REGEN_SOURCE: {
+        case ScreepsConstants.PWR_REGEN_SOURCE: {
             if(target.type != 'source') {
                 return;
             }
@@ -176,7 +176,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_REGEN_MINERAL: {
+        case ScreepsConstants.PWR_REGEN_MINERAL: {
             if(target.type != 'mineral') {
                 return;
             }
@@ -190,7 +190,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_DISRUPT_TERMINAL: {
+        case ScreepsConstants.PWR_DISRUPT_TERMINAL: {
             if(target.type != 'terminal') {
                 return;
             }
@@ -198,7 +198,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_OPERATE_CONTROLLER: {
+        case ScreepsConstants.PWR_OPERATE_CONTROLLER: {
             if(target.type != 'controller') {
                 return;
             }
@@ -206,7 +206,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_OPERATE_POWER: {
+        case ScreepsConstants.PWR_OPERATE_POWER: {
             if(target.type != 'powerSpawn') {
                 return;
             }
@@ -214,7 +214,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_FORTIFY: {
+        case ScreepsConstants.PWR_FORTIFY: {
             if(target.type != 'rampart' && target.type != 'constructedWall') {
                 return;
             }
@@ -222,7 +222,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_SHIELD: {
+        case ScreepsConstants.PWR_SHIELD: {
             const constructionSite = _.find(roomObjects, i => i.x == object.x && i.y == object.y &&
                 i.type == 'constructionSite');
             if(constructionSite) {
@@ -244,7 +244,7 @@ export default (object, intent, scope) => {
                 nextDecayTime: gameTime + powerInfo.duration,
                 effects: [
                     {
-                        power: C.PWR_SHIELD,
+                        power: ScreepsConstants.PWR_SHIELD,
                         level: creepPower.level,
                         endTime: gameTime + powerInfo.duration
                     }
@@ -253,7 +253,7 @@ export default (object, intent, scope) => {
             break;
         }
 
-        case C.PWR_OPERATE_FACTORY: {
+        case ScreepsConstants.PWR_OPERATE_FACTORY: {
             if(target.type != 'factory') {
                 return;
             }
@@ -294,7 +294,7 @@ export default (object, intent, scope) => {
         store: {ops: (object.store.ops || 0) - ops}
     });
 
-    eventLog.push({event: C.EVENT_POWER, objectId: object._id, data: {
+    eventLog.push({event: ScreepsConstants.EVENT_POWER, objectId: object._id, data: {
         power: intent.power,
         targetId: intent.id
     }});

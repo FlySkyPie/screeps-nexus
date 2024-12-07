@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (userId, intent, {roomObjects, roomTerrain, bulk}) => {
 
@@ -15,8 +15,8 @@ export default (userId, intent, {roomObjects, roomTerrain, bulk}) => {
         x = Math.floor(Math.random() * 48) + 1;
         y = Math.floor(Math.random() * 48) + 1;
     }
-    while(_.any(roomObjects, (i) => _.contains(C.OBSTACLE_OBJECT_TYPES, i.type) && i.x == x && i.y == y) ||
-            utils.checkTerrain(roomTerrain, x, y, C.TERRAIN_MASK_WALL));
+    while(_.any(roomObjects, (i) => _.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, i.type) && i.x == x && i.y == y) ||
+            utils.checkTerrain(roomTerrain, x, y, ScreepsConstants.TERRAIN_MASK_WALL));
 
     bulk.insert({
         x,

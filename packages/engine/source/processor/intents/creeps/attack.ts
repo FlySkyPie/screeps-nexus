@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, scope) => {
 
@@ -35,9 +35,9 @@ export default (object, intent, scope) => {
         target = rampart;
     }
 
-    const attackPower = utils.calcBodyEffectiveness(object.body, C.ATTACK, 'attack', C.ATTACK_POWER);
+    const attackPower = utils.calcBodyEffectiveness(object.body, ScreepsConstants.ATTACK, 'attack', ScreepsConstants.ATTACK_POWER);
 
-    require('../_damage')(object, target, attackPower, C.EVENT_ATTACK_TYPE_MELEE, scope);
+    require('../_damage')(object, target, attackPower, ScreepsConstants.EVENT_ATTACK_TYPE_MELEE, scope);
 
     object._attack = true;
 

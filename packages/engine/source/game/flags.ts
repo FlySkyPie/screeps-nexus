@@ -1,7 +1,7 @@
 import utils from './../utils';
 import rooms from './rooms';
 const driver = utils.getRuntimeDriver();
-const C = driver.constants;
+
 import _ from 'lodash';
 
 let runtimeData, intents, register, globals;
@@ -57,7 +57,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
     Flag.prototype.remove = register.wrapFn(function() {
 
         intents.pushByName('room', 'removeFlag', {roomName: this.pos.roomName, name: this.name});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Flag.prototype.setPosition = register.wrapFn(function(firstArg, secondArg) {
@@ -65,29 +65,29 @@ export function make(_runtimeData, _intents, _register, _globals) {
         let [x,y,roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
         roomName = roomName || this.pos.roomName;
         if(_.isUndefined(x) || _.isUndefined(y)) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         intents.pushByName('room', 'removeFlag', {roomName: this.pos.roomName, name: this.name});
         intents.pushByName('room', 'createFlag', {roomName, x, y, name: this.name, color: this.color, secondaryColor: this.secondaryColor});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Flag.prototype.setColor = register.wrapFn(function(color, secondaryColor) {
 
-        if(!_.contains(C.COLORS_ALL, color)) {
-            return C.ERR_INVALID_ARGS;
+        if(!_.contains(ScreepsConstants.COLORS_ALL, color)) {
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         secondaryColor = secondaryColor || color;
 
-        if(!_.contains(C.COLORS_ALL, secondaryColor)) {
-            return C.ERR_INVALID_ARGS;
+        if(!_.contains(ScreepsConstants.COLORS_ALL, secondaryColor)) {
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         intents.pushByName('room', 'removeFlag', {roomName: this.pos.roomName, name: this.name});
         intents.pushByName('room', 'createFlag', {roomName: this.pos.roomName, x: this.pos.x, y: this.pos.y, name: this.name, color, secondaryColor});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Object.defineProperty(globals, 'Flag', {

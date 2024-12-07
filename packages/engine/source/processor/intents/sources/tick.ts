@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, {bulk, roomController, gameTime}) => {
 
@@ -10,11 +10,11 @@ export default (object, {bulk, roomController, gameTime}) => {
     if(object.energy < object.energyCapacity) {
 
         if(!object.nextRegenerationTime) {
-            object.nextRegenerationTime = gameTime + C.ENERGY_REGEN_TIME;
+            object.nextRegenerationTime = gameTime + ScreepsConstants.ENERGY_REGEN_TIME;
             bulk.update(object, {nextRegenerationTime: object.nextRegenerationTime});
         }
 
-        let effect = _.find(object.effects, {power: C.PWR_DISRUPT_SOURCE});
+        let effect = _.find(object.effects, {power: ScreepsConstants.PWR_DISRUPT_SOURCE});
         if(effect && effect.endTime > gameTime) {
             bulk.update(object, {
                 nextRegenerationTime: object.nextRegenerationTime+1
@@ -28,9 +28,9 @@ export default (object, {bulk, roomController, gameTime}) => {
             });
         }
 
-        effect = _.find(object.effects, {power: C.PWR_REGEN_SOURCE});
+        effect = _.find(object.effects, {power: ScreepsConstants.PWR_REGEN_SOURCE});
         if(effect && effect.endTime > gameTime) {
-            const powerInfo = C.POWER_INFO[C.PWR_REGEN_SOURCE];
+            const powerInfo = ScreepsConstants.POWER_INFO[ScreepsConstants.PWR_REGEN_SOURCE];
             if(((effect.endTime - gameTime - 1) % powerInfo.period) === 0) {
                 bulk.update(object, {
                     energy: Math.min(object.energyCapacity, object.energy + powerInfo.effect[effect.level - 1])
@@ -44,17 +44,17 @@ export default (object, {bulk, roomController, gameTime}) => {
 
 
     if(roomController) {
-        if (!roomController.user && !roomController.reservation && object.energyCapacity != C.SOURCE_ENERGY_NEUTRAL_CAPACITY) {
+        if (!roomController.user && !roomController.reservation && object.energyCapacity != ScreepsConstants.SOURCE_ENERGY_NEUTRAL_CAPACITY) {
             bulk.update(object, {
-                energyCapacity: C.SOURCE_ENERGY_NEUTRAL_CAPACITY,
-                energy: Math.min(object.energy, C.SOURCE_ENERGY_NEUTRAL_CAPACITY)
+                energyCapacity: ScreepsConstants.SOURCE_ENERGY_NEUTRAL_CAPACITY,
+                energy: Math.min(object.energy, ScreepsConstants.SOURCE_ENERGY_NEUTRAL_CAPACITY)
             });
         }
-        if ((roomController.user || roomController.reservation) && object.energyCapacity != C.SOURCE_ENERGY_CAPACITY) {
-            bulk.update(object, {energyCapacity: C.SOURCE_ENERGY_CAPACITY});
+        if ((roomController.user || roomController.reservation) && object.energyCapacity != ScreepsConstants.SOURCE_ENERGY_CAPACITY) {
+            bulk.update(object, {energyCapacity: ScreepsConstants.SOURCE_ENERGY_CAPACITY});
         }
     }
-    else if(object.energyCapacity != C.SOURCE_ENERGY_KEEPER_CAPACITY) {
-        bulk.update(object, {energyCapacity: C.SOURCE_ENERGY_KEEPER_CAPACITY});
+    else if(object.energyCapacity != ScreepsConstants.SOURCE_ENERGY_KEEPER_CAPACITY) {
+        bulk.update(object, {energyCapacity: ScreepsConstants.SOURCE_ENERGY_KEEPER_CAPACITY});
     }
 };

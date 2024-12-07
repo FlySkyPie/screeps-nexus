@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (
     object,
@@ -12,18 +12,18 @@ export default (
 ) => {
 
     if(dropRate === undefined) {
-        dropRate = C.CREEP_CORPSE_RATE;
+        dropRate = ScreepsConstants.CREEP_CORPSE_RATE;
     }
 
     bulk.remove(object._id);
     delete roomObjects[object._id];
 
-    let decayTime = object.body.length * C.TOMBSTONE_DECAY_PER_PART;
+    let decayTime = object.body.length * ScreepsConstants.TOMBSTONE_DECAY_PER_PART;
     if(object.tombstoneDecay) {
         decayTime = object.tombstoneDecay;
     }
 
-    if(!attackType || attackType != C.EVENT_ATTACK_TYPE_NUKE) {
+    if(!attackType || attackType != ScreepsConstants.EVENT_ATTACK_TYPE_NUKE) {
         let tombstone = {
             type: 'tombstone',
             room: object.room,
@@ -43,19 +43,19 @@ export default (
         let container = _.find(roomObjects, { type: 'container', x: object.x, y: object.y });
 
         if(dropRate > 0 && !object.userSummoned && !object.strongholdId) {
-            const lifeTime = _.any(object.body, {type: C.CLAIM}) ? C.CREEP_CLAIM_LIFE_TIME : C.CREEP_LIFE_TIME;
+            const lifeTime = _.any(object.body, {type: ScreepsConstants.CLAIM}) ? ScreepsConstants.CREEP_CLAIM_LIFE_TIME : ScreepsConstants.CREEP_LIFE_TIME;
             const lifeRate = dropRate * object._ticksToLive / lifeTime;
             const bodyResources = {energy: 0};
 
             object.body.forEach(i => {
                 if(i.boost) {
                     bodyResources[i.boost] = bodyResources[i.boost] || 0;
-                    bodyResources[i.boost] += C.LAB_BOOST_MINERAL * lifeRate;
-                    bodyResources.energy += C.LAB_BOOST_ENERGY * lifeRate;
+                    bodyResources[i.boost] += ScreepsConstants.LAB_BOOST_MINERAL * lifeRate;
+                    bodyResources.energy += ScreepsConstants.LAB_BOOST_ENERGY * lifeRate;
                 }
                 bodyResources.energy += Math.min(
-                    C.CREEP_PART_MAX_ENERGY,
-                    C.BODYPART_COST[i.type] * lifeRate
+                    ScreepsConstants.CREEP_PART_MAX_ENERGY,
+                    ScreepsConstants.BODYPART_COST[i.type] * lifeRate
                 );
             });
 
@@ -100,7 +100,7 @@ export default (
         bulk.insert(tombstone);
     }
 
-    eventLog.push({event: C.EVENT_OBJECT_DESTROYED, objectId: object._id, type: 'creep'});
+    eventLog.push({event: ScreepsConstants.EVENT_OBJECT_DESTROYED, objectId: object._id, type: 'creep'});
 
     if (violentDeath && stats && object.user != '3' && object.user != '2') {
         stats.inc('creepsLost', object.user, object.body.length);

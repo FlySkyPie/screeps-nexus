@@ -4,7 +4,7 @@ import _ from 'lodash';
 import * as  utils from './utils';
 
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 function runUser(userId: any) {
 

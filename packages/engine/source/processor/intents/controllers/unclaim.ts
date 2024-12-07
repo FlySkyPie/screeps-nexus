@@ -1,15 +1,19 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+
+import * as utils from '../../../utils';
+
 const driver = utils.getDriver();
-const C = driver.constants;
 
-export default (object, intent, {bulk, bulkUsers, gameTime, roomInfo, users}) => {
 
-    if(object.type != 'controller') {
+export default (object: any, _intent: any, { bulk, bulkUsers, gameTime, roomInfo, users }: any) => {
+
+    if (object.type != 'controller') {
         return;
     }
 
-    if(!object.user || !object.level) {
+    if (!object.user || !object.level) {
         return;
     }
 
@@ -22,7 +26,9 @@ export default (object, intent, {bulk, bulkUsers, gameTime, roomInfo, users}) =>
         downgradeTime: null,
         safeMode: null,
         safeModeAvailable: 0,
-        safeModeCooldown: roomInfo.novice > Date.now() ? null : gameTime + C.SAFE_MODE_COOLDOWN,
+        safeModeCooldown: roomInfo.novice > Date.now() ?
+            null :
+            gameTime + ScreepsConstants.SAFE_MODE_COOLDOWN,
         isPowerEnabled: false,
     });
 };

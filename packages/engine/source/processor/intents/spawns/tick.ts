@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, scope) => {
 
@@ -9,7 +9,7 @@ export default (object, scope) => {
 
     if(!object || object.type != 'spawn') return;
 
-    const effect = _.find(object.effects, {power: C.PWR_DISRUPT_SPAWN});
+    const effect = _.find(object.effects, {power: ScreepsConstants.PWR_DISRUPT_SPAWN});
 
     if(object.spawning && (!effect || effect.endTime <= gameTime)) {
         object.spawning.remainingTime--;
@@ -36,15 +36,15 @@ export default (object, scope) => {
         return;
     }
     let spawns = _.filter(roomObjects, {type: 'spawn'});
-    if(spawns.length > C.CONTROLLER_STRUCTURES.spawn[roomController.level]) {
+    if(spawns.length > ScreepsConstants.CONTROLLER_STRUCTURES.spawn[roomController.level]) {
         spawns.sort(utils.comparatorDistance(roomController));
-        spawns = _.take(spawns, C.CONTROLLER_STRUCTURES.spawn[roomController.level]);
+        spawns = _.take(spawns, ScreepsConstants.CONTROLLER_STRUCTURES.spawn[roomController.level]);
         if(!_.contains(spawns, object)) {
             return;
         }
     }
 
-    if(!object.tutorial && energyAvailable < C.SPAWN_ENERGY_CAPACITY && object.store.energy < C.SPAWN_ENERGY_CAPACITY) {
+    if(!object.tutorial && energyAvailable < ScreepsConstants.SPAWN_ENERGY_CAPACITY && object.store.energy < ScreepsConstants.SPAWN_ENERGY_CAPACITY) {
         object.store.energy++;
         bulk.update(object, {store:{energy: object.store.energy}});
     }

@@ -100,9 +100,16 @@ export abstract class ScreepsConstants {
     public static readonly CONSTRUCTION_COST_ROAD_WALL_RATIO = 150;
 
 
-    public static readonly CONTROLLER_LEVELS = {
-        1: 200, 2: 45000, 3: 135000, 4: 405000, 5: 1215000, 6: 3645000, 7: 10935000
+    public static readonly CONTROLLER_LEVELS: Record<number, number> = {
+        1: 200,
+        2: 45000,
+        3: 135000,
+        4: 405000,
+        5: 1215000,
+        6: 3645000,
+        7: 10935000,
     };
+
     public static readonly CONTROLLER_STRUCTURES: any = {
         "spawn": { 0: 0, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 2, 8: 3 },
         "extension": { 0: 0, 1: 0, 2: 5, 3: 10, 4: 20, 5: 30, 6: 40, 7: 50, 8: 60 },
@@ -121,8 +128,15 @@ export abstract class ScreepsConstants {
         "nuker": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 1 },
         "factory": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 1, 8: 1 }
     };
-    public static readonly CONTROLLER_DOWNGRADE = {
-        1: 20000, 2: 10000, 3: 20000, 4: 40000, 5: 80000, 6: 120000, 7: 150000, 8: 200000
+    public static readonly CONTROLLER_DOWNGRADE: Record<number, number> = {
+        1: 20000,
+        2: 10000,
+        3: 20000,
+        4: 40000,
+        5: 80000,
+        6: 120000,
+        7: 150000,
+        8: 200000
     };
     public static readonly CONTROLLER_DOWNGRADE_RESTORE = 100;
     public static readonly CONTROLLER_DOWNGRADE_SAFEMODE_THRESHOLD = 5000;

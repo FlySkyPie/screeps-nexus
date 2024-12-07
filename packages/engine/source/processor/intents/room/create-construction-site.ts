@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 import config from '../../../config';
 
 let createdConstructionSiteCounter = 0;
@@ -12,7 +12,7 @@ export default (userId, intent, {roomObjects, roomTerrain, bulk, roomController}
         return;
     }
 
-    if(!C.CONSTRUCTION_COST[intent.structureType]) {
+    if(!ScreepsConstants.CONSTRUCTION_COST[intent.structureType]) {
         return;
     }
 
@@ -32,16 +32,16 @@ export default (userId, intent, {roomObjects, roomTerrain, bulk, roomController}
         return;
     }
 
-    let progressTotal = C.CONSTRUCTION_COST[intent.structureType];
+    let progressTotal = ScreepsConstants.CONSTRUCTION_COST[intent.structureType];
 
     if(intent.structureType == 'road') {
         if(_.any(roomObjects, {x: intent.x, y: intent.y, type: 'swamp'}) ||
-            utils.checkTerrain(roomTerrain, intent.x, intent.y, C.TERRAIN_MASK_SWAMP)) {
-            progressTotal *= C.CONSTRUCTION_COST_ROAD_SWAMP_RATIO;
+            utils.checkTerrain(roomTerrain, intent.x, intent.y, ScreepsConstants.TERRAIN_MASK_SWAMP)) {
+            progressTotal *= ScreepsConstants.CONSTRUCTION_COST_ROAD_SWAMP_RATIO;
         }
         if(_.any(roomObjects, {x: intent.x, y: intent.y, type: 'wall'}) ||
-            utils.checkTerrain(roomTerrain, intent.x, intent.y, C.TERRAIN_MASK_WALL)) {
-            progressTotal *= C.CONSTRUCTION_COST_ROAD_WALL_RATIO;
+            utils.checkTerrain(roomTerrain, intent.x, intent.y, ScreepsConstants.TERRAIN_MASK_WALL)) {
+            progressTotal *= ScreepsConstants.CONSTRUCTION_COST_ROAD_WALL_RATIO;
         }
     }
 

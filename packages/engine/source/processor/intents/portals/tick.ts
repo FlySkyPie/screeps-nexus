@@ -1,13 +1,13 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, {roomObjects, bulk, gameTime}) => {
 
     if(object.unstableDate && Date.now() > object.unstableDate) {
         bulk.update(object, {
-            decayTime: gameTime + C.PORTAL_DECAY,
+            decayTime: gameTime + ScreepsConstants.PORTAL_DECAY,
             unstableDate: null
         });
     }

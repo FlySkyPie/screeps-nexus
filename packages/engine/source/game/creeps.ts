@@ -2,7 +2,7 @@ import utils from './../utils';
 import rooms from './rooms';
 const driver = utils.getRuntimeDriver();
 import _ from 'lodash';
-const C = driver.constants;
+
 
 let runtimeData, intents, register, globals, controllersClaimedInTick;
 
@@ -126,33 +126,33 @@ export function make(_runtimeData, _intents, _register, _globals) {
     Creep.prototype.move = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
 
         if(target && (target instanceof globals.Creep)) {
             if(!target.pos.isNearTo(this.pos)) {
-                return C.ERR_NOT_IN_RANGE;
+                return ScreepsConstants.ERR_NOT_IN_RANGE;
             }
 
             intents.set(this.id, 'move', {id: target.id});
-            return C.OK;
+            return ScreepsConstants.OK;
         }
 
         if(data(this.id).fatigue > 0) {
-            return C.ERR_TIRED;
+            return ScreepsConstants.ERR_TIRED;
         }
-        if(!_hasActiveBodypart(this.body, C.MOVE)) {
-            return C.ERR_NO_BODYPART;
+        if(!_hasActiveBodypart(this.body, ScreepsConstants.MOVE)) {
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         let direction = +target;
         if(!direction || direction < 1 || direction > 8) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
         intents.set(this.id, 'move', {direction});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.moveTo = register.wrapFn(function(firstArg, secondArg, opts) {
@@ -160,10 +160,10 @@ export function make(_runtimeData, _intents, _register, _globals) {
         let visualized = false;
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         if(_.isObject(firstArg)) {
             opts = _.clone(secondArg);
@@ -171,17 +171,17 @@ export function make(_runtimeData, _intents, _register, _globals) {
         opts = opts || {};
 
         if(data(this.id).fatigue > 0 && (!opts || !opts.visualizePathStyle)) {
-            return C.ERR_TIRED;
+            return ScreepsConstants.ERR_TIRED;
         }
-        if(!_hasActiveBodypart(this.body, C.MOVE)) {
-            return C.ERR_NO_BODYPART;
+        if(!_hasActiveBodypart(this.body, ScreepsConstants.MOVE)) {
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
 
         let [x,y,roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
         roomName = roomName || this.pos.roomName;
         if(_.isUndefined(x) || _.isUndefined(y)) {
             register.assertTargetObject(firstArg);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         const targetPos = new globals.RoomPosition(x,y,roomName);
@@ -198,7 +198,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
         }
 
         if(x == this.pos.x && y == this.pos.y && roomName == this.pos.roomName) {
-            return C.OK;
+            return ScreepsConstants.OK;
         }
 
         /*if(opts.reusePath && this.room.memory && _.isObject(this.room.memory) && this.room.memory._move) {
@@ -211,14 +211,14 @@ export function make(_runtimeData, _intents, _register, _globals) {
                 }
                 else {
                     this.move(this.room.memory._move[key].d);
-                    return C.OK;
+                    return ScreepsConstants.OK;
                 }
             }
         }
 
 
         if(opts.noPathFinding) {
-            return C.ERR_NOT_FOUND;
+            return ScreepsConstants.ERR_NOT_FOUND;
         }
 
         var path = this.pos.findPathTo(new globals.RoomPosition(x,y,roomName), opts);
@@ -262,7 +262,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
                     }
                 }
                 if(path.length == 0) {
-                    return this.pos.isNearTo(targetPos) ? C.OK : C.ERR_NO_PATH;
+                    return this.pos.isNearTo(targetPos) ? ScreepsConstants.OK : ScreepsConstants.ERR_NO_PATH;
                 }
                 if(opts.visualizePathStyle) {
                     this.room.visual.poly(path, opts.visualizePathStyle);
@@ -270,14 +270,14 @@ export function make(_runtimeData, _intents, _register, _globals) {
                 }
                 const result = this.moveByPath(path);
 
-                if(result == C.OK) {
-                    return C.OK;
+                if(result == ScreepsConstants.OK) {
+                    return ScreepsConstants.OK;
                 }
             }
         }
 
         if(opts.noPathFinding) {
-            return C.ERR_NOT_FOUND;
+            return ScreepsConstants.ERR_NOT_FOUND;
         }
 
         var path = this.pos.findPathTo(targetPos, opts);
@@ -292,7 +292,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
         }
 
         if(path.length == 0) {
-            return C.ERR_NO_PATH;
+            return ScreepsConstants.ERR_NO_PATH;
         }
 
         if(opts.visualizePathStyle && !visualized) {
@@ -307,12 +307,12 @@ export function make(_runtimeData, _intents, _register, _globals) {
             let idx = _.findIndex(path, (i) => i.isEqualTo(this.pos));
             if(idx === -1) {
                 if(!path[0].isNearTo(this.pos)) {
-                    return C.ERR_NOT_FOUND;
+                    return ScreepsConstants.ERR_NOT_FOUND;
                 }
             }
             idx++;
             if(idx >= path.length) {
-                return C.ERR_NOT_FOUND;
+                return ScreepsConstants.ERR_NOT_FOUND;
             }
 
             return this.move(this.pos.getDirectionTo(path[idx]));
@@ -322,11 +322,11 @@ export function make(_runtimeData, _intents, _register, _globals) {
             path = utils.deserializePath(path);
         }
         if(!_.isArray(path)) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
         const cur = _.find(path, (i) => i.x - i.dx == this.pos.x && i.y - i.dy == this.pos.y);
         if(!cur) {
-            return C.ERR_NOT_FOUND;
+            return ScreepsConstants.ERR_NOT_FOUND;
         }
 
         return this.move(cur.direction);
@@ -335,108 +335,108 @@ export function make(_runtimeData, _intents, _register, _globals) {
     Creep.prototype.harvest = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
-        if(!_hasActiveBodypart(this.body, C.WORK)) {
-            return C.ERR_NO_BODYPART;
+        if(!_hasActiveBodypart(this.body, ScreepsConstants.WORK)) {
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(!target || !target.id) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         if(register.sources[target.id] && (target instanceof globals.Source)) {
 
             if(!target.energy) {
-                return C.ERR_NOT_ENOUGH_RESOURCES;
+                return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
             }
             if(!target.pos.isNearTo(this.pos)) {
-                return C.ERR_NOT_IN_RANGE;
+                return ScreepsConstants.ERR_NOT_IN_RANGE;
             }
             if(this.room.controller && (
             this.room.controller.owner && this.room.controller.owner.username != runtimeData.user.username ||
             this.room.controller.reservation && this.room.controller.reservation.username != runtimeData.user.username)) {
-                return C.ERR_NOT_OWNER;
+                return ScreepsConstants.ERR_NOT_OWNER;
             }
 
         }
         else if(register.minerals[target.id] && (target instanceof globals.Mineral)) {
 
             if(!target.mineralAmount) {
-                return C.ERR_NOT_ENOUGH_RESOURCES;
+                return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
             }
             if(!target.pos.isNearTo(this.pos)) {
-                return C.ERR_NOT_IN_RANGE;
+                return ScreepsConstants.ERR_NOT_IN_RANGE;
             }
-            const extractor = _.find(target.pos.lookFor('structure'), {structureType: C.STRUCTURE_EXTRACTOR});
+            const extractor = _.find(target.pos.lookFor('structure'), {structureType: ScreepsConstants.STRUCTURE_EXTRACTOR});
             if(!extractor) {
-                return C.ERR_NOT_FOUND;
+                return ScreepsConstants.ERR_NOT_FOUND;
             }
             if(extractor.owner && !extractor.my) {
-                return C.ERR_NOT_OWNER;
+                return ScreepsConstants.ERR_NOT_OWNER;
             }
             if(!extractor.isActive()) {
-                return C.ERR_RCL_NOT_ENOUGH;
+                return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
             }
             if(extractor.cooldown) {
-                return C.ERR_TIRED;
+                return ScreepsConstants.ERR_TIRED;
             }
         }
         else if(register.deposits[target.id] && (target instanceof globals.Deposit)) {
             if(!target.pos.isNearTo(this.pos)) {
-                return C.ERR_NOT_IN_RANGE;
+                return ScreepsConstants.ERR_NOT_IN_RANGE;
             }
             if(target.cooldown) {
-                return C.ERR_TIRED;
+                return ScreepsConstants.ERR_TIRED;
             }
         }
         else {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         intents.set(this.id, 'harvest', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.drop = register.wrapFn(function(resourceType, amount) {
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
-        if(!_.contains(C.RESOURCES_ALL, resourceType)) {
-            return C.ERR_INVALID_ARGS;
+        if(!_.contains(ScreepsConstants.RESOURCES_ALL, resourceType)) {
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
         if(!data(this.id).store || !data(this.id).store[resourceType]) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
         if(!amount) {
             amount = data(this.id).store[resourceType];
         }
         if(data(this.id).store[resourceType] < amount) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
 
         intents.set(this.id, 'drop', {amount, resourceType});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.transfer = register.wrapFn(function(target, resourceType, amount) {
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         if(amount < 0) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
-        if(!_.contains(C.RESOURCES_ALL, resourceType)) {
-            return C.ERR_INVALID_ARGS;
+        if(!_.contains(ScreepsConstants.RESOURCES_ALL, resourceType)) {
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
         if(!target ||
             !target.id ||
@@ -445,29 +445,29 @@ export function make(_runtimeData, _intents, _register, _globals) {
             ((target instanceof globals.Creep) && target.spawning) ||
             !(target instanceof globals.StructureSpawn) && !(target instanceof globals.Structure) && !(target instanceof globals.Creep) && !(target instanceof globals.PowerCreep)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
-        if(resourceType == C.RESOURCE_ENERGY && register.structures[target.id] && register.structures[target.id].structureType == 'controller') {
+        if(resourceType == ScreepsConstants.RESOURCE_ENERGY && register.structures[target.id] && register.structures[target.id].structureType == 'controller') {
             return this.upgradeController(target);
         }
 
         if(!utils.capacityForResource(data(target.id), resourceType)) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
         if(!data(this.id).store || !data(this.id).store[resourceType]) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
 
         const storedAmount = data(target.id).storeCapacityResource ? data(target.id).store[resourceType]||0 : utils.calcResources(target);
         const targetCapacity = utils.capacityForResource(data(target.id), resourceType);
 
         if(!data(target.id).store || storedAmount >= targetCapacity) {
-            return C.ERR_FULL;
+            return ScreepsConstants.ERR_FULL;
         }
 
         if(!amount) {
@@ -475,66 +475,66 @@ export function make(_runtimeData, _intents, _register, _globals) {
         }
 
         if(data(this.id).store[resourceType] < amount) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
 
         if((amount + storedAmount) > targetCapacity) {
-            return C.ERR_FULL;
+            return ScreepsConstants.ERR_FULL;
         }
 
         intents.set(this.id, 'transfer', {id: target.id, amount, resourceType});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.withdraw = register.wrapFn(function(target, resourceType, amount) {
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         if(amount < 0) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
-        if(!_.contains(C.RESOURCES_ALL, resourceType)) {
-            return C.ERR_INVALID_ARGS;
+        if(!_.contains(ScreepsConstants.RESOURCES_ALL, resourceType)) {
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         if(!target || !target.id || !data(target.id).store || ((!register.structures[target.id] || !(target instanceof globals.Structure)) && !(target instanceof globals.Tombstone) && !(target instanceof globals.Ruin))) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         if(target.structureType == 'terminal') {
-            const effect = _.find(target.effects, {power: C.PWR_DISRUPT_TERMINAL});
+            const effect = _.find(target.effects, {power: ScreepsConstants.PWR_DISRUPT_TERMINAL});
             if(effect && effect.ticksRemaining > 0) {
-                return C.ERR_INVALID_TARGET;
+                return ScreepsConstants.ERR_INVALID_TARGET;
             }
         }
 
-        if(target.my === false && _.any(target.pos.lookFor('structure'), i => i.structureType == C.STRUCTURE_RAMPART && !i.my && !i.isPublic)) {
-            return C.ERR_NOT_OWNER;
+        if(target.my === false && _.any(target.pos.lookFor('structure'), i => i.structureType == ScreepsConstants.STRUCTURE_RAMPART && !i.my && !i.isPublic)) {
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.room.controller && !this.room.controller.my && this.room.controller.safeMode) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
 
-        if(register.structures[target.id] && register.structures[target.id].structureType == C.STRUCTURE_NUKER) {
-            return C.ERR_INVALID_TARGET;
+        if(register.structures[target.id] && register.structures[target.id].structureType == ScreepsConstants.STRUCTURE_NUKER) {
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         if(!utils.capacityForResource(data(target.id), resourceType) && !data(target.id).store[resourceType] && !(target instanceof globals.Tombstone)) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
 
         const emptySpace = data(this.id).storeCapacity - utils.calcResources(data(this.id));
 
         if(emptySpace <= 0) {
-            return C.ERR_FULL;
+            return ScreepsConstants.ERR_FULL;
         }
 
         if(!amount) {
@@ -542,38 +542,38 @@ export function make(_runtimeData, _intents, _register, _globals) {
         }
 
         if(amount > emptySpace) {
-            return C.ERR_FULL;
+            return ScreepsConstants.ERR_FULL;
         }
 
         if(!amount || (data(target.id).store[resourceType]||0) < amount) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
 
         intents.set(this.id, 'withdraw', {id: target.id, amount, resourceType});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.pickup = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         if(!target || !target.id || !register.energy[target.id] || !(target instanceof globals.Energy)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(utils.calcResources(data(this.id)) >= data(this.id).storeCapacity) {
-            return C.ERR_FULL;
+            return ScreepsConstants.ERR_FULL;
         }
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
 
         intents.set(this.id, 'pickup', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.getActiveBodyparts = register.wrapFn(function(type) {
@@ -583,199 +583,199 @@ export function make(_runtimeData, _intents, _register, _globals) {
     Creep.prototype.attack = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
-        if(!_hasActiveBodypart(this.body, C.ATTACK)) {
-            return C.ERR_NO_BODYPART;
+        if(!_hasActiveBodypart(this.body, ScreepsConstants.ATTACK)) {
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(this.room.controller && !this.room.controller.my && this.room.controller.safeMode) {
-            return C.ERR_NO_BODYPART;
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(!target || !target.id || !register.creeps[target.id] && !register.powerCreeps[target.id] && !register.structures[target.id] ||
             !(target instanceof globals.Creep) && !(target instanceof globals.PowerCreep) && !(target instanceof globals.StructureSpawn) && !(target instanceof globals.Structure)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
-        const effect = _.find(target.effects, e => (e.power == C.PWR_FORTIFY || e.effect == C.EFFECT_INVULNERABILITY) && (e.ticksRemaining > 0));
+        const effect = _.find(target.effects, e => (e.power == ScreepsConstants.PWR_FORTIFY || e.effect == ScreepsConstants.EFFECT_INVULNERABILITY) && (e.ticksRemaining > 0));
         if(effect) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
 
         intents.set(this.id, 'attack', {id: target.id, x: target.pos.x, y: target.pos.y});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.rangedAttack = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
-        if(!_hasActiveBodypart(this.body, C.RANGED_ATTACK)) {
-            return C.ERR_NO_BODYPART;
+        if(!_hasActiveBodypart(this.body, ScreepsConstants.RANGED_ATTACK)) {
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(this.room.controller && !this.room.controller.my && this.room.controller.safeMode) {
-            return C.ERR_NO_BODYPART;
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(!target || !target.id || !register.creeps[target.id] && !register.powerCreeps[target.id] && !register.structures[target.id] ||
             !(target instanceof globals.Creep) && !(target instanceof globals.PowerCreep) && !(target instanceof globals.StructureSpawn) && !(target instanceof globals.Structure)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!this.pos.inRangeTo(target, 3)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
 
-        const effect = _.find(target.effects, e => (e.power == C.PWR_FORTIFY || e.effect == C.EFFECT_INVULNERABILITY) && (e.ticksRemaining > 0));
+        const effect = _.find(target.effects, e => (e.power == ScreepsConstants.PWR_FORTIFY || e.effect == ScreepsConstants.EFFECT_INVULNERABILITY) && (e.ticksRemaining > 0));
         if(effect) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         intents.set(this.id, 'rangedAttack', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.rangedMassAttack = register.wrapFn(function() {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
-        if(!_hasActiveBodypart(this.body, C.RANGED_ATTACK)) {
-            return C.ERR_NO_BODYPART;
+        if(!_hasActiveBodypart(this.body, ScreepsConstants.RANGED_ATTACK)) {
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(this.room.controller && !this.room.controller.my && this.room.controller.safeMode) {
-            return C.ERR_NO_BODYPART;
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
 
 
         intents.set(this.id, 'rangedMassAttack', {});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.heal = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
-        if(!_hasActiveBodypart(this.body, C.HEAL)) {
-            return C.ERR_NO_BODYPART;
+        if(!_hasActiveBodypart(this.body, ScreepsConstants.HEAL)) {
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(!target || !target.id || !register.creeps[target.id] && !register.powerCreeps[target.id] ||
             !(target instanceof globals.Creep) && !(target instanceof globals.PowerCreep)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
         if(this.room.controller && !this.room.controller.my && this.room.controller.safeMode) {
-            return C.ERR_NO_BODYPART;
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
 
 
         intents.set(this.id, 'heal', {id: target.id, x: target.pos.x, y: target.pos.y});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.rangedHeal = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
-        if(!_hasActiveBodypart(this.body, C.HEAL)) {
-            return C.ERR_NO_BODYPART;
+        if(!_hasActiveBodypart(this.body, ScreepsConstants.HEAL)) {
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(!target || !target.id || !register.creeps[target.id] && !register.powerCreeps[target.id] ||
             !(target instanceof globals.Creep) && !(target instanceof globals.PowerCreep)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(this.room.controller && !this.room.controller.my && this.room.controller.safeMode) {
-            return C.ERR_NO_BODYPART;
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(!this.pos.inRangeTo(target, 3)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
 
 
         intents.set(this.id, 'rangedHeal', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.repair = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
-        if(!_hasActiveBodypart(this.body, C.WORK)) {
-            return C.ERR_NO_BODYPART;
+        if(!_hasActiveBodypart(this.body, ScreepsConstants.WORK)) {
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(!this.carry.energy) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
         if(!target || !target.id || !register.structures[target.id] ||
             !(target instanceof globals.Structure) && !(target instanceof globals.StructureSpawn)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!this.pos.inRangeTo(target, 3)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
 
 
         intents.set(this.id, 'repair', {id: target.id, x: target.pos.x, y: target.pos.y});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.build = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
-        if(!_hasActiveBodypart(this.body, C.WORK)) {
-            return C.ERR_NO_BODYPART;
+        if(!_hasActiveBodypart(this.body, ScreepsConstants.WORK)) {
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(!this.carry.energy) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
         if(!target || !target.id || !register.constructionSites[target.id] || !(target instanceof globals.ConstructionSite)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!this.pos.inRangeTo(target, 3)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
 
         const objects = register.objectsByRoom[data(this.id).room];
         const objectsInTile = [], creepsInTile = [], myCreepsInTile = [];
         const userId = data(this.id).user;
         _.forEach(objects, obj => {
-            if(obj.x == target.pos.x && obj.y == target.pos.y && _.contains(C.OBSTACLE_OBJECT_TYPES, obj.type)) {
+            if(obj.x == target.pos.x && obj.y == target.pos.y && _.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, obj.type)) {
                 if(obj.type == 'creep') {
                     creepsInTile.push(obj);
                     if(obj.user == userId) {
@@ -786,205 +786,205 @@ export function make(_runtimeData, _intents, _register, _globals) {
                 }
             }
         });
-        if(_.contains(C.OBSTACLE_OBJECT_TYPES, target.structureType)) {
+        if(_.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, target.structureType)) {
             if(_.any(objectsInTile)) {
-                return C.ERR_INVALID_TARGET;
+                return ScreepsConstants.ERR_INVALID_TARGET;
             }
             const blockingCreeps = (this.room.controller && this.room.controller.my && this.room.controller.safeMode) ? myCreepsInTile : creepsInTile;
             if(_.any(blockingCreeps)) {
-                return C.ERR_INVALID_TARGET;
+                return ScreepsConstants.ERR_INVALID_TARGET;
             }
         }
 
         intents.set(this.id, 'build', {id: target.id, x: target.pos.x, y: target.pos.y});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.suicide = register.wrapFn(function() {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
 
         intents.set(this.id, 'suicide', {});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.say = register.wrapFn(function(message, isPublic) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
 
         intents.set(this.id, 'say', {message: ""+message, isPublic});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.claimController = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
 
         const controllersClaimed = runtimeData.user.rooms.length + controllersClaimedInTick;
         if (controllersClaimed &&
             (!runtimeData.user.gcl || runtimeData.user.gcl < utils.calcNeededGcl(controllersClaimed + 1))) {
-            return C.ERR_GCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_GCL_NOT_ENOUGH;
         }
-        if (controllersClaimed >= C.GCL_NOVICE && runtimeData.rooms[this.room.name].novice > Date.now()) {
-            return C.ERR_FULL;
+        if (controllersClaimed >= ScreepsConstants.GCL_NOVICE && runtimeData.rooms[this.room.name].novice > Date.now()) {
+            return ScreepsConstants.ERR_FULL;
         }
         if(!target || !target.id || !register.structures[target.id] || !(target instanceof globals.Structure)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
-        if(!_hasActiveBodypart(this.body, C.CLAIM)) {
-            return C.ERR_NO_BODYPART;
+        if(!_hasActiveBodypart(this.body, ScreepsConstants.CLAIM)) {
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
         if(target.structureType != 'controller') {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(target.level > 0) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(target.reservation && target.reservation.username != runtimeData.user.username) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(this.room.controller && !this.room.controller.my && this.room.controller.safeMode) {
-            return C.ERR_NO_BODYPART;
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
 
         controllersClaimedInTick++;
 
         intents.set(this.id, 'claimController', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.attackController = register.wrapFn(function(target) {
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         if(!target || !target.id || !register.structures[target.id] || !(target instanceof globals.StructureController)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
-        if(!_getActiveBodyparts(this.body, C.CLAIM)) {
-            return C.ERR_NO_BODYPART;
+        if(!_getActiveBodyparts(this.body, ScreepsConstants.CLAIM)) {
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
         if(!target.owner && !target.reservation) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(data(target.id).upgradeBlocked > runtimeData.time) {
-            return C.ERR_TIRED;
+            return ScreepsConstants.ERR_TIRED;
         }
         if(this.room.controller && !this.room.controller.my && this.room.controller.safeMode) {
-            return C.ERR_NO_BODYPART;
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
-        if(_.any(target.effects, e => e.effect == C.EFFECT_INVULNERABILITY && e.ticksRemaining > 0)) {
-            return C.ERR_INVALID_TARGET;
+        if(_.any(target.effects, e => e.effect == ScreepsConstants.EFFECT_INVULNERABILITY && e.ticksRemaining > 0)) {
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         intents.set(this.id, 'attackController', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.upgradeController = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
-        if(!_hasActiveBodypart(this.body, C.WORK)) {
-            return C.ERR_NO_BODYPART;
+        if(!_hasActiveBodypart(this.body, ScreepsConstants.WORK)) {
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(!this.carry.energy) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
         if(!target || !target.id || !register.structures[target.id] || !(target instanceof globals.StructureController)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(target.upgradeBlocked && target.upgradeBlocked > 0) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!target.pos.inRangeTo(this.pos, 3)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
         if(!target.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!target.level || !target.owner) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
 
         intents.set(this.id, 'upgradeController', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.reserveController = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         if(!target || !target.id || !register.structures[target.id] || !(target instanceof globals.Structure)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
         if(target.structureType != 'controller') {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(target.owner) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(target.reservation && target.reservation.username != runtimeData.user.username) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
-        if(!_hasActiveBodypart(this.body, C.CLAIM)) {
-            return C.ERR_NO_BODYPART;
+        if(!_hasActiveBodypart(this.body, ScreepsConstants.CLAIM)) {
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
 
 
         intents.set(this.id, 'reserveController', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.notifyWhenAttacked = register.wrapFn(function(enabled) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         if(!_.isBoolean(enabled)) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         if(enabled != data(this.id).notifyWhenAttacked) {
@@ -992,114 +992,114 @@ export function make(_runtimeData, _intents, _register, _globals) {
             intents.set(this.id, 'notifyWhenAttacked', {enabled});
         }
 
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.cancelOrder = register.wrapFn(function(name) {
 
         if(intents.remove(this.id, name)) {
-            return C.OK;
+            return ScreepsConstants.OK;
         }
-        return C.ERR_NOT_FOUND;
+        return ScreepsConstants.ERR_NOT_FOUND;
     });
 
     Creep.prototype.dismantle = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
-        if(!_hasActiveBodypart(this.body, C.WORK)) {
-            return C.ERR_NO_BODYPART;
+        if(!_hasActiveBodypart(this.body, ScreepsConstants.WORK)) {
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(!target || !target.id || !register.structures[target.id] ||
         !(target instanceof globals.Structure) && !(target instanceof globals.StructureSpawn) ||
-        !C.CONSTRUCTION_COST[target.structureType]) {
+        !ScreepsConstants.CONSTRUCTION_COST[target.structureType]) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
         if(this.room.controller && !this.room.controller.my && this.room.controller.safeMode) {
-            return C.ERR_NO_BODYPART;
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
 
-        const effect = _.find(target.effects, e => (e.power == C.PWR_FORTIFY || e.effect == C.EFFECT_INVULNERABILITY) && (e.ticksRemaining > 0));
+        const effect = _.find(target.effects, e => (e.power == ScreepsConstants.PWR_FORTIFY || e.effect == ScreepsConstants.EFFECT_INVULNERABILITY) && (e.ticksRemaining > 0));
         if(effect) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         intents.set(this.id, 'dismantle', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.generateSafeMode = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
-        if(!data(this.id).store || !(data(this.id).store[C.RESOURCE_GHODIUM] >= C.SAFE_MODE_COST)) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+        if(!data(this.id).store || !(data(this.id).store[ScreepsConstants.RESOURCE_GHODIUM] >= ScreepsConstants.SAFE_MODE_COST)) {
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
         if(!target || !target.id || !register.structures[target.id] || !(target instanceof globals.StructureController)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
 
         intents.set(this.id, 'generateSafeMode', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.signController = register.wrapFn(function(target, sign) {
 
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
 
         if(!target || !target.id || !register.structures[target.id] || !(target instanceof globals.Structure)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
         if(target.structureType != 'controller') {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         intents.set(this.id, 'signController', {id: target.id, sign: ""+sign});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Creep.prototype.pull = register.wrapFn(function(target){
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
 
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
 
         if(!target || !target.id || !register.creeps[target.id] || !(target instanceof globals.Creep) || target.spawning || target.id == this.id) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
 
         intents.set(this.id, 'pull', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Object.defineProperty(globals, 'Creep', {enumerable: true, value: Creep});

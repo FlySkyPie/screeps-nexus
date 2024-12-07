@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, scope) => {
     const {roomObjects, bulk, gameTime, eventLog} = scope;
@@ -26,8 +26,8 @@ export default (object, intent, scope) => {
         };
     }
 
-    const effect = C.INVADER_CORE_CONTROLLER_POWER * C.CONTROLLER_RESERVE;
-    if(target.reservation.endTime + effect > gameTime + C.CONTROLLER_RESERVE_MAX) {
+    const effect = ScreepsConstants.INVADER_CORE_CONTROLLER_POWER * ScreepsConstants.CONTROLLER_RESERVE;
+    if(target.reservation.endTime + effect > gameTime + ScreepsConstants.CONTROLLER_RESERVE_MAX) {
         return;
     }
 
@@ -36,5 +36,5 @@ export default (object, intent, scope) => {
     target.reservation.endTime += effect;
     bulk.update(target, {reservation: target.reservation});
 
-    eventLog.push({event: C.EVENT_RESERVE_CONTROLLER, objectId: object._id, data: {amount: effect}});
+    eventLog.push({event: ScreepsConstants.EVENT_RESERVE_CONTROLLER, objectId: object._id, data: {amount: effect}});
 };

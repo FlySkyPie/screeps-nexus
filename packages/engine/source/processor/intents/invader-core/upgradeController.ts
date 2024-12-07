@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 const strongholds = driver.strongholds;
 
 export default (object, intent, scope) => {
@@ -23,19 +23,19 @@ export default (object, intent, scope) => {
         return;
     }
 
-    const effect = _.find(target.effects, {effect: C.EFFECT_INVULNERABILITY});
+    const effect = _.find(target.effects, {effect: ScreepsConstants.EFFECT_INVULNERABILITY});
     if(effect) {
-        effect.endTime = gameTime + C.INVADER_CORE_CONTROLLER_DOWNGRADE;
+        effect.endTime = gameTime + ScreepsConstants.INVADER_CORE_CONTROLLER_DOWNGRADE;
     } else {
         target.effects = [{
-            effect: C.EFFECT_INVULNERABILITY,
-            endTime: gameTime + C.INVADER_CORE_CONTROLLER_DOWNGRADE,
-            duration: C.INVADER_CORE_CONTROLLER_DOWNGRADE
+            effect: ScreepsConstants.EFFECT_INVULNERABILITY,
+            endTime: gameTime + ScreepsConstants.INVADER_CORE_CONTROLLER_DOWNGRADE,
+            duration: ScreepsConstants.INVADER_CORE_CONTROLLER_DOWNGRADE
         }];
     }
 
     const upgradePower = 1;
-    target.downgradeTime = gameTime + C.INVADER_CORE_CONTROLLER_DOWNGRADE;
+    target.downgradeTime = gameTime + ScreepsConstants.INVADER_CORE_CONTROLLER_DOWNGRADE;
 
     target._upgraded += upgradePower;
 
@@ -48,7 +48,7 @@ export default (object, intent, scope) => {
         effects
     });
 
-    eventLog.push({event: C.EVENT_UPGRADE_CONTROLLER, objectId: object._id, data: {
+    eventLog.push({event: ScreepsConstants.EVENT_UPGRADE_CONTROLLER, objectId: object._id, data: {
             amount: upgradePower, energySpent: 0
         }});
 };

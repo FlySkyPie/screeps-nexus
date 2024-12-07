@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (userId, intent, {flags}) => {
 
@@ -12,10 +12,10 @@ export default (userId, intent, {flags}) => {
     })) {
         return;
     }
-    if(!intent.color || !_.contains(C.COLORS_ALL, intent.color)) {
+    if(!intent.color || !_.contains(ScreepsConstants.COLORS_ALL, intent.color)) {
         return;
     }
-    if(!intent.secondaryColor || !_.contains(C.COLORS_ALL, intent.secondaryColor)) {
+    if(!intent.secondaryColor || !_.contains(ScreepsConstants.COLORS_ALL, intent.secondaryColor)) {
         return;
     }
 

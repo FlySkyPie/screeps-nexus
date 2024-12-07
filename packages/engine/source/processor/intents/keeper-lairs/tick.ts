@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, {roomObjects, bulk, gameTime}) => {
 
@@ -12,7 +12,7 @@ export default (object, {roomObjects, bulk, gameTime}) => {
     if(!object.nextSpawnTime) {
         var keeper = _.find(roomObjects, (i) => i.type == 'creep' && i.user == '3' && i.name == 'Keeper'+object._id);
         if(!keeper || keeper.hits < 5000) {
-            bulk.update(object, {nextSpawnTime: gameTime + C.ENERGY_REGEN_TIME});
+            bulk.update(object, {nextSpawnTime: gameTime + ScreepsConstants.ENERGY_REGEN_TIME});
         }
     }
 
@@ -26,23 +26,23 @@ export default (object, {roomObjects, bulk, gameTime}) => {
 
         for(var i=0;i<17;i++) {
             body.push({
-                type: C.TOUGH,
+                type: ScreepsConstants.TOUGH,
                 hits: 100
             });
         }
         for(var i=0;i<13;i++) {
             body.push({
-                type: C.MOVE,
+                type: ScreepsConstants.MOVE,
                 hits: 100
             });
         }
         for(var i=0;i<10;i++) {
             body.push({
-                type: C.ATTACK,
+                type: ScreepsConstants.ATTACK,
                 hits: 100
             });
             body.push({
-                type: C.RANGED_ATTACK,
+                type: ScreepsConstants.RANGED_ATTACK,
                 hits: 100
             });
         }

@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, {roomObjects, bulk}) => {
 
@@ -9,7 +9,7 @@ export default (object, {roomObjects, bulk}) => {
 
     const resourceType = object.resourceType || 'energy';
 
-    object[resourceType] -= Math.ceil(object[resourceType] / C.ENERGY_DECAY);
+    object[resourceType] -= Math.ceil(object[resourceType] / ScreepsConstants.ENERGY_DECAY);
 
     if (object[resourceType] <= 0 || !object[resourceType]) {
         if (_.isNaN(object[resourceType])) {

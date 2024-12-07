@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import utils from '../utils';
 const driver = utils.getRuntimeDriver();
-const C = driver.constants;
+
 import pathfinding from '@screeps/pathfinding';
 
 const abs = Math.abs, min = Math.min, max = Math.max;
@@ -33,7 +33,7 @@ function makePathfindingGrid(id, opts, endNodesKey) {
     opts = opts || {};
 
     const rows = new Array(50);
-    let obstacleTypes = _.clone(C.OBSTACLE_OBJECT_TYPES);
+    let obstacleTypes = _.clone(ScreepsConstants.OBSTACLE_OBJECT_TYPES);
 
     if(opts.ignoreDestructibleStructures) {
         obstacleTypes = _.without(obstacleTypes, 'constructedWall','spawn','extension', 'link','storage','observer','tower','powerBank','powerSpawn','lab','terminal');
@@ -48,10 +48,10 @@ function makePathfindingGrid(id, opts, endNodesKey) {
             rows[y][x] = x == 0 || y == 0 || x == 49 || y == 49 ? 11 : 2;
             //var terrainCode = register.terrainByRoom.spatial[id][y][x];
             const terrainCode = runtimeData.staticTerrainData[id][y*50+x];
-            if(terrainCode & C.TERRAIN_MASK_WALL) {
+            if(terrainCode & ScreepsConstants.TERRAIN_MASK_WALL) {
                 rows[y][x] = 0;
             }
-            if ((terrainCode & C.TERRAIN_MASK_SWAMP) && rows[y][x] == 2) {
+            if ((terrainCode & ScreepsConstants.TERRAIN_MASK_SWAMP) && rows[y][x] == 2) {
                 rows[y][x] = 10;
             }
         }
@@ -62,7 +62,7 @@ function makePathfindingGrid(id, opts, endNodesKey) {
 
         if (_.contains(obstacleTypes, object.type) ||
         !opts.ignoreDestructibleStructures && object.type == 'rampart' && !object.isPublic && object.user != runtimeData.user._id ||
-        !opts.ignoreDestructibleStructures && object.type == 'constructionSite' && object.user == runtimeData.user._id && _.contains(C.OBSTACLE_OBJECT_TYPES, object.structureType)) {
+        !opts.ignoreDestructibleStructures && object.type == 'constructionSite' && object.user == runtimeData.user._id && _.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, object.structureType)) {
 
             rows[object.y][object.x] = 0;
         }
@@ -159,7 +159,7 @@ function makePathfindingGrid2(id, opts) {
 
     const costs = new globals.PathFinder.CostMatrix();
 
-    let obstacleTypes = _.clone(C.OBSTACLE_OBJECT_TYPES);
+    let obstacleTypes = _.clone(ScreepsConstants.OBSTACLE_OBJECT_TYPES);
     obstacleTypes.push('portal');
 
     if(opts.ignoreDestructibleStructures) {
@@ -176,7 +176,7 @@ function makePathfindingGrid2(id, opts) {
             if (_.contains(obstacleTypes, object.type) ||
             !opts.ignoreCreeps && register.rooms[id].controller && register.rooms[id].controller.safeMode && register.rooms[id].controller.my && (object.type == 'creep' || object.type == 'powerCreep') && object.user == runtimeData.user._id ||
             !opts.ignoreDestructibleStructures && object.type == 'rampart' && !object.isPublic && object.user != runtimeData.user._id ||
-            !opts.ignoreDestructibleStructures && object.type == 'constructionSite' && object.user == runtimeData.user._id && _.contains(C.OBSTACLE_OBJECT_TYPES, object.structureType)) {
+            !opts.ignoreDestructibleStructures && object.type == 'constructionSite' && object.user == runtimeData.user._id && _.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, object.structureType)) {
 
                 costs.set(object.x, object.y, 0xFF);
             }
@@ -580,50 +580,50 @@ export function make(_runtimeData, _intents, _register, _globals) {
         }
         else {
             switch (type) {
-                case C.FIND_EXIT:
+                case ScreepsConstants.FIND_EXIT:
                     register.findCache[type] = register.findCache[type] || {};
-                    register.findCache[type][this.name] = this.find(C.FIND_EXIT_TOP, opts)
-                    .concat(this.find(C.FIND_EXIT_BOTTOM, opts))
-                    .concat(this.find(C.FIND_EXIT_RIGHT, opts))
-                    .concat(this.find(C.FIND_EXIT_LEFT, opts));
+                    register.findCache[type][this.name] = this.find(ScreepsConstants.FIND_EXIT_TOP, opts)
+                    .concat(this.find(ScreepsConstants.FIND_EXIT_BOTTOM, opts))
+                    .concat(this.find(ScreepsConstants.FIND_EXIT_RIGHT, opts))
+                    .concat(this.find(ScreepsConstants.FIND_EXIT_LEFT, opts));
                     return _.clone(register.findCache[type][this.name]);
-                case C.FIND_EXIT_TOP:
-                case C.FIND_EXIT_RIGHT:
-                case C.FIND_EXIT_BOTTOM:
-                case C.FIND_EXIT_LEFT:
+                case ScreepsConstants.FIND_EXIT_TOP:
+                case ScreepsConstants.FIND_EXIT_RIGHT:
+                case ScreepsConstants.FIND_EXIT_BOTTOM:
+                case ScreepsConstants.FIND_EXIT_LEFT:
 
                     register.findCache[type] = register.findCache[type] || {};
 
                     const exits = [];
                     for (let i = 0; i < 50; i++) {
                         let x=0, y=0;
-                        if(type == C.FIND_EXIT_LEFT || type == C.FIND_EXIT_RIGHT) {
+                        if(type == ScreepsConstants.FIND_EXIT_LEFT || type == ScreepsConstants.FIND_EXIT_RIGHT) {
                             y = i;
                         }
                         else  {
                             x = i;
                         }
-                        if(type == C.FIND_EXIT_RIGHT) {
+                        if(type == ScreepsConstants.FIND_EXIT_RIGHT) {
                             x = 49;
                         }
-                        if(type == C.FIND_EXIT_BOTTOM) {
+                        if(type == ScreepsConstants.FIND_EXIT_BOTTOM) {
                             y = 49;
                         }
-                        exits.push(!(runtimeData.staticTerrainData[this.name][y*50+x] & C.TERRAIN_MASK_WALL));
+                        exits.push(!(runtimeData.staticTerrainData[this.name][y*50+x] & ScreepsConstants.TERRAIN_MASK_WALL));
                     }
 
                     result = _.reduce(exits, (accum, i, key) => {
                         if (i) {
-                            if (type == C.FIND_EXIT_TOP) {
+                            if (type == ScreepsConstants.FIND_EXIT_TOP) {
                                 accum.push(this.getPositionAt(key, 0));
                             }
-                            if (type == C.FIND_EXIT_BOTTOM) {
+                            if (type == ScreepsConstants.FIND_EXIT_BOTTOM) {
                                 accum.push(this.getPositionAt(key, 49));
                             }
-                            if (type == C.FIND_EXIT_LEFT) {
+                            if (type == ScreepsConstants.FIND_EXIT_LEFT) {
                                 accum.push(this.getPositionAt(0, key));
                             }
-                            if (type == C.FIND_EXIT_RIGHT) {
+                            if (type == ScreepsConstants.FIND_EXIT_RIGHT) {
                                 accum.push(this.getPositionAt(49, key));
                             }
                         }
@@ -654,10 +654,10 @@ export function make(_runtimeData, _intents, _register, _globals) {
         if(typeName == 'terrain') {
             let result = 'plain';
             const terrainCode = runtimeData.staticTerrainData[id][y*50+x];
-            if(terrainCode & C.TERRAIN_MASK_SWAMP) {
+            if(terrainCode & ScreepsConstants.TERRAIN_MASK_SWAMP) {
                 result = 'swamp';
             }
-            if(terrainCode & C.TERRAIN_MASK_WALL) {
+            if(terrainCode & ScreepsConstants.TERRAIN_MASK_WALL) {
                 result = 'wall';
             }
             if(outArray) {
@@ -758,19 +758,19 @@ export function make(_runtimeData, _intents, _register, _globals) {
     Room.prototype.lookAt = register.wrapFn(function(firstArg, secondArg) {
         const [x,y] = utils.fetchXYArguments(firstArg, secondArg, globals), result = [];
 
-        _lookSpatialRegister(this.name, C.LOOK_CREEPS, x,y, result);
-        _lookSpatialRegister(this.name, C.LOOK_ENERGY, x,y, result);
-        _lookSpatialRegister(this.name, C.LOOK_RESOURCES, x,y, result);
-        _lookSpatialRegister(this.name, C.LOOK_SOURCES, x,y, result);
-        _lookSpatialRegister(this.name, C.LOOK_MINERALS, x,y, result);
-        _lookSpatialRegister(this.name, C.LOOK_DEPOSITS, x,y, result);
-        _lookSpatialRegister(this.name, C.LOOK_STRUCTURES, x,y, result);
-        _lookSpatialRegister(this.name, C.LOOK_FLAGS, x,y, result);
-        _lookSpatialRegister(this.name, C.LOOK_CONSTRUCTION_SITES, x,y, result);
-        _lookSpatialRegister(this.name, C.LOOK_TERRAIN, x,y, result);
-        _lookSpatialRegister(this.name, C.LOOK_NUKES, x,y, result);
-        _lookSpatialRegister(this.name, C.LOOK_TOMBSTONES, x,y, result);
-        _lookSpatialRegister(this.name, C.LOOK_POWER_CREEPS, x,y, result);
+        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_CREEPS, x,y, result);
+        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_ENERGY, x,y, result);
+        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_RESOURCES, x,y, result);
+        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_SOURCES, x,y, result);
+        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_MINERALS, x,y, result);
+        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_DEPOSITS, x,y, result);
+        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_STRUCTURES, x,y, result);
+        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_FLAGS, x,y, result);
+        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_CONSTRUCTION_SITES, x,y, result);
+        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_TERRAIN, x,y, result);
+        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_NUKES, x,y, result);
+        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_TOMBSTONES, x,y, result);
+        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_POWER_CREEPS, x,y, result);
 
         return result;
     });
@@ -779,7 +779,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
         const [x,y] = utils.fetchXYArguments(firstArg, secondArg, globals);
 
         if(type != 'terrain' && !(type in privateStore[this.name].lookTypeSpatialRegisters)) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         return _lookSpatialRegister(this.name, type, x,y);
@@ -798,18 +798,18 @@ export function make(_runtimeData, _intents, _register, _globals) {
             }
         }
 
-        _lookAreaMixedRegister(this.name, C.LOOK_CREEPS, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, C.LOOK_ENERGY, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, C.LOOK_RESOURCES, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, C.LOOK_SOURCES, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, C.LOOK_MINERALS, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, C.LOOK_DEPOSITS, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, C.LOOK_STRUCTURES, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, C.LOOK_FLAGS, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, C.LOOK_CONSTRUCTION_SITES, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, C.LOOK_TERRAIN, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, C.LOOK_NUKES, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, C.LOOK_TOMBSTONES, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_CREEPS, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_ENERGY, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_RESOURCES, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_SOURCES, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_MINERALS, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_DEPOSITS, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_STRUCTURES, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_FLAGS, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_CONSTRUCTION_SITES, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_TERRAIN, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_NUKES, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_TOMBSTONES, top, left, bottom, right, true, asArray, result);
 
         return result;
     });
@@ -947,10 +947,10 @@ export function make(_runtimeData, _intents, _register, _globals) {
         const [x,y] = utils.fetchXYArguments(firstArg, secondArg, globals);
 
         if(_.isUndefined(x) || _.isUndefined(y) || x < 0 || x > 49 || y < 0 || y > 49) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
-        if(_.size(globals.Game.flags) >= C.FLAGS_LIMIT) {
-            return C.ERR_FULL;
+        if(_.size(globals.Game.flags) >= ScreepsConstants.FLAGS_LIMIT) {
+            return ScreepsConstants.ERR_FULL;
         }
         if(_.isObject(firstArg)) {
             secondaryColor = color;
@@ -958,16 +958,16 @@ export function make(_runtimeData, _intents, _register, _globals) {
             name = secondArg;
         }
         if(!color) {
-            color = C.COLOR_WHITE;
+            color = ScreepsConstants.COLOR_WHITE;
         }
         if(!secondaryColor) {
             secondaryColor = color;
         }
-        if(!_.contains(C.COLORS_ALL, color)) {
-            return C.ERR_INVALID_ARGS;
+        if(!_.contains(ScreepsConstants.COLORS_ALL, color)) {
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
-        if(!_.contains(C.COLORS_ALL, secondaryColor)) {
-            return C.ERR_INVALID_ARGS;
+        if(!_.contains(ScreepsConstants.COLORS_ALL, secondaryColor)) {
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
         if(!name) {
             let cnt = 1;
@@ -978,10 +978,10 @@ export function make(_runtimeData, _intents, _register, _globals) {
             while(_.any(register.flags, {name}) || createdFlagNames.indexOf(name) != -1);
         }
         if(_.any(register.flags, {name}) || createdFlagNames.indexOf(name) != -1) {
-            return C.ERR_NAME_EXISTS;
+            return ScreepsConstants.ERR_NAME_EXISTS;
         }
         if(name.length > 60) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         createdFlagNames.push(name);
@@ -998,36 +998,36 @@ export function make(_runtimeData, _intents, _register, _globals) {
         const [x,y] = utils.fetchXYArguments(firstArg, secondArg, globals);
 
         if(_.isUndefined(x) || _.isUndefined(y) || x < 0 || x > 49 || y < 0 || y > 49) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
         if(_.isString(secondArg) && _.isUndefined(structureType)) {
             structureType = secondArg;
         }
-        if(!C.CONSTRUCTION_COST[structureType]) {
-            return C.ERR_INVALID_ARGS;
+        if(!ScreepsConstants.CONSTRUCTION_COST[structureType]) {
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
         if(structureType == 'spawn' && typeof name == 'string') {
             if(createdSpawnNames.indexOf(name) != -1) {
-                return C.ERR_INVALID_ARGS;
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
             if(_.any(register.spawns, {name}) || _.any(register.constructionSites, {structureType: 'spawn', name})) {
-                return C.ERR_INVALID_ARGS;
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
         }
         if(this.controller && this.controller.level > 0 && !this.controller.my) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
         const roomName = ""+this.name;
         if(!utils.checkControllerAvailability(structureType, register.objectsByRoom[this.name], this.controller)) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
         if(!utils.checkConstructionSite(register.objectsByRoom[roomName], structureType, x, y) ||
             !utils.checkConstructionSite(runtimeData.staticTerrainData[roomName], structureType, x, y)) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
-        if(_(runtimeData.userObjects).filter({type: 'constructionSite'}).size() + createdConstructionSites >= C.MAX_CONSTRUCTION_SITES) {
-            return C.ERR_FULL;
+        if(_(runtimeData.userObjects).filter({type: 'constructionSite'}).size() + createdConstructionSites >= ScreepsConstants.MAX_CONSTRUCTION_SITES) {
+            return ScreepsConstants.ERR_FULL;
         }
 
         const intent = {roomName, x, y, structureType};
@@ -1051,7 +1051,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
         intents.pushByName('room', 'createConstructionSite', intent);
 
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Room.prototype.getEndNodes = register.wrapFn(function(type, opts) {
@@ -1178,7 +1178,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
         this.get = register.wrapFn((x, y) => {
             const value = array[y * 50 + x];
-            return (value & C.TERRAIN_MASK_WALL) || (value & C.TERRAIN_MASK_SWAMP) || 0;
+            return (value & ScreepsConstants.TERRAIN_MASK_WALL) || (value & ScreepsConstants.TERRAIN_MASK_SWAMP) || 0;
         });
 
         this.getRawBuffer = register.wrapFn(destinationArray => {
@@ -1547,10 +1547,10 @@ export function makePos(_register) {
     RoomPosition.prototype.lookFor = register.wrapFn(function(type) {
         if(type == 'terrain') {
             const terrainCode = runtimeData.staticTerrainData[this.roomName][this.y*50+this.x];
-            if(terrainCode & C.TERRAIN_MASK_WALL) {
+            if(terrainCode & ScreepsConstants.TERRAIN_MASK_WALL) {
                 return ['wall'];
             }
-            else if(terrainCode & C.TERRAIN_MASK_SWAMP) {
+            else if(terrainCode & ScreepsConstants.TERRAIN_MASK_SWAMP) {
                 return ['swamp'];
             }
             else {

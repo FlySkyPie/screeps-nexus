@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, {roomObjects, bulk, gameTime, eventLog}) => {
 
@@ -23,7 +23,7 @@ export default (object, intent, {roomObjects, bulk, gameTime, eventLog}) => {
         return;
     }
 
-    const effect =  _.filter(object.body, (i) => i.hits > 0 && i.type == C.CLAIM).length * C.CONTROLLER_RESERVE;
+    const effect =  _.filter(object.body, (i) => i.hits > 0 && i.type == ScreepsConstants.CLAIM).length * ScreepsConstants.CONTROLLER_RESERVE;
     if(!effect) {
         return;
     }
@@ -36,7 +36,7 @@ export default (object, intent, {roomObjects, bulk, gameTime, eventLog}) => {
     }
 
 
-    if(target.reservation.endTime + effect > gameTime + C.CONTROLLER_RESERVE_MAX) {
+    if(target.reservation.endTime + effect > gameTime + ScreepsConstants.CONTROLLER_RESERVE_MAX) {
         return;
     }
 
@@ -45,5 +45,5 @@ export default (object, intent, {roomObjects, bulk, gameTime, eventLog}) => {
     target.reservation.endTime += effect;
     bulk.update(target, {reservation: target.reservation});
 
-    eventLog.push({event: C.EVENT_RESERVE_CONTROLLER, objectId: object._id, data: {amount: effect}});
+    eventLog.push({event: ScreepsConstants.EVENT_RESERVE_CONTROLLER, objectId: object._id, data: {amount: effect}});
 };

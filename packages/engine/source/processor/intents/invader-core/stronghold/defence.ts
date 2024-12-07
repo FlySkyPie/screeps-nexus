@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import utils from '../../../../utils';
+import * as utils from '../../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
-import fakeRuntime from '../../../common/fake-runtime';
+
+import * as fakeRuntime from '../../../common/fake-runtime';
 import defence from './defence';
 
 export function createSafeMatrixCallback(context) {
@@ -23,7 +23,7 @@ export function createSafeMatrixCallback(context) {
         }
 
         _.forEach(roomObjects, object => {
-            if(object.type != 'creep' && _.includes(C.OBSTACLE_OBJECT_TYPES, object.type)) {
+            if(object.type != 'creep' && _.includes(ScreepsConstants.OBSTACLE_OBJECT_TYPES, object.type)) {
                 matrix.set(object.x, object.y, Infinity);
             }
         });

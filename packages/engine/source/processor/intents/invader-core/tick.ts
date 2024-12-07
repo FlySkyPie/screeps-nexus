@@ -1,14 +1,14 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, scope) => {
     if(!object || object.type != 'invaderCore') return;
 
     const {roomObjects, roomController, bulk, roomInfo, gameTime} = scope;
 
-    const collapseEffect = _.find(object.effects, {effect: C.EFFECT_COLLAPSE_TIMER});
+    const collapseEffect = _.find(object.effects, {effect: ScreepsConstants.EFFECT_COLLAPSE_TIMER});
     if(collapseEffect && collapseEffect.endTime <= gameTime) {
         if(roomController) {
             bulk.update(roomController, {

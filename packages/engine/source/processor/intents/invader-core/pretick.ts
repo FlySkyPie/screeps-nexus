@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 import stronghold from './stronghold/stronghold';
 
 export default (object, scope) => {
@@ -31,11 +31,11 @@ export default (object, scope) => {
             }
             return;
         }
-        if(o.type == C.STRUCTURE_TOWER && o.user == user) {
+        if(o.type == ScreepsConstants.STRUCTURE_TOWER && o.user == user) {
             towers.push(o);
             return;
         }
-        if(o.type == C.STRUCTURE_RAMPART && o.user == user) {
+        if(o.type == ScreepsConstants.STRUCTURE_RAMPART && o.user == user) {
             ramparts.push(o);
         }
     });

@@ -2,12 +2,12 @@ import utils from './../utils';
 import rooms from './rooms';
 const driver = utils.getRuntimeDriver();
 import _ from 'lodash';
-const C = driver.constants;
+
 
 let runtimeData, intents, register, globals;
 
 function calcFreePowerLevels() {
-    const level = Math.floor(Math.pow((runtimeData.user.power || 0) / C.POWER_LEVEL_MULTIPLY, 1 / C.POWER_LEVEL_POW));
+    const level = Math.floor(Math.pow((runtimeData.user.power || 0) / ScreepsConstants.POWER_LEVEL_MULTIPLY, 1 / ScreepsConstants.POWER_LEVEL_POW));
     const used = Object.keys(runtimeData.userPowerCreeps).length + _.sum(runtimeData.userPowerCreeps, 'level');
     return level - used;
 }
@@ -105,76 +105,76 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
     PowerCreep.prototype.move = register.wrapFn(function(target) {
         if(!this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         return globals.Creep.prototype.move.call(this, target);
     });
 
     PowerCreep.prototype.moveTo = register.wrapFn(function(firstArg, secondArg, opts) {
         if(!this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         return globals.Creep.prototype.moveTo.call(this, firstArg, secondArg, opts);
     });
 
     PowerCreep.prototype.moveByPath = register.wrapFn(function(path) {
         if(!this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         return globals.Creep.prototype.moveByPath.call(this, path);
     });
 
     PowerCreep.prototype.transfer = register.wrapFn(function(target, resourceType, amount) {
         if(!this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         return globals.Creep.prototype.transfer.call(this, target, resourceType, amount);
     });
 
     PowerCreep.prototype.withdraw = register.wrapFn(function(target, resourceType, amount) {
         if(!this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         return globals.Creep.prototype.withdraw.call(this, target, resourceType, amount);
     });
 
     PowerCreep.prototype.drop = register.wrapFn(function(resourceType, amount) {
         if(!this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         return globals.Creep.prototype.drop.call(this, resourceType, amount);
     });
 
     PowerCreep.prototype.pickup = register.wrapFn(function(target) {
         if(!this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         return globals.Creep.prototype.pickup.call(this, target);
     });
 
     PowerCreep.prototype.say = register.wrapFn(function(message, isPublic) {
         if(!this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         return globals.Creep.prototype.say.call(this, message, isPublic);
     });
 
     PowerCreep.prototype.spawn = register.wrapFn(function(powerSpawn) {
         if(this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         if(!(powerSpawn instanceof globals.StructurePowerSpawn)) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!this.my || !powerSpawn.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!utils.checkStructureAgainstController(data(powerSpawn.id), register.objectsByRoom[data(powerSpawn.id).room], data(powerSpawn.room.controller.id))) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
 
         if(this.spawnCooldownTime) {
-            return C.ERR_TIRED;
+            return ScreepsConstants.ERR_TIRED;
         }
 
         if(_.isUndefined(globals.Memory.powerCreeps)) {
@@ -185,200 +185,200 @@ export function make(_runtimeData, _intents, _register, _globals) {
         }
 
         intents.pushByName('global', 'spawnPowerCreep', {id: powerSpawn.id, name: this.name}, 50);
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     PowerCreep.prototype.suicide = register.wrapFn(function() {
 
         if(!this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
 
         intents.pushByName('global', 'suicidePowerCreep', {id: this.id}, 50);
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     PowerCreep.prototype.delete = register.wrapFn(function(cancel) {
 
         if(this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
 
         intents.pushByName('global', 'deletePowerCreep', {id: this.id, cancel}, 50);
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     PowerCreep.prototype.upgrade = register.wrapFn(function(power) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(calcFreePowerLevels() <= 0) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
-        if(this.level >= C.POWER_CREEP_MAX_LEVEL) {
-            return C.ERR_FULL;
+        if(this.level >= ScreepsConstants.POWER_CREEP_MAX_LEVEL) {
+            return ScreepsConstants.ERR_FULL;
         }
-        const powerInfo = C.POWER_INFO[power];
+        const powerInfo = ScreepsConstants.POWER_INFO[power];
         if(!powerInfo || powerInfo.className !== this.className) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
         const powerData = data(this.id).powers[power];
         const powerLevel = powerData ? powerData.level : 0;
         if(powerLevel == 5) {
-            return C.ERR_FULL;
+            return ScreepsConstants.ERR_FULL;
         }
 
         if(this.level < powerInfo.level[powerLevel]) {
-            return C.ERR_FULL;
+            return ScreepsConstants.ERR_FULL;
         }
 
         intents.pushByName('global', 'upgradePowerCreep', {id: this.id, power}, 50);
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     PowerCreep.prototype.usePower = register.wrapFn(function(power, target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         if(this.room.controller) {
             if (!this.room.controller.isPowerEnabled) {
-                return C.ERR_INVALID_ARGS;
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
             if (!this.room.controller.my && this.room.controller.safeMode) {
-                return C.ERR_INVALID_ARGS;
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
         }
 
         const powerData = data(this.id).powers[power];
-        const powerInfo = C.POWER_INFO[power];
+        const powerInfo = ScreepsConstants.POWER_INFO[power];
         if(!powerData || !powerData.level || !powerInfo) {
-            return C.ERR_NO_BODYPART;
+            return ScreepsConstants.ERR_NO_BODYPART;
         }
         if(powerData.cooldownTime > runtimeData.time) {
-            return C.ERR_TIRED;
+            return ScreepsConstants.ERR_TIRED;
         }
         let ops = powerInfo.ops || 0;
         if(_.isArray(ops)) {
             ops = ops[powerData.level-1];
         }
         if((data(this.id).store.ops || 0) < ops) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
         if(powerInfo.range) {
             if(!target) {
-                return C.ERR_INVALID_TARGET;
+                return ScreepsConstants.ERR_INVALID_TARGET;
             }
             if(!this.pos.inRangeTo(target, powerInfo.range)) {
-                return C.ERR_NOT_IN_RANGE;
+                return ScreepsConstants.ERR_NOT_IN_RANGE;
             }
             const currentEffect = _.find(target.effects, i => i.power == power);
             if(currentEffect && currentEffect.level > powerData.level && currentEffect.ticksRemaining > 0) {
-                return C.ERR_FULL;
+                return ScreepsConstants.ERR_FULL;
             }
         }
 
         intents.set(this.id, 'usePower', {power, id: target ? target.id : undefined});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     PowerCreep.prototype.enableRoom = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
 
         if(!target || !target.id || !register.structures[target.id] || !(target instanceof globals.Structure)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
         if(target.structureType != 'controller' || target.safeMode && !target.my) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         intents.set(this.id, 'enableRoom', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     PowerCreep.prototype.renew = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
 
         if(!target || !target.id || !register.structures[target.id] || !(target instanceof globals.StructurePowerBank) && !(target instanceof globals.StructurePowerSpawn)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if((target instanceof globals.StructurePowerSpawn) && !utils.checkStructureAgainstController(data(target.id), register.objectsByRoom[data(target.id).room], data(target.room.controller.id))) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
         intents.set(this.id, 'renew', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     PowerCreep.prototype.cancelOrder = register.wrapFn(function(name) {
 
         if(!this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(intents.remove(this.id, name)) {
-            return C.OK;
+            return ScreepsConstants.OK;
         }
-        return C.ERR_NOT_FOUND;
+        return ScreepsConstants.ERR_NOT_FOUND;
     });
 
     PowerCreep.prototype.rename = register.wrapFn(function(name) {
 
         if(this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(_.any(runtimeData.userPowerCreeps, {name})) {
-            return C.ERR_NAME_EXISTS;
+            return ScreepsConstants.ERR_NAME_EXISTS;
         }
 
         intents.pushByName('global', 'renamePowerCreep', {id: this.id, name}, 50);
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     PowerCreep.prototype.notifyWhenAttacked = register.wrapFn(function(enabled) {
 
         if(!this.room) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!_.isBoolean(enabled)) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         if(enabled != data(this.id).notifyWhenAttacked) {
@@ -386,22 +386,22 @@ export function make(_runtimeData, _intents, _register, _globals) {
             intents.set(this.id, 'notifyWhenAttacked', {enabled});
         }
 
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     PowerCreep.create = register.wrapFn((name, className) => {
 
         if(calcFreePowerLevels() <= 0) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
         if(_.any(runtimeData.userPowerCreeps, {name})) {
-            return C.ERR_NAME_EXISTS;
+            return ScreepsConstants.ERR_NAME_EXISTS;
         }
-        if(Object.values(C.POWER_CLASS).indexOf(className) === -1) {
-            return C.ERR_INVALID_ARGS;
+        if(Object.values(ScreepsConstants.POWER_CLASS).indexOf(className) === -1) {
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
         intents.pushByName('global', 'createPowerCreep', {name, className}, 50);
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
 

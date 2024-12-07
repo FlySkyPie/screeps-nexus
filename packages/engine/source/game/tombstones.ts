@@ -1,6 +1,6 @@
 import utils from '../utils';
 const driver = utils.getRuntimeDriver();
-const C = driver.constants;
+
 import _ from 'lodash';
 
 let runtimeData, intents, register, globals;
@@ -95,7 +95,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
                         enumerable: true,
                         get() {
                             return _.reduce(o.creepBody,
-                                (result, type) => result += type === C.CARRY ? C.CARRY_CAPACITY : 0, 0);
+                                (result, type) => result += type === ScreepsConstants.CARRY ? ScreepsConstants.CARRY_CAPACITY : 0, 0);
                         }
                     },
                     carry: {

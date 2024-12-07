@@ -1,12 +1,12 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, {roomObjects, bulk, eventLog}) => {
 
     const resourceType = intent.resourceType;
-    if(!_.contains(C.RESOURCES_ALL, resourceType)) {
+    if(!_.contains(ScreepsConstants.RESOURCES_ALL, resourceType)) {
         return;
     }
     if(!object || object.spawning || !object.store || !(object.store[resourceType] >= intent.amount) || intent.amount < 0) {
@@ -50,11 +50,11 @@ export default (object, intent, {roomObjects, bulk, eventLog}) => {
 
     if(target.type == 'lab' && intent.resourceType != 'energy' && !target.storeCapacityResource[resourceType]) {
         bulk.update(target, {
-            storeCapacityResource: {[resourceType]: C.LAB_MINERAL_CAPACITY},
+            storeCapacityResource: {[resourceType]: ScreepsConstants.LAB_MINERAL_CAPACITY},
             storeCapacity: null
         });
     }
 
-    eventLog.push({event: C.EVENT_TRANSFER, objectId: object._id, data: {targetId: target._id, resourceType: resourceType, amount}});
+    eventLog.push({event: ScreepsConstants.EVENT_TRANSFER, objectId: object._id, data: {targetId: target._id, resourceType: resourceType, amount}});
 
 };

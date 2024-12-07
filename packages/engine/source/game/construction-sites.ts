@@ -1,7 +1,7 @@
 import utils from './../utils';
 import rooms from './rooms';
 const driver = utils.getRuntimeDriver();
-const C = driver.constants;
+
 import _ from 'lodash';
 
 let runtimeData, intents, register, globals;
@@ -50,10 +50,10 @@ export function make(_runtimeData, _intents, _register, _globals) {
     ConstructionSite.prototype.remove = register.wrapFn(function() {
 
         if(!this.my && !(this.room && this.room.controller && this.room.controller.my)) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         intents.pushByName('room', 'removeConstructionSite', {roomName: data(this.id).room, id: this.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Object.defineProperty(globals, 'ConstructionSite', {enumerable: true, value: ConstructionSite});

@@ -1,6 +1,6 @@
 import utils from '../utils';
 const driver = utils.getRuntimeDriver();
-const C = driver.constants;
+
 import _ from 'lodash';
 import pathUtils from './path-utils';
 const Heap = pathUtils.Heap;
@@ -27,16 +27,16 @@ export function makeMap(runtimeData, register, globals) {
         const exits = {};
 
         if(gridItem.t) {
-            exits[C.TOP] = utils.getRoomNameFromXY(x,y-1);
+            exits[ScreepsConstants.TOP] = utils.getRoomNameFromXY(x,y-1);
         }
         if(gridItem.b) {
-            exits[C.BOTTOM] = utils.getRoomNameFromXY(x,y+1);
+            exits[ScreepsConstants.BOTTOM] = utils.getRoomNameFromXY(x,y+1);
         }
         if(gridItem.l) {
-            exits[C.LEFT] = utils.getRoomNameFromXY(x-1,y);
+            exits[ScreepsConstants.LEFT] = utils.getRoomNameFromXY(x-1,y);
         }
         if(gridItem.r) {
-            exits[C.RIGHT] = utils.getRoomNameFromXY(x+1,y);
+            exits[ScreepsConstants.RIGHT] = utils.getRoomNameFromXY(x+1,y);
         }
 
         return exits;
@@ -73,7 +73,7 @@ export function makeMap(runtimeData, register, globals) {
             }
            
 			if(!/(W|E)\d+(N|S)\d+$/.test(fromRoom) || !/(W|E)\d+(N|S)\d+$/.test(toRoom)) {
-				return C.ERR_NO_PATH;
+				return ScreepsConstants.ERR_NO_PATH;
 			}
 
 			const [fromX, fromY] = utils.roomNameToXY(fromRoom);
@@ -126,13 +126,13 @@ export function makeMap(runtimeData, register, globals) {
 				  let [ nx, ny ] = indexToXY(index);
 				  let dir;
 				  if (nx < xx) {
-					dir = C.FIND_EXIT_RIGHT;
+					dir = ScreepsConstants.FIND_EXIT_RIGHT;
 				  } else if (nx > xx) {
-					dir = C.FIND_EXIT_LEFT;
+					dir = ScreepsConstants.FIND_EXIT_LEFT;
 				  } else if (ny < yy) {
-					dir = C.FIND_EXIT_BOTTOM;
+					dir = ScreepsConstants.FIND_EXIT_BOTTOM;
 				  } else {
-					dir = C.FIND_EXIT_TOP;
+					dir = ScreepsConstants.FIND_EXIT_TOP;
 				  }
 				  route.push({
 					exit: dir,
@@ -177,7 +177,7 @@ export function makeMap(runtimeData, register, globals) {
 			  }
 			}
 
-			return C.ERR_NO_PATH;
+			return ScreepsConstants.ERR_NO_PATH;
         },
 
         findExit(fromRoom, toRoom, opts) {
@@ -186,7 +186,7 @@ export function makeMap(runtimeData, register, globals) {
                 return route;
             }
             if(!route.length) {
-                return C.ERR_INVALID_ARGS;
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
             return route[0].exit;
         },
@@ -225,10 +225,10 @@ export function makeMap(runtimeData, register, globals) {
                 return undefined;
             }
             const terrain = runtimeData.staticTerrainData[roomName][y*50+x];
-            if(terrain & C.TERRAIN_MASK_WALL) {
+            if(terrain & ScreepsConstants.TERRAIN_MASK_WALL) {
                 return 'wall'
             }
-            if(terrain & C.TERRAIN_MASK_SWAMP) {
+            if(terrain & ScreepsConstants.TERRAIN_MASK_SWAMP) {
                 return 'swamp';
             }
             return 'plain';

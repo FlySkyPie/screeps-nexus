@@ -1,6 +1,6 @@
 import utils from './../utils';
 const driver = utils.getRuntimeDriver();
-const C = driver.constants;
+
 
 let runtimeData, intents, register, globals;
 
@@ -33,7 +33,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
     utils.defineGameObjectProperties(Deposit.prototype, data, {
         depositType: o => o.depositType,
         cooldown: o => o.cooldownTime && o.cooldownTime > runtimeData.time ? o.cooldownTime - runtimeData.time : 0,
-        lastCooldown: o => Math.ceil(C.DEPOSIT_EXHAUST_MULTIPLY*Math.pow(o.harvested,C.DEPOSIT_EXHAUST_POW)),
+        lastCooldown: o => Math.ceil(ScreepsConstants.DEPOSIT_EXHAUST_MULTIPLY*Math.pow(o.harvested,ScreepsConstants.DEPOSIT_EXHAUST_POW)),
         ticksToDecay: o => o.decayTime ? o.decayTime - runtimeData.time : undefined
     });
 

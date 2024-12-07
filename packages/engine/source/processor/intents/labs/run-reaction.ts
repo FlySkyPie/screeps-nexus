@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, {roomObjects, bulk, gameTime}) => {
 
@@ -9,14 +9,14 @@ export default (object, intent, {roomObjects, bulk, gameTime}) => {
         return;
     }
 
-    let reactionAmount = C.LAB_REACTION_AMOUNT;
-    const effect = _.find(object.effects, {power: C.PWR_OPERATE_LAB});
+    let reactionAmount = ScreepsConstants.LAB_REACTION_AMOUNT;
+    const effect = _.find(object.effects, {power: ScreepsConstants.PWR_OPERATE_LAB});
     if(effect && effect.endTime > gameTime) {
-        reactionAmount += C.POWER_INFO[C.PWR_OPERATE_LAB].effect[effect.level-1];
+        reactionAmount += ScreepsConstants.POWER_INFO[ScreepsConstants.PWR_OPERATE_LAB].effect[effect.level-1];
     }
 
     const lab1 = roomObjects[intent.lab1];
-    const lab1MineralType = _(lab1.store).keys().filter(k => k != C.RESOURCE_ENERGY && lab1.store[k]).first();
+    const lab1MineralType = _(lab1.store).keys().filter(k => k != ScreepsConstants.RESOURCE_ENERGY && lab1.store[k]).first();
     if(!lab1 || lab1.type != 'lab' || !lab1MineralType || lab1.store[lab1MineralType] < reactionAmount) {
         return;
     }
@@ -25,7 +25,7 @@ export default (object, intent, {roomObjects, bulk, gameTime}) => {
     }
 
     const lab2 = roomObjects[intent.lab2];
-    const lab2MineralType = _(lab2.store).keys().filter(k => k != C.RESOURCE_ENERGY && lab2.store[k]).first();
+    const lab2MineralType = _(lab2.store).keys().filter(k => k != ScreepsConstants.RESOURCE_ENERGY && lab2.store[k]).first();
     if(!lab2 || lab2.type != 'lab' || !lab2MineralType || lab2.store[lab2MineralType] < reactionAmount) {
         return;
     }
@@ -33,12 +33,12 @@ export default (object, intent, {roomObjects, bulk, gameTime}) => {
         return;
     }
 
-    const mineralType = _(object.store).keys().filter(k => k != C.RESOURCE_ENERGY && object.store[k]).first();
-    if((object.store[mineralType]||0) + reactionAmount > C.LAB_MINERAL_CAPACITY) {
+    const mineralType = _(object.store).keys().filter(k => k != ScreepsConstants.RESOURCE_ENERGY && object.store[k]).first();
+    if((object.store[mineralType]||0) + reactionAmount > ScreepsConstants.LAB_MINERAL_CAPACITY) {
         return;
     }
 
-    const product = C.REACTIONS[lab1MineralType][lab2MineralType];
+    const product = ScreepsConstants.REACTIONS[lab1MineralType][lab2MineralType];
 
     if(!product || mineralType && mineralType != product) {
         return;
@@ -47,13 +47,13 @@ export default (object, intent, {roomObjects, bulk, gameTime}) => {
     if(object.storeCapacityResource[product]) {
         bulk.update(object, {
             store: {[product]: (object.store[product]||0) + reactionAmount},
-            cooldownTime: gameTime + C.REACTION_TIME[product]
+            cooldownTime: gameTime + ScreepsConstants.REACTION_TIME[product]
         });
     } else {
         bulk.update(object, {
             store: {[product]: (object.store[product]||0) + reactionAmount},
-            cooldownTime: gameTime + C.REACTION_TIME[product],
-            storeCapacityResource: {[product]: C.LAB_MINERAL_CAPACITY},
+            cooldownTime: gameTime + ScreepsConstants.REACTION_TIME[product],
+            storeCapacityResource: {[product]: ScreepsConstants.LAB_MINERAL_CAPACITY},
             storeCapacity: null
         });
     }
@@ -65,7 +65,7 @@ export default (object, intent, {roomObjects, bulk, gameTime}) => {
         bulk.update(lab1, {
             store: {[lab1MineralType]: lab1.store[lab1MineralType]},
             storeCapacityResource: {[lab1MineralType]: null},
-            storeCapacity: C.LAB_ENERGY_CAPACITY + C.LAB_MINERAL_CAPACITY
+            storeCapacity: ScreepsConstants.LAB_ENERGY_CAPACITY + ScreepsConstants.LAB_MINERAL_CAPACITY
         });
     }
     lab2.store[lab2MineralType] -= reactionAmount;
@@ -75,7 +75,7 @@ export default (object, intent, {roomObjects, bulk, gameTime}) => {
         bulk.update(lab2, {
             store: {[lab2MineralType]: lab2.store[lab2MineralType]},
             storeCapacityResource: {[lab2MineralType]: null},
-            storeCapacity: C.LAB_ENERGY_CAPACITY + C.LAB_MINERAL_CAPACITY
+            storeCapacity: ScreepsConstants.LAB_ENERGY_CAPACITY + ScreepsConstants.LAB_MINERAL_CAPACITY
         });
     }
 

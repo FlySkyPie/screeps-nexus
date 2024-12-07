@@ -8,7 +8,7 @@ import { LookEnum } from '@screeps/common/src/constants/look-enum';
 import * as utils from '../../utils';
 
 const driver = utils.getDriver();
-// const C = driver.constants;
+// 
 
 let terrains: Record<string, any> = {};
 

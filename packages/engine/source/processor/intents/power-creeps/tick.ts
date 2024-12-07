@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 import movement from '../movement';
 
 export default (object, scope) => {
@@ -38,7 +38,7 @@ export default (object, scope) => {
 
         bulk.update(object, {interRoom: {room, x, y}});
 
-        eventLog.push({event: C.EVENT_EXIT, objectId: object._id, data: {room, x, y}});
+        eventLog.push({event: ScreepsConstants.EVENT_EXIT, objectId: object._id, data: {room, x, y}});
     }
 
     const portal = _.find(roomObjects, i => i.type == 'portal' && i.x == object.x && i.y == object.y);

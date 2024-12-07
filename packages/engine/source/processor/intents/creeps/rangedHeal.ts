@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, {roomObjects, roomController, gameTime, eventLog}) => {
 
@@ -23,12 +23,12 @@ export default (object, intent, {roomObjects, roomController, gameTime, eventLog
         return;
     }
 
-    const healPower = utils.calcBodyEffectiveness(object.body, C.HEAL, 'rangedHeal', C.RANGED_HEAL_POWER);
+    const healPower = utils.calcBodyEffectiveness(object.body, ScreepsConstants.HEAL, 'rangedHeal', ScreepsConstants.RANGED_HEAL_POWER);
 
     target._healToApply = (target._healToApply || 0) + healPower;
 
     object.actionLog.rangedHeal = {x: target.x, y: target.y};
     target.actionLog.healed = {x: object.x, y: object.y};
 
-    eventLog.push({event: C.EVENT_HEAL, objectId: object._id, data: {targetId: target._id, amount: healPower, healType: C.EVENT_HEAL_TYPE_RANGED}});
+    eventLog.push({event: ScreepsConstants.EVENT_HEAL, objectId: object._id, data: {targetId: target._id, amount: healPower, healType: ScreepsConstants.EVENT_HEAL_TYPE_RANGED}});
 };

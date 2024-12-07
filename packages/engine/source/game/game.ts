@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import utils from '../utils';
 const driver = utils.getRuntimeDriver();
-const C = driver.constants;
+
 import map from './map';
 import market from './market';
 import customPrototypes from './custom-prototypes';
@@ -34,18 +34,18 @@ function populateRegister(reg, spatial) {
 }
 
 const findCacheFn = {
-    [C.FIND_CREEPS]: (i) => !i.spawning,
-    [C.FIND_MY_CREEPS]: (i) => !i.spawning && i.my,
-    [C.FIND_HOSTILE_CREEPS]: (i) => !i.spawning && !i.my,
-    [C.FIND_MY_POWER_CREEPS]: (i) => i.my,
-    [C.FIND_HOSTILE_POWER_CREEPS]: (i) => !i.my,
-    [C.FIND_MY_SPAWNS]: (i) => i.my === true,
-    [C.FIND_HOSTILE_SPAWNS]: (i) => i.my === false,
-    [C.FIND_SOURCES_ACTIVE]: (i) => i.energy > 0,
-    [C.FIND_MY_STRUCTURES]: (i) => i.my === true,
-    [C.FIND_HOSTILE_STRUCTURES]: (i) => i.my === false && i.owner,
-    [C.FIND_MY_CONSTRUCTION_SITES]: (i) => i.my,
-    [C.FIND_HOSTILE_CONSTRUCTION_SITES]: (i) => i.my === false
+    [ScreepsConstants.FIND_CREEPS]: (i) => !i.spawning,
+    [ScreepsConstants.FIND_MY_CREEPS]: (i) => !i.spawning && i.my,
+    [ScreepsConstants.FIND_HOSTILE_CREEPS]: (i) => !i.spawning && !i.my,
+    [ScreepsConstants.FIND_MY_POWER_CREEPS]: (i) => i.my,
+    [ScreepsConstants.FIND_HOSTILE_POWER_CREEPS]: (i) => !i.my,
+    [ScreepsConstants.FIND_MY_SPAWNS]: (i) => i.my === true,
+    [ScreepsConstants.FIND_HOSTILE_SPAWNS]: (i) => i.my === false,
+    [ScreepsConstants.FIND_SOURCES_ACTIVE]: (i) => i.energy > 0,
+    [ScreepsConstants.FIND_MY_STRUCTURES]: (i) => i.my === true,
+    [ScreepsConstants.FIND_HOSTILE_STRUCTURES]: (i) => i.my === false && i.owner,
+    [ScreepsConstants.FIND_MY_CONSTRUCTION_SITES]: (i) => i.my,
+    [ScreepsConstants.FIND_HOSTILE_CONSTRUCTION_SITES]: (i) => i.my === false
 };
 
 function addObjectToFindCache(register, type, objectInstance, objectRaw) {
@@ -111,9 +111,9 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
 
     populateRegister(register);
 
-    const gclLevel = Math.floor(Math.pow((runtimeData.user.gcl || 0) / C.GCL_MULTIPLY, 1 / C.GCL_POW)) + 1, gclBaseProgress = Math.pow(gclLevel - 1, C.GCL_POW) * C.GCL_MULTIPLY;
+    const gclLevel = Math.floor(Math.pow((runtimeData.user.gcl || 0) / ScreepsConstants.GCL_MULTIPLY, 1 / ScreepsConstants.GCL_POW)) + 1, gclBaseProgress = Math.pow(gclLevel - 1, ScreepsConstants.GCL_POW) * ScreepsConstants.GCL_MULTIPLY;
 
-    const gplLevel = Math.floor(Math.pow((runtimeData.user.power || 0) / C.POWER_LEVEL_MULTIPLY, 1 / C.POWER_LEVEL_POW)), gplBaseProgress = Math.pow(gplLevel, C.POWER_LEVEL_POW) * C.POWER_LEVEL_MULTIPLY;
+    const gplLevel = Math.floor(Math.pow((runtimeData.user.power || 0) / ScreepsConstants.POWER_LEVEL_MULTIPLY, 1 / ScreepsConstants.POWER_LEVEL_POW)), gplBaseProgress = Math.pow(gplLevel, ScreepsConstants.POWER_LEVEL_POW) * ScreepsConstants.POWER_LEVEL_MULTIPLY;
 
     const game = {
         creeps: {},
@@ -144,7 +144,7 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
         gcl: {
             level: gclLevel,
             progress: (runtimeData.user.gcl || 0) - gclBaseProgress,
-            progressTotal: Math.pow(gclLevel, C.GCL_POW) * C.GCL_MULTIPLY - gclBaseProgress
+            progressTotal: Math.pow(gclLevel, ScreepsConstants.GCL_POW) * ScreepsConstants.GCL_MULTIPLY - gclBaseProgress
         },
         gpl: {
             level: gplLevel,
@@ -153,17 +153,17 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
         },
         market: {},
         resources: {
-            [C.SUBSCRIPTION_TOKEN]: runtimeData.user.subscriptionTokens || 0
+            [ScreepsConstants.SUBSCRIPTION_TOKEN]: runtimeData.user.subscriptionTokens || 0
         },
         getObjectById(id) {
             return register._objects[id] || null;
         },
         notify(message, groupInterval) {
             if (intents.push('notify', { message, groupInterval }, 20)) {
-                return C.OK;
+                return ScreepsConstants.OK;
             }
             else {
-                return C.ERR_FULL;
+                return ScreepsConstants.ERR_FULL;
             }
         }
     };
@@ -266,9 +266,9 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
                 }
             }
 
-            addObjectToFindCache(register, C.FIND_CREEPS, register.creeps[i], object);
-            addObjectToFindCache(register, C.FIND_MY_CREEPS, register.creeps[i], object);
-            addObjectToFindCache(register, C.FIND_HOSTILE_CREEPS, register.creeps[i], object);
+            addObjectToFindCache(register, ScreepsConstants.FIND_CREEPS, register.creeps[i], object);
+            addObjectToFindCache(register, ScreepsConstants.FIND_MY_CREEPS, register.creeps[i], object);
+            addObjectToFindCache(register, ScreepsConstants.FIND_HOSTILE_CREEPS, register.creeps[i], object);
         }
         if (object.type == 'powerCreep') {
             if (register.powerCreeps[i]) {
@@ -278,9 +278,9 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
                 register._objects[i] = new globals.PowerCreep(i);
             }
             addObjectToRegister(register, 'powerCreeps', register._objects[i], object);
-            addObjectToFindCache(register, C.FIND_POWER_CREEPS, register.powerCreeps[i], object);
-            addObjectToFindCache(register, C.FIND_MY_POWER_CREEPS, register.powerCreeps[i], object);
-            addObjectToFindCache(register, C.FIND_HOSTILE_POWER_CREEPS, register.powerCreeps[i], object);
+            addObjectToFindCache(register, ScreepsConstants.FIND_POWER_CREEPS, register.powerCreeps[i], object);
+            addObjectToFindCache(register, ScreepsConstants.FIND_MY_POWER_CREEPS, register.powerCreeps[i], object);
+            addObjectToFindCache(register, ScreepsConstants.FIND_HOSTILE_POWER_CREEPS, register.powerCreeps[i], object);
         }
         if (structureTypes[object.type]) {
             register._objects[i] = new structureTypes[object.type](i);
@@ -293,9 +293,9 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
                 addObjectToRegister(register, 'ownedStructures', register._objects[i], object);
             }
 
-            addObjectToFindCache(register, C.FIND_STRUCTURES, register.structures[i], object);
-            addObjectToFindCache(register, C.FIND_MY_STRUCTURES, register.structures[i], object);
-            addObjectToFindCache(register, C.FIND_HOSTILE_STRUCTURES, register.structures[i], object);
+            addObjectToFindCache(register, ScreepsConstants.FIND_STRUCTURES, register.structures[i], object);
+            addObjectToFindCache(register, ScreepsConstants.FIND_MY_STRUCTURES, register.structures[i], object);
+            addObjectToFindCache(register, ScreepsConstants.FIND_HOSTILE_STRUCTURES, register.structures[i], object);
 
             if (object.type == 'spawn') {
                 addObjectToRegister(register, 'spawns', register._objects[i], object);
@@ -304,8 +304,8 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
                     game.spawns[register.spawns[i].name] = register.spawns[i];
                 }
 
-                addObjectToFindCache(register, C.FIND_MY_SPAWNS, register.spawns[i], object);
-                addObjectToFindCache(register, C.FIND_HOSTILE_SPAWNS, register.spawns[i], object);
+                addObjectToFindCache(register, ScreepsConstants.FIND_MY_SPAWNS, register.spawns[i], object);
+                addObjectToFindCache(register, ScreepsConstants.FIND_HOSTILE_SPAWNS, register.spawns[i], object);
             }
 
         }
@@ -316,38 +316,38 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
         if (object.type == 'source') {
             register._objects[i] = new globals.Source(i);
             addObjectToRegister(register, 'sources', register._objects[i], object);
-            addObjectToFindCache(register, C.FIND_SOURCES, register.sources[i], object);
-            addObjectToFindCache(register, C.FIND_SOURCES_ACTIVE, register.sources[i], object);
+            addObjectToFindCache(register, ScreepsConstants.FIND_SOURCES, register.sources[i], object);
+            addObjectToFindCache(register, ScreepsConstants.FIND_SOURCES_ACTIVE, register.sources[i], object);
         }
         if (object.type == 'mineral') {
             register._objects[i] = new globals.Mineral(i);
             addObjectToRegister(register, 'minerals', register._objects[i], object);
-            addObjectToFindCache(register, C.FIND_MINERALS, register.minerals[i], object);
+            addObjectToFindCache(register, ScreepsConstants.FIND_MINERALS, register.minerals[i], object);
         }
         if (object.type == 'deposit') {
             register._objects[i] = new globals.Deposit(i);
             addObjectToRegister(register, 'deposits', register._objects[i], object)
-            addObjectToFindCache(register, C.FIND_DEPOSITS, register.deposits[i], object)
+            addObjectToFindCache(register, ScreepsConstants.FIND_DEPOSITS, register.deposits[i], object)
         }
         if (object.type == 'energy') {
             register._objects[i] = new globals.Energy(i);
             addObjectToRegister(register, 'energy', register._objects[i], object);
-            addObjectToFindCache(register, C.FIND_DROPPED_RESOURCES, register.energy[i], object);
+            addObjectToFindCache(register, ScreepsConstants.FIND_DROPPED_RESOURCES, register.energy[i], object);
         }
         if (object.type == 'nuke') {
             register._objects[i] = new globals.Nuke(i);
             addObjectToRegister(register, 'nukes', register._objects[i], object);
-            addObjectToFindCache(register, C.FIND_NUKES, register._objects[i], object);
+            addObjectToFindCache(register, ScreepsConstants.FIND_NUKES, register._objects[i], object);
         }
         if (object.type == 'tombstone') {
             register._objects[i] = new globals.Tombstone(i);
             addObjectToRegister(register, 'tombstones', register._objects[i], object);
-            addObjectToFindCache(register, C.FIND_TOMBSTONES, register._objects[i], object);
+            addObjectToFindCache(register, ScreepsConstants.FIND_TOMBSTONES, register._objects[i], object);
         }
         if (object.type == 'ruin') {
             register._objects[i] = new globals.Ruin(i);
             addObjectToRegister(register, 'ruins', register._objects[i], object);
-            addObjectToFindCache(register, C.FIND_RUINS, register._objects[i], object)
+            addObjectToFindCache(register, ScreepsConstants.FIND_RUINS, register._objects[i], object)
         }
 
         if (object.type == 'constructionSite') {
@@ -362,9 +362,9 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
 
             addObjectToRegister(register, 'constructionSites', register._objects[i], object);
             if (runtimeData.rooms[object.room]) {
-                addObjectToFindCache(register, C.FIND_CONSTRUCTION_SITES, register.constructionSites[i], object);
-                addObjectToFindCache(register, C.FIND_MY_CONSTRUCTION_SITES, register.constructionSites[i], object);
-                addObjectToFindCache(register, C.FIND_HOSTILE_CONSTRUCTION_SITES, register.constructionSites[i], object);
+                addObjectToFindCache(register, ScreepsConstants.FIND_CONSTRUCTION_SITES, register.constructionSites[i], object);
+                addObjectToFindCache(register, ScreepsConstants.FIND_MY_CONSTRUCTION_SITES, register.constructionSites[i], object);
+                addObjectToFindCache(register, ScreepsConstants.FIND_HOSTILE_CONSTRUCTION_SITES, register.constructionSites[i], object);
             }
         }
 
@@ -403,10 +403,10 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
 
             game.flags[info[0]] = flag;
 
-            if (!findCacheFn[C.FIND_FLAGS] || findCacheFn[C.FIND_FLAGS](flag)) {
-                register.findCache[C.FIND_FLAGS] = register.findCache[C.FIND_FLAGS] || {};
-                register.findCache[C.FIND_FLAGS][flagRoomData.room] = register.findCache[C.FIND_FLAGS][flagRoomData.room] || [];
-                register.findCache[C.FIND_FLAGS][flagRoomData.room].push(flag);
+            if (!findCacheFn[ScreepsConstants.FIND_FLAGS] || findCacheFn[ScreepsConstants.FIND_FLAGS](flag)) {
+                register.findCache[ScreepsConstants.FIND_FLAGS] = register.findCache[ScreepsConstants.FIND_FLAGS] || {};
+                register.findCache[ScreepsConstants.FIND_FLAGS][flagRoomData.room] = register.findCache[ScreepsConstants.FIND_FLAGS][flagRoomData.room] || [];
+                register.findCache[ScreepsConstants.FIND_FLAGS][flagRoomData.room].push(flag);
             }
         })
     });

@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, scope) => {
 
@@ -21,7 +21,7 @@ export default (object, intent, scope) => {
     if(!target.hits) {
         return;
     }
-    if(object.store.energy < C.TOWER_ENERGY_COST) {
+    if(object.store.energy < ScreepsConstants.TOWER_ENERGY_COST) {
         return;
     }
     const rampart = _.find(roomObjects, {type: 'rampart', x: target.x, y: target.y});
@@ -30,17 +30,17 @@ export default (object, intent, scope) => {
     }
 
     let range = Math.max(Math.abs(target.x - object.x), Math.abs(target.y - object.y));
-    let amount = C.TOWER_POWER_ATTACK;
-    if(range > C.TOWER_OPTIMAL_RANGE) {
-        if(range > C.TOWER_FALLOFF_RANGE) {
-            range = C.TOWER_FALLOFF_RANGE;
+    let amount = ScreepsConstants.TOWER_POWER_ATTACK;
+    if(range > ScreepsConstants.TOWER_OPTIMAL_RANGE) {
+        if(range > ScreepsConstants.TOWER_FALLOFF_RANGE) {
+            range = ScreepsConstants.TOWER_FALLOFF_RANGE;
         }
-        amount -= amount * C.TOWER_FALLOFF * (range - C.TOWER_OPTIMAL_RANGE) / (C.TOWER_FALLOFF_RANGE - C.TOWER_OPTIMAL_RANGE);
+        amount -= amount * ScreepsConstants.TOWER_FALLOFF * (range - ScreepsConstants.TOWER_OPTIMAL_RANGE) / (ScreepsConstants.TOWER_FALLOFF_RANGE - ScreepsConstants.TOWER_OPTIMAL_RANGE);
     }
-    [C.PWR_OPERATE_TOWER, C.PWR_DISRUPT_TOWER].forEach(power => {
+    [ScreepsConstants.PWR_OPERATE_TOWER, ScreepsConstants.PWR_DISRUPT_TOWER].forEach(power => {
         const effect = _.find(object.effects, {power});
         if(effect && effect.endTime > gameTime) {
-            amount *= C.POWER_INFO[power].effect[effect.level-1];
+            amount *= ScreepsConstants.POWER_INFO[power].effect[effect.level-1];
         }
     });
     amount = Math.floor(amount);
@@ -49,9 +49,9 @@ export default (object, intent, scope) => {
         return;
     }
 
-    require('../_damage')(object, target, amount, C.EVENT_ATTACK_TYPE_RANGED, scope);
+    require('../_damage')(object, target, amount, ScreepsConstants.EVENT_ATTACK_TYPE_RANGED, scope);
 
-    object.store.energy -= C.TOWER_ENERGY_COST;
+    object.store.energy -= ScreepsConstants.TOWER_ENERGY_COST;
     bulk.update(object, {store:{energy: object.store.energy}});
 
 

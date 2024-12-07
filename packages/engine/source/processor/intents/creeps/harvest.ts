@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, scope) => {
 
@@ -32,7 +32,7 @@ export default (object, intent, scope) => {
             return;
         }
 
-        let harvestAmount = utils.calcBodyEffectiveness(object.body, C.WORK, 'harvest', C.HARVEST_POWER);
+        let harvestAmount = utils.calcBodyEffectiveness(object.body, ScreepsConstants.WORK, 'harvest', ScreepsConstants.HARVEST_POWER);
 
         if (harvestAmount) {
 
@@ -60,7 +60,7 @@ export default (object, intent, scope) => {
 
             stats.inc('energyHarvested', object.user, amount);
 
-            eventLog.push({event: C.EVENT_HARVEST, objectId: object._id, data: {targetId: target._id, amount}});
+            eventLog.push({event: ScreepsConstants.EVENT_HARVEST, objectId: object._id, data: {targetId: target._id, amount}});
         }
     }
 
@@ -70,7 +70,7 @@ export default (object, intent, scope) => {
             return;
         }
 
-        const extractor = _.find(roomObjects, i => i.type == C.STRUCTURE_EXTRACTOR && i.x == target.x && i.y == target.y);
+        const extractor = _.find(roomObjects, i => i.type == ScreepsConstants.STRUCTURE_EXTRACTOR && i.x == target.x && i.y == target.y);
 
         if(!extractor) {
             return;
@@ -85,7 +85,7 @@ export default (object, intent, scope) => {
             return;
         }
 
-        let harvestAmount = utils.calcBodyEffectiveness(object.body, C.WORK, 'harvest', C.HARVEST_MINERAL_POWER);
+        let harvestAmount = utils.calcBodyEffectiveness(object.body, ScreepsConstants.WORK, 'harvest', ScreepsConstants.HARVEST_MINERAL_POWER);
 
         if (harvestAmount) {
 
@@ -105,9 +105,9 @@ export default (object, intent, scope) => {
 
             object.actionLog.harvest = {x: target.x, y: target.y};
 
-            extractor._cooldown = C.EXTRACTOR_COOLDOWN;
+            extractor._cooldown = ScreepsConstants.EXTRACTOR_COOLDOWN;
 
-            eventLog.push({event: C.EVENT_HARVEST, objectId: object._id, data: {targetId: target._id, amount: harvestAmount}});
+            eventLog.push({event: ScreepsConstants.EVENT_HARVEST, objectId: object._id, data: {targetId: target._id, amount: harvestAmount}});
         }
     }
 
@@ -116,7 +116,7 @@ export default (object, intent, scope) => {
             return;
         }
 
-        const amount = utils.calcBodyEffectiveness(object.body, C.WORK, 'harvest', C.HARVEST_DEPOSIT_POWER);
+        const amount = utils.calcBodyEffectiveness(object.body, ScreepsConstants.WORK, 'harvest', ScreepsConstants.HARVEST_DEPOSIT_POWER);
         bulk.update(object, {store: {[target.depositType]: (object.store[target.depositType] || 0)+amount}});
 
         let sum = utils.calcResources(object);
@@ -131,10 +131,10 @@ export default (object, intent, scope) => {
         object.actionLog.harvest = {x: target.x, y: target.y};
 
         bulk.inc(target, 'harvested', amount);
-        const cooldown = Math.ceil(C.DEPOSIT_EXHAUST_MULTIPLY*Math.pow(target.harvested,C.DEPOSIT_EXHAUST_POW));
+        const cooldown = Math.ceil(ScreepsConstants.DEPOSIT_EXHAUST_MULTIPLY*Math.pow(target.harvested,ScreepsConstants.DEPOSIT_EXHAUST_POW));
         if(cooldown > 1) {
             target._cooldown = cooldown;
         }
-        bulk.update(target, {decayTime: C.DEPOSIT_DECAY_TIME + gameTime});
+        bulk.update(target, {decayTime: ScreepsConstants.DEPOSIT_DECAY_TIME + gameTime});
     }
 };

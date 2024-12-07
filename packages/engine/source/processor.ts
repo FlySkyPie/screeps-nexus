@@ -7,7 +7,7 @@ import * as utils from './utils';
 import * as fakeRuntime from './processor/common/fake-runtime';
 
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 let roomsQueue: any,
     _usersQueue: any,
@@ -117,7 +117,7 @@ function processRoom(
             if (object.type == 'controller') {
                 scope.roomController = object;
                 if (object.reservation && object.reservation.user == '2' &&
-                    (object.reservation.endTime - gameTime) < (C.CONTROLLER_RESERVE_MAX - C.INVADER_CORE_CONTROLLER_POWER * C.CONTROLLER_RESERVE)) {
+                    (object.reservation.endTime - gameTime) < (ScreepsConstants.CONTROLLER_RESERVE_MAX - ScreepsConstants.INVADER_CORE_CONTROLLER_POWER * ScreepsConstants.CONTROLLER_RESERVE)) {
                     roomInfo.active = true;
                 }
                 if (object.user && object.user !== '2') {
@@ -318,7 +318,7 @@ function processRoom(
                         }
                     }
 
-                    if (objectIntents.notifyWhenAttacked && (C.CONSTRUCTION_COST[object.type] || object.type == 'creep' || object.type == 'powerCreep')) {
+                    if (objectIntents.notifyWhenAttacked && (ScreepsConstants.CONSTRUCTION_COST[object.type] || object.type == 'creep' || object.type == 'powerCreep')) {
                         bulk.update(object, { notifyWhenAttacked: !!objectIntents.notifyWhenAttacked.enabled });
                     }
 
@@ -418,7 +418,7 @@ function processRoom(
             }
 
             if (object.effects) {
-                const collapseEffect: any = _.find(object.effects, { effect: C.EFFECT_COLLAPSE_TIMER });
+                const collapseEffect: any = _.find(object.effects, { effect: ScreepsConstants.EFFECT_COLLAPSE_TIMER });
                 if (collapseEffect && collapseEffect.endTime <= gameTime) {
                     bulk.remove(object._id);
                     delete roomObjects[object._id];

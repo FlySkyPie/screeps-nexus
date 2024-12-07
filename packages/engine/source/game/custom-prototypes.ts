@@ -1,7 +1,7 @@
 import utils from './../utils';
 import rooms from './rooms';
 const driver = utils.getRuntimeDriver();
-const C = driver.constants;
+
 
 const scope = {};
 

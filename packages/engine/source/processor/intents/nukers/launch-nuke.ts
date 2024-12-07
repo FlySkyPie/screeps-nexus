@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import config from '../../../config';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, {roomObjects, bulk, roomController, gameTime, roomInfo}) => {
 
@@ -29,13 +29,13 @@ export default (object, intent, {roomObjects, bulk, roomController, gameTime, ro
     const [tx,ty] = utils.roomNameToXY(intent.roomName);
     const [x,y] = utils.roomNameToXY(object.room);
 
-    if(Math.abs(tx-x) > C.NUKE_RANGE || Math.abs(ty-y) > C.NUKE_RANGE) {
+    if(Math.abs(tx-x) > ScreepsConstants.NUKE_RANGE || Math.abs(ty-y) > ScreepsConstants.NUKE_RANGE) {
         return;
     }
 
     bulk.update(object, {
         store: {energy: 0, G: 0},
-        cooldownTime: gameTime + (config.ptr ? 100 : C.NUKER_COOLDOWN)
+        cooldownTime: gameTime + (config.ptr ? 100 : ScreepsConstants.NUKER_COOLDOWN)
     });
 
     bulk.insert({
@@ -43,7 +43,7 @@ export default (object, intent, {roomObjects, bulk, roomController, gameTime, ro
         room: intent.roomName,
         x: intent.x,
         y: intent.y,
-        landTime: gameTime + (config.ptr ? 100 : C.NUKE_LAND_TIME),
+        landTime: gameTime + (config.ptr ? 100 : ScreepsConstants.NUKE_LAND_TIME),
         launchRoomName: object.room
     });
 

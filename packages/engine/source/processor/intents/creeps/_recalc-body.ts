@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default function recalcBody(object) {
 
@@ -18,6 +18,6 @@ export default function recalcBody(object) {
     }
 
     if(!object.noCapacityRecalc) {
-        object.storeCapacity = utils.calcBodyEffectiveness(object.body, C.CARRY, 'capacity', C.CARRY_CAPACITY, true);
+        object.storeCapacity = utils.calcBodyEffectiveness(object.body, ScreepsConstants.CARRY, 'capacity', ScreepsConstants.CARRY_CAPACITY, true);
     }
 };

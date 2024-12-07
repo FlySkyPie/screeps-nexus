@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, scope) => {
 
@@ -20,7 +20,7 @@ export default (object, scope) => {
                 return;
             }
             if (target.type == 'creep') {
-                require('../creeps/_die')(target, 0, true, scope, C.EVENT_ATTACK_TYPE_NUKE);
+                require('../creeps/_die')(target, 0, true, scope, ScreepsConstants.EVENT_ATTACK_TYPE_NUKE);
             }
             if (target.type == 'powerCreep') {
                 bulk.update(target, {hits: 0});
@@ -41,19 +41,19 @@ export default (object, scope) => {
                 let x = object.x+dx,
                     y = object.y+dy,
                     range = Math.max(Math.abs(dx), Math.abs(dy)),
-                    damage = range == 0 ? C.NUKE_DAMAGE[0] : C.NUKE_DAMAGE[2];
+                    damage = range == 0 ? ScreepsConstants.NUKE_DAMAGE[0] : ScreepsConstants.NUKE_DAMAGE[2];
 
                 let objects = _.filter(roomObjects, {x,y});
                 let rampart = _.find(objects, {type: 'rampart'});
                 if(rampart) {
                     let rampartHits = rampart.hits;
                     _.pull(objects, rampart);
-                    require('../_damage')(object, rampart, damage, C.EVENT_ATTACK_TYPE_NUKE, scope);
+                    require('../_damage')(object, rampart, damage, ScreepsConstants.EVENT_ATTACK_TYPE_NUKE, scope);
                     damage -= rampartHits;
                 }
                 if(damage > 0) {
                     objects.forEach(target => {
-                        require('../_damage')(object, target, damage, C.EVENT_ATTACK_TYPE_NUKE, scope);
+                        require('../_damage')(object, target, damage, ScreepsConstants.EVENT_ATTACK_TYPE_NUKE, scope);
                     });
                 }
             }
@@ -68,10 +68,10 @@ export default (object, scope) => {
             }
 
             if (roomController.user &&
-                !_.some(roomController.effects, e => e.effect == C.EFFECT_INVULNERABILITY && e.endTime > gameTime) &&
+                !_.some(roomController.effects, e => e.effect == ScreepsConstants.EFFECT_INVULNERABILITY && e.endTime > gameTime) &&
                 !roomController.upgradeBlocked || roomController.upgradeBlocked < gameTime) {
                 bulk.update(roomController, {
-                    upgradeBlocked: gameTime + C.CONTROLLER_NUKE_BLOCKED_UPGRADE
+                    upgradeBlocked: gameTime + ScreepsConstants.CONTROLLER_NUKE_BLOCKED_UPGRADE
                 });
             }
         }

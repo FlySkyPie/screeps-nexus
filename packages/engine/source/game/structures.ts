@@ -1,7 +1,7 @@
 import utils from '../utils';
 import rooms from './rooms';
 const driver = utils.getRuntimeDriver();
-const C = driver.constants;
+
 import _ from 'lodash';
 
 let runtimeData, intents, register, globals, createdCreepNames, lastActivateSafeMode;
@@ -42,15 +42,15 @@ export function make(_runtimeData, _intents, _register, _globals) {
             const _data = data(id);
             globals.RoomObject.call(this, _data.x, _data.y, _data.room, _data.effects);
 
-            if(_data.type == C.STRUCTURE_CONTROLLER) {
+            if(_data.type == ScreepsConstants.STRUCTURE_CONTROLLER) {
                 register.rooms[_data.room].controller = this;
             }
 
-            if(_data.type == C.STRUCTURE_STORAGE) {
+            if(_data.type == ScreepsConstants.STRUCTURE_STORAGE) {
                 register.rooms[_data.room].storage = this;
             }
 
-            if(_data.type == C.STRUCTURE_TERMINAL) {
+            if(_data.type == ScreepsConstants.STRUCTURE_TERMINAL) {
                 register.rooms[_data.room].terminal = this;
             }
         }
@@ -71,30 +71,30 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
     Structure.prototype.destroy = register.wrapFn(function() {
         if(!this.room) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!this.room.controller || !this.room.controller.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
 
-        if(this.room.find(C.FIND_HOSTILE_CREEPS).length > 0 ||
-            this.room.find(C.FIND_HOSTILE_POWER_CREEPS).length > 0) {
-            return C.ERR_BUSY;
+        if(this.room.find(ScreepsConstants.FIND_HOSTILE_CREEPS).length > 0 ||
+            this.room.find(ScreepsConstants.FIND_HOSTILE_POWER_CREEPS).length > 0) {
+            return ScreepsConstants.ERR_BUSY;
         }
 
         intents.pushByName('room', 'destroyStructure', {roomName: this.room.name, id: this.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Structure.prototype.notifyWhenAttacked = register.wrapFn(function(enabled) {
         if(!this.room) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(this.my === false || (this.room.controller && this.room.controller.owner && !this.room.controller.my)) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!_.isBoolean(enabled)) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         if(enabled != data(this.id).notifyWhenAttacked) {
@@ -102,14 +102,14 @@ export function make(_runtimeData, _intents, _register, _globals) {
             intents.set(this.id, 'notifyWhenAttacked', {enabled});
         }
 
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Structure.prototype.isActive = register.wrapFn(function() {
         if(!this.owner) {
             return true;
         }
-        if(!C.CONTROLLER_STRUCTURES[data(this.id).type]) {
+        if(!ScreepsConstants.CONTROLLER_STRUCTURES[data(this.id).type]) {
             return true;
         }
         if(!this.room || !this.room.controller) {
@@ -179,13 +179,13 @@ export function make(_runtimeData, _intents, _register, _globals) {
             } : undefined,
         level: (o) => o.level,
         progress: (o) => o.level > 0 ? o.progress : undefined,
-        progressTotal: (o) => o.level > 0 && o.level < 8 ? C.CONTROLLER_LEVELS[o.level] : undefined,
+        progressTotal: (o) => o.level > 0 && o.level < 8 ? ScreepsConstants.CONTROLLER_LEVELS[o.level] : undefined,
         upgradeBlocked: o => o.upgradeBlocked && o.upgradeBlocked > runtimeData.time ? o.upgradeBlocked - runtimeData.time : undefined,
         safeMode: o => o.safeMode && o.safeMode > runtimeData.time ? o.safeMode - runtimeData.time : undefined,
         safeModeCooldown: o => o.safeModeCooldown && o.safeModeCooldown > runtimeData.time ? o.safeModeCooldown - runtimeData.time : undefined,
         safeModeAvailable: o => o.safeModeAvailable || 0,
         sign: o => o.hardSign ? {
-                username: C.SYSTEM_USERNAME,
+                username: ScreepsConstants.SYSTEM_USERNAME,
                 text: o.hardSign.text,
                 time: o.hardSign.time,
                 datetime: new Date(o.hardSign.datetime)
@@ -201,27 +201,27 @@ export function make(_runtimeData, _intents, _register, _globals) {
     StructureController.prototype.unclaim = register.wrapFn(function() {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
 
         intents.set(this.id, 'unclaim', {});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     StructureController.prototype.activateSafeMode = register.wrapFn(function() {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.safeModeAvailable <= 0) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
         if(this.safeModeCooldown || this.upgradeBlocked > 0 ||
-            this.ticksToDowngrade < C.CONTROLLER_DOWNGRADE[this.level]/2 - C.CONTROLLER_DOWNGRADE_SAFEMODE_THRESHOLD) {
-            return C.ERR_TIRED;
+            this.ticksToDowngrade < ScreepsConstants.CONTROLLER_DOWNGRADE[this.level]/2 - ScreepsConstants.CONTROLLER_DOWNGRADE_SAFEMODE_THRESHOLD) {
+            return ScreepsConstants.ERR_TIRED;
         }
         if(_.any(register.structures, i => i.structureType == 'controller' && i.my && i.safeMode)) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
 
         if(lastActivateSafeMode) {
@@ -230,7 +230,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
         lastActivateSafeMode = this.id;
 
         intents.set(this.id, 'activateSafeMode', {});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Object.defineProperty(globals, 'StructureController', {enumerable: true, value: StructureController});
@@ -302,115 +302,115 @@ export function make(_runtimeData, _intents, _register, _globals) {
     StructureLab.prototype.constructor = StructureLab;
 
     const labMineralAmountGetter = o => _.sum(o.store) - (o.store.energy||0);
-    const labMineralTypeGetter = o => _(o.store).keys().filter(k => k != C.RESOURCE_ENERGY && o.store[k]).first();
+    const labMineralTypeGetter = o => _(o.store).keys().filter(k => k != ScreepsConstants.RESOURCE_ENERGY && o.store[k]).first();
 
     utils.defineGameObjectProperties(StructureLab.prototype, data, {
         energy: o => o.store ? o.store.energy : 0,
         energyCapacity: o => o.storeCapacityResource ? o.storeCapacityResource.energy : 0,
         cooldown: o => o.cooldownTime && o.cooldownTime > runtimeData.time ? o.cooldownTime - runtimeData.time : 0,
         mineralAmount: labMineralAmountGetter,
-        mineralCapacity: o => C.LAB_MINERAL_CAPACITY,
+        mineralCapacity: o => ScreepsConstants.LAB_MINERAL_CAPACITY,
         mineralType: labMineralTypeGetter,
         store: _storeGetter
     });
 
     StructureLab.prototype.runReaction = register.wrapFn(function(lab1, lab2) {
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(this.cooldown > 0) {
-            return C.ERR_TIRED;
+            return ScreepsConstants.ERR_TIRED;
         }
         if(!utils.checkStructureAgainstController(data(this.id), register.objectsByRoom[data(this.id).room], data(this.room.controller.id))) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
         if(!lab1 || !lab1.id || !register.structures[lab1.id] ||
-        !(lab1 instanceof globals.Structure) || lab1.structureType != C.STRUCTURE_LAB || lab1.id == this.id) {
+        !(lab1 instanceof globals.Structure) || lab1.structureType != ScreepsConstants.STRUCTURE_LAB || lab1.id == this.id) {
             register.assertTargetObject(lab1);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!lab2 || !lab2.id || !register.structures[lab2.id] ||
-        !(lab2 instanceof globals.Structure) || lab2.structureType != C.STRUCTURE_LAB || lab2.id == this.id) {
+        !(lab2 instanceof globals.Structure) || lab2.structureType != ScreepsConstants.STRUCTURE_LAB || lab2.id == this.id) {
             register.assertTargetObject(lab2);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(this.pos.getRangeTo(lab1) > 2 || this.pos.getRangeTo(lab2) > 2) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
-        let reactionAmount = C.LAB_REACTION_AMOUNT;
-        const effect = _.find(this.effects, i => i.power == C.PWR_OPERATE_LAB);
+        let reactionAmount = ScreepsConstants.LAB_REACTION_AMOUNT;
+        const effect = _.find(this.effects, i => i.power == ScreepsConstants.PWR_OPERATE_LAB);
         if(effect && effect.ticksRemaining > 0) {
-            reactionAmount += C.POWER_INFO[C.PWR_OPERATE_LAB].effect[effect.level-1];
+            reactionAmount += ScreepsConstants.POWER_INFO[ScreepsConstants.PWR_OPERATE_LAB].effect[effect.level-1];
         }
         if(this.mineralAmount > this.mineralCapacity - reactionAmount) {
-            return C.ERR_FULL;
+            return ScreepsConstants.ERR_FULL;
         }
         if(lab1.mineralAmount < reactionAmount || lab2.mineralAmount < reactionAmount) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
-        if(!(lab1.mineralType in C.REACTIONS) || !C.REACTIONS[lab1.mineralType][lab2.mineralType] ||
-        this.mineralType && this.mineralType != C.REACTIONS[lab1.mineralType][lab2.mineralType]) {
-            return C.ERR_INVALID_ARGS;
+        if(!(lab1.mineralType in ScreepsConstants.REACTIONS) || !ScreepsConstants.REACTIONS[lab1.mineralType][lab2.mineralType] ||
+        this.mineralType && this.mineralType != ScreepsConstants.REACTIONS[lab1.mineralType][lab2.mineralType]) {
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         intents.set(this.id, 'runReaction', {lab1: lab1.id, lab2: lab2.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     StructureLab.prototype.boostCreep = register.wrapFn(function(target, bodyPartsCount) {
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!utils.checkStructureAgainstController(data(this.id), register.objectsByRoom[data(this.id).room], data(this.room.controller.id))) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
         if(!target || !target.id || !register.creeps[target.id] || !(target instanceof globals.Creep) || target.spawning) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!this.pos.isNearTo(target)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
-        if(data(this.id).store.energy < C.LAB_BOOST_ENERGY) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+        if(data(this.id).store.energy < ScreepsConstants.LAB_BOOST_ENERGY) {
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
-        if(labMineralAmountGetter(data(this.id)) < C.LAB_BOOST_MINERAL) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+        if(labMineralAmountGetter(data(this.id)) < ScreepsConstants.LAB_BOOST_MINERAL) {
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
         bodyPartsCount = bodyPartsCount || 0;
-        const nonBoostedParts = _(target.body).filter(i => !i.boost && C.BOOSTS[i.type] && C.BOOSTS[i.type][labMineralTypeGetter(data(this.id))]).size();
+        const nonBoostedParts = _(target.body).filter(i => !i.boost && ScreepsConstants.BOOSTS[i.type] && ScreepsConstants.BOOSTS[i.type][labMineralTypeGetter(data(this.id))]).size();
 
         if(!nonBoostedParts || bodyPartsCount && bodyPartsCount > nonBoostedParts) {
-            return C.ERR_NOT_FOUND;
+            return ScreepsConstants.ERR_NOT_FOUND;
         }
 
         intents.set(this.id, 'boostCreep', {id: target.id, bodyPartsCount});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     StructureLab.prototype.unboostCreep = register.wrapFn(function(target) {
         if(!target || !target.id || !register.creeps[target.id] || !(target instanceof globals.Creep)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!this.my || !target.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!utils.checkStructureAgainstController(data(this.id), register.objectsByRoom[data(this.id).room], data(this.room.controller.id))) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
         if(this.cooldown > 0) {
-            return C.ERR_TIRED;
+            return ScreepsConstants.ERR_TIRED;
         }
         if(!_.some(target.body, p => !!p.boost)) {
-            return C.ERR_NOT_FOUND;
+            return ScreepsConstants.ERR_NOT_FOUND;
         }
         if(!this.pos.isNearTo(target)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
 
         intents.set(this.id, 'unboostCreep', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Object.defineProperty(globals, 'StructureLab', {enumerable: true, value: StructureLab});
@@ -436,47 +436,47 @@ export function make(_runtimeData, _intents, _register, _globals) {
     StructureLink.prototype.transferEnergy = register.wrapFn(function(target, amount) {
 
         if (amount < 0) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
-        if (!target || !target.id || !register.structures[target.id] || !(target instanceof globals.Structure) || target === this || target.structureType != C.STRUCTURE_LINK) {
+        if (!target || !target.id || !register.structures[target.id] || !(target instanceof globals.Structure) || target === this || target.structureType != ScreepsConstants.STRUCTURE_LINK) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if (!target.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
-        if(this.my === false && _.any(this.pos.lookFor('structure'), i => i.structureType == C.STRUCTURE_RAMPART)) {
-            return C.ERR_NOT_OWNER;
+        if(this.my === false && _.any(this.pos.lookFor('structure'), i => i.structureType == ScreepsConstants.STRUCTURE_RAMPART)) {
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
 
         if(this.cooldown > 0) {
-            return C.ERR_TIRED;
+            return ScreepsConstants.ERR_TIRED;
         }
         if(!this.room.controller) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
         if(!utils.checkStructureAgainstController(data(this.id), register.objectsByRoom[data(this.id).room], data(this.room.controller.id))) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
 
         if (!data(this.id).store || !data(this.id).store.energy) {
-            return C.ERR_NOT_ENOUGH_ENERGY;
+            return ScreepsConstants.ERR_NOT_ENOUGH_ENERGY;
         }
         if (!amount) {
             amount = Math.min(data(this.id).store.energy, data(target.id).storeCapacityResource ? data(target.id).storeCapacityResource.energy - data(target.id).store.energy : 0);
         }
         if (this.energy < amount) {
-            return C.ERR_NOT_ENOUGH_ENERGY;
+            return ScreepsConstants.ERR_NOT_ENOUGH_ENERGY;
         }
         if (!data(target.id).storeCapacityResource || !data(target.id).storeCapacityResource.energy || data(target.id).store.energy + amount > data(target.id).storeCapacityResource.energy) {
-            return C.ERR_FULL;
+            return ScreepsConstants.ERR_FULL;
         }
         if (target.pos.roomName != this.pos.roomName) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
 
         intents.set(this.id, 'transfer', {id: target.id, amount, resourceType: 'energy'});
-        return C.OK;
+        return ScreepsConstants.OK;
 
     });
 
@@ -495,26 +495,26 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
     StructureObserver.prototype.observeRoom = register.wrapFn(function(roomName) {
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!_.isString(roomName) || !/^(W|E)\d+(S|N)\d+$/.test(roomName)) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
         if(!utils.checkStructureAgainstController(data(this.id), register.objectsByRoom[data(this.id).room], data(this.room.controller.id))) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
 
         const [tx,ty] = utils.roomNameToXY(roomName);
         const [x,y] = utils.roomNameToXY(data(this.id).room);
 
-        const effect = _.find(this.effects, i => i.power == C.PWR_OPERATE_OBSERVER);
+        const effect = _.find(this.effects, i => i.power == ScreepsConstants.PWR_OPERATE_OBSERVER);
         if((!effect || effect.ticksRemaining <= 0) &&
-            (Math.abs(tx-x) > C.OBSERVER_RANGE || Math.abs(ty-y) > C.OBSERVER_RANGE)) {
-            return C.ERR_NOT_IN_RANGE;
+            (Math.abs(tx-x) > ScreepsConstants.OBSERVER_RANGE || Math.abs(ty-y) > ScreepsConstants.OBSERVER_RANGE)) {
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
 
         intents.set(this.id, 'observeRoom', {roomName});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Object.defineProperty(globals, 'StructureObserver', {enumerable: true, value: StructureObserver});
@@ -560,22 +560,22 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
     StructurePowerSpawn.prototype.processPower = register.wrapFn(function() {
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!utils.checkStructureAgainstController(data(this.id), register.objectsByRoom[data(this.id).room], data(this.room.controller.id))) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
         let amount = 1;
-        const effect = _.find(this.effects, i => i.power == C.PWR_OPERATE_POWER);
+        const effect = _.find(this.effects, i => i.power == ScreepsConstants.PWR_OPERATE_POWER);
         if(effect && effect.ticksRemaining > 0) {
-            amount += C.POWER_INFO[C.PWR_OPERATE_POWER].effect[effect.level-1];
+            amount += ScreepsConstants.POWER_INFO[ScreepsConstants.PWR_OPERATE_POWER].effect[effect.level-1];
         }
-        if(this.power < amount || this.energy < amount * C.POWER_SPAWN_ENERGY_RATIO) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+        if(this.power < amount || this.energy < amount * ScreepsConstants.POWER_SPAWN_ENERGY_RATIO) {
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
 
         intents.set(this.id, 'processPower', {});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Object.defineProperty(globals, 'StructurePowerSpawn', {enumerable: true, value: StructurePowerSpawn});
@@ -598,10 +598,10 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
     StructureRampart.prototype.setPublic = register.wrapFn(function(isPublic) {
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         intents.set(this.id, 'setPublic', {isPublic: !!isPublic});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Object.defineProperty(globals, 'StructureRampart', {enumerable: true, value: StructureRampart});
@@ -661,35 +661,35 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
     StructureTerminal.prototype.send = register.wrapFn(function(resourceType, amount, targetRoomName, description) {
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!utils.checkStructureAgainstController(data(this.id), register.objectsByRoom[data(this.id).room], data(this.room.controller.id))) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
         if(!/^(W|E)\d+(N|S)\d+$/.test(targetRoomName)) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
-        if(!_.contains(C.RESOURCES_ALL, resourceType)) {
-            return C.ERR_INVALID_ARGS;
+        if(!_.contains(ScreepsConstants.RESOURCES_ALL, resourceType)) {
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
         if(!data(this.id).store || !data(this.id).store[resourceType] || data(this.id).store[resourceType] < amount) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
         if(data(this.id).cooldownTime > runtimeData.time) {
-            return C.ERR_TIRED;
+            return ScreepsConstants.ERR_TIRED;
         }
         const range = utils.calcRoomsDistance(data(this.id).room, targetRoomName, true);
         const cost = utils.calcTerminalEnergyCost(amount,range);
-        if(resourceType != C.RESOURCE_ENERGY && data(this.id).store.energy < cost ||
-        resourceType == C.RESOURCE_ENERGY && data(this.id).store.energy < amount + cost) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+        if(resourceType != ScreepsConstants.RESOURCE_ENERGY && data(this.id).store.energy < cost ||
+        resourceType == ScreepsConstants.RESOURCE_ENERGY && data(this.id).store.energy < amount + cost) {
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
         if(description && (!_.isString(description) || description.length > 100)) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         intents.set(this.id, 'send', {resourceType, amount, targetRoomName, description});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Object.defineProperty(globals, 'StructureTerminal', {enumerable: true, value: StructureTerminal});
@@ -713,62 +713,62 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
     StructureTower.prototype.attack = register.wrapFn(function(target) {
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!target || !target.id || !register.creeps[target.id] && !register.powerCreeps[target.id] && !register.structures[target.id] ||
         !(target instanceof globals.Creep) && !(target instanceof globals.PowerCreep) && !(target instanceof globals.StructureSpawn) && !(target instanceof globals.Structure)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
-        if(!data(this.id).store || (data(this.id).store.energy < C.TOWER_ENERGY_COST)) {
-            return C.ERR_NOT_ENOUGH_ENERGY;
+        if(!data(this.id).store || (data(this.id).store.energy < ScreepsConstants.TOWER_ENERGY_COST)) {
+            return ScreepsConstants.ERR_NOT_ENOUGH_ENERGY;
         }
         if(!utils.checkStructureAgainstController(data(this.id), register.objectsByRoom[data(this.id).room], data(this.room.controller.id))) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
 
         intents.set(this.id, 'attack', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     StructureTower.prototype.heal = register.wrapFn(function(target) {
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!target || !target.id || !register.creeps[target.id] && !register.powerCreeps[target.id] ||
             !(target instanceof globals.Creep) && !(target instanceof globals.PowerCreep)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
-        if(!data(this.id).store || (data(this.id).store.energy < C.TOWER_ENERGY_COST)) {
-            return C.ERR_NOT_ENOUGH_ENERGY;
+        if(!data(this.id).store || (data(this.id).store.energy < ScreepsConstants.TOWER_ENERGY_COST)) {
+            return ScreepsConstants.ERR_NOT_ENOUGH_ENERGY;
         }
         if(!utils.checkStructureAgainstController(data(this.id), register.objectsByRoom[data(this.id).room], data(this.room.controller.id))) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
 
         intents.set(this.id, 'heal', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     StructureTower.prototype.repair = register.wrapFn(function(target) {
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!target || !target.id || !register.structures[target.id] ||
         !(target instanceof globals.Structure) && !(target instanceof globals.StructureSpawn)) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
-        if(!data(this.id).store || (data(this.id).store.energy < C.TOWER_ENERGY_COST)) {
-            return C.ERR_NOT_ENOUGH_ENERGY;
+        if(!data(this.id).store || (data(this.id).store.energy < ScreepsConstants.TOWER_ENERGY_COST)) {
+            return ScreepsConstants.ERR_NOT_ENOUGH_ENERGY;
         }
         if(!utils.checkStructureAgainstController(data(this.id), register.objectsByRoom[data(this.id).room], data(this.room.controller.id))) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
 
         intents.set(this.id, 'repair', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Object.defineProperty(globals, 'StructureTower', {enumerable: true, value: StructureTower});
@@ -844,32 +844,32 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
     StructureSpawn.prototype.canCreateCreep = register.wrapFn(function(body, name) {
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(data(this.id).spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
-        if(!body || !_.isArray(body) || body.length == 0 || body.length > C.MAX_CREEP_SIZE) {
-            return C.ERR_INVALID_ARGS;
+        if(!body || !_.isArray(body) || body.length == 0 || body.length > ScreepsConstants.MAX_CREEP_SIZE) {
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
         for(let i=0; i<body.length; i++) {
-            if(!_.contains(C.BODYPARTS_ALL, body[i]))
-                return C.ERR_INVALID_ARGS;
+            if(!_.contains(ScreepsConstants.BODYPARTS_ALL, body[i]))
+                return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         if(this.room.energyAvailable < utils.calcCreepCost(body)) {
-            return C.ERR_NOT_ENOUGH_ENERGY;
+            return ScreepsConstants.ERR_NOT_ENOUGH_ENERGY;
         }
 
         if(runtimeData.roomObjects[this.id].off) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
 
         if(name && (globals.Game.creeps[name] || createdCreepNames.indexOf(name) != -1)) {
-            return C.ERR_NAME_EXISTS;
+            return ScreepsConstants.ERR_NAME_EXISTS;
         }
 
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     StructureSpawn.prototype.createCreep = register.wrapFn(function(body, name, creepMemory) {
@@ -880,7 +880,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
         }
 
         const canResult = this.canCreateCreep(body, name);
-        if(canResult != C.OK) {
+        if(canResult != ScreepsConstants.OK) {
             return canResult;
         }
 
@@ -941,13 +941,13 @@ export function make(_runtimeData, _intents, _register, _globals) {
             ticksToLive: {
                 enumerable: true,
                 get() {
-                    return C.CREEP_LIFE_TIME;
+                    return ScreepsConstants.CREEP_LIFE_TIME;
                 }
             },
             carryCapacity: {
                 enumerable: true,
                 get() {
-                    return _.reduce(body, (result, type) => result += type == C.CARRY ? C.CARRY_CAPACITY : 0, 0);
+                    return _.reduce(body, (result, type) => result += type == ScreepsConstants.CARRY ? ScreepsConstants.CARRY_CAPACITY : 0, 0);
                 }
             },
             carry: {
@@ -999,11 +999,11 @@ export function make(_runtimeData, _intents, _register, _globals) {
     StructureSpawn.prototype.spawnCreep = register.wrapFn(function spawnCreep(body, name, options = {}) {
 
         if(!name || !_.isObject(options)) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         if(globals.Game.creeps[name] || createdCreepNames.indexOf(name) != -1) {
-            return C.ERR_NAME_EXISTS;
+            return ScreepsConstants.ERR_NAME_EXISTS;
         }
 
         let energyStructures = options.energyStructures && _.uniq(_.map(options.energyStructures, 'id'));
@@ -1011,44 +1011,44 @@ export function make(_runtimeData, _intents, _register, _globals) {
         let directions = options.directions;
         if(directions !== undefined) {
             if(!_.isArray(directions)) {
-                return C.ERR_INVALID_ARGS;
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
             // convert directions to numbers, eliminate duplicates
             directions = _.uniq(_.map(directions, d => +d));
             // bail if any numbers are out of bounds or non-integers
             if(directions.length ==0 || !_.all(directions, direction => direction >= 1 && direction <= 8 && direction === (direction | 0))) {
-                return C.ERR_INVALID_ARGS;
+                return ScreepsConstants.ERR_INVALID_ARGS;
             }
         }
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
 
         if(data(this.id).spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
 
         if(data(this.id).off) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
 
-        if(!body || !_.isArray(body) || body.length === 0 || body.length > C.MAX_CREEP_SIZE) {
-            return C.ERR_INVALID_ARGS;
+        if(!body || !_.isArray(body) || body.length === 0 || body.length > ScreepsConstants.MAX_CREEP_SIZE) {
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         for(let i=0; i<body.length; i++) {
-            if(!_.contains(C.BODYPARTS_ALL, body[i]))
-                return C.ERR_INVALID_ARGS;
+            if(!_.contains(ScreepsConstants.BODYPARTS_ALL, body[i]))
+                return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         let energyAvailable = energyStructures ? calcEnergyAvailable(runtimeData.roomObjects, energyStructures) : this.room.energyAvailable;
         if(energyAvailable < utils.calcCreepCost(body)) {
-            return C.ERR_NOT_ENOUGH_ENERGY;
+            return ScreepsConstants.ERR_NOT_ENOUGH_ENERGY;
         }
 
         if(options.dryRun) {
-            return C.OK;
+            return ScreepsConstants.OK;
         }
 
         createdCreepNames.push(name);
@@ -1097,13 +1097,13 @@ export function make(_runtimeData, _intents, _register, _globals) {
             ticksToLive: {
                 enumerable: true,
                 get() {
-                    return C.CREEP_LIFE_TIME;
+                    return ScreepsConstants.CREEP_LIFE_TIME;
                 }
             },
             carryCapacity: {
                 enumerable: true,
                 get() {
-                    return _.reduce(body, (result, type) => result += type === C.CARRY ? C.CARRY_CAPACITY : 0, 0);
+                    return _.reduce(body, (result, type) => result += type === ScreepsConstants.CARRY ? ScreepsConstants.CARRY_CAPACITY : 0, 0);
                 }
             },
             carry: {
@@ -1140,16 +1140,16 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
         intents.set(this.id, 'createCreep', {name, body, energyStructures, directions});
 
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     StructureSpawn.prototype.notifyWhenAttacked = register.wrapFn(function(enabled) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!_.isBoolean(enabled)) {
-            return C.ERR_INVALID_ARGS;
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         if(enabled != data(this.id).notifyWhenAttacked) {
@@ -1157,62 +1157,62 @@ export function make(_runtimeData, _intents, _register, _globals) {
             intents.set(this.id, 'notifyWhenAttacked', {enabled});
         }
 
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     StructureSpawn.prototype.renewCreep = register.wrapFn(function(target) {
 
         if(this.spawning) {
-            return C.ERR_BUSY;
+            return ScreepsConstants.ERR_BUSY;
         }
         if(!target || !target.id || !register.creeps[target.id] || !(target instanceof globals.Creep) || target.spawning) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!this.my || !target.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(runtimeData.roomObjects[this.id].off) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
-        if(this.room.energyAvailable < Math.ceil(C.SPAWN_RENEW_RATIO * utils.calcCreepCost(target.body) / C.CREEP_SPAWN_TIME / target.body.length)) {
-            return C.ERR_NOT_ENOUGH_ENERGY;
+        if(this.room.energyAvailable < Math.ceil(ScreepsConstants.SPAWN_RENEW_RATIO * utils.calcCreepCost(target.body) / ScreepsConstants.CREEP_SPAWN_TIME / target.body.length)) {
+            return ScreepsConstants.ERR_NOT_ENOUGH_ENERGY;
         }
-        if(target.ticksToLive + Math.floor(C.SPAWN_RENEW_RATIO * C.CREEP_LIFE_TIME / C.CREEP_SPAWN_TIME / target.body.length) > C.CREEP_LIFE_TIME) {
-            return C.ERR_FULL;
+        if(target.ticksToLive + Math.floor(ScreepsConstants.SPAWN_RENEW_RATIO * ScreepsConstants.CREEP_LIFE_TIME / ScreepsConstants.CREEP_SPAWN_TIME / target.body.length) > ScreepsConstants.CREEP_LIFE_TIME) {
+            return ScreepsConstants.ERR_FULL;
         }
         if(_.any(target.body, i => !!i.boost)) {
             register.deprecated('Using `StructureSpawn.renewCreep` on a boosted creep is deprecated and will throw an error soon. Please remove boosts using `StructureLab.unboostCreep` before renewing.');
         }
 
         intents.set(this.id, 'renewCreep', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     StructureSpawn.prototype.recycleCreep = register.wrapFn(function(target) {
 
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!target || !target.id || !register.creeps[target.id] || !(target instanceof globals.Creep) || target.spawning) {
             register.assertTargetObject(target);
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(runtimeData.roomObjects[this.id].off) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
         if(!target.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(!target.pos.isNearTo(this.pos)) {
-            return C.ERR_NOT_IN_RANGE;
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
 
         intents.set(this.id, 'recycleCreep', {id: target.id});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Object.defineProperty(globals, 'StructureSpawn', {enumerable: true, value: StructureSpawn});
@@ -1237,7 +1237,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
     StructureSpawn.Spawning.prototype.setDirections = register.wrapFn(function(directions) {
         if(!this.spawn.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(_.isArray(directions) && directions.length > 0) {
             // convert directions to numbers, eliminate duplicates
@@ -1245,18 +1245,18 @@ export function make(_runtimeData, _intents, _register, _globals) {
             // bail if any numbers are out of bounds or non-integers
             if(!_.any(directions, (direction)=>direction < 1 || direction > 8 || direction !== (direction | 0))) {
                 intents.set(this.spawn.id, 'setSpawnDirections', {directions});
-                return C.OK;
+                return ScreepsConstants.OK;
             }
         }
-        return C.ERR_INVALID_ARGS;
+        return ScreepsConstants.ERR_INVALID_ARGS;
     });
 
     StructureSpawn.Spawning.prototype.cancel = register.wrapFn(function() {
         if(!this.spawn.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         intents.set(this.spawn.id, 'cancelSpawning', {});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     /**
@@ -1281,32 +1281,32 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
     StructureNuker.prototype.launchNuke = register.wrapFn(function(pos) {
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
         if(runtimeData.rooms[this.room.name].novice > Date.now() || runtimeData.rooms[this.room.name].respawnArea > Date.now()) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(!(pos instanceof globals.RoomPosition)) {
-            return C.ERR_INVALID_TARGET;
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
         if(this.cooldown > 0) {
-            return C.ERR_TIRED;
+            return ScreepsConstants.ERR_TIRED;
         }
         if(!utils.checkStructureAgainstController(data(this.id), register.objectsByRoom[data(this.id).room], data(this.room.controller.id))) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
         const [tx,ty] = utils.roomNameToXY(pos.roomName);
         const [x,y] = utils.roomNameToXY(data(this.id).room);
 
-        if(Math.abs(tx-x) > C.NUKE_RANGE || Math.abs(ty-y) > C.NUKE_RANGE) {
-            return C.ERR_NOT_IN_RANGE;
+        if(Math.abs(tx-x) > ScreepsConstants.NUKE_RANGE || Math.abs(ty-y) > ScreepsConstants.NUKE_RANGE) {
+            return ScreepsConstants.ERR_NOT_IN_RANGE;
         }
         if(this.energy < this.energyCapacity || this.ghodium < this.ghodiumCapacity) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
 
         intents.set(this.id, 'launchNuke', {roomName: pos.roomName, x: pos.x, y: pos.y});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Object.defineProperty(globals, 'StructureNuker', {enumerable: true, value: StructureNuker});
@@ -1355,40 +1355,40 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
     StructureFactory.prototype.produce = register.wrapFn(function(resourceType){
         if(!this.my) {
-            return C.ERR_NOT_OWNER;
+            return ScreepsConstants.ERR_NOT_OWNER;
         }
 
         if(this.cooldown > 0) {
-            return C.ERR_TIRED;
+            return ScreepsConstants.ERR_TIRED;
         }
 
-        if(!C.COMMODITIES[resourceType]) {
-            return C.ERR_INVALID_ARGS;
+        if(!ScreepsConstants.COMMODITIES[resourceType]) {
+            return ScreepsConstants.ERR_INVALID_ARGS;
         }
 
         const rawFactory = data(this.id);
-        if(!!C.COMMODITIES[resourceType].level && C.COMMODITIES[resourceType].level != rawFactory.level) {
-            return C.ERR_INVALID_TARGET;
+        if(!!ScreepsConstants.COMMODITIES[resourceType].level && ScreepsConstants.COMMODITIES[resourceType].level != rawFactory.level) {
+            return ScreepsConstants.ERR_INVALID_TARGET;
         }
 
         if(!utils.checkStructureAgainstController(rawFactory, register.objectsByRoom[rawFactory.room], data(this.room.controller.id))) {
-            return C.ERR_RCL_NOT_ENOUGH;
+            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
         }
 
-        if(!!C.COMMODITIES[resourceType].level && (rawFactory.level > 0) && !_.some(rawFactory.effects, e => e.power == C.PWR_OPERATE_FACTORY && e.level == C.COMMODITIES[resourceType].level && e.endTime >= runtimeData.time)) {
-            return C.ERR_BUSY;
+        if(!!ScreepsConstants.COMMODITIES[resourceType].level && (rawFactory.level > 0) && !_.some(rawFactory.effects, e => e.power == ScreepsConstants.PWR_OPERATE_FACTORY && e.level == ScreepsConstants.COMMODITIES[resourceType].level && e.endTime >= runtimeData.time)) {
+            return ScreepsConstants.ERR_BUSY;
         }
 
-        if(_.some(_.keys(C.COMMODITIES[resourceType].components), p => (rawFactory.store[p]||0)<C.COMMODITIES[resourceType].components[p])) {
-            return C.ERR_NOT_ENOUGH_RESOURCES;
+        if(_.some(_.keys(ScreepsConstants.COMMODITIES[resourceType].components), p => (rawFactory.store[p]||0)<ScreepsConstants.COMMODITIES[resourceType].components[p])) {
+            return ScreepsConstants.ERR_NOT_ENOUGH_RESOURCES;
         }
 
-        if (!rawFactory.storeCapacity || (utils.calcResources(rawFactory) - utils.calcResources(C.COMMODITIES[resourceType].components) + (C.COMMODITIES[resourceType].amount||1) > rawFactory.storeCapacity)) {
-            return C.ERR_FULL;
+        if (!rawFactory.storeCapacity || (utils.calcResources(rawFactory) - utils.calcResources(ScreepsConstants.COMMODITIES[resourceType].components) + (ScreepsConstants.COMMODITIES[resourceType].amount||1) > rawFactory.storeCapacity)) {
+            return ScreepsConstants.ERR_FULL;
         }
 
         intents.set(this.id, 'produce', {resourceType});
-        return C.OK;
+        return ScreepsConstants.OK;
     });
 
     Object.defineProperty(globals, 'StructureFactory', {enumerable: true, value: StructureFactory});

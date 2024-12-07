@@ -1,24 +1,24 @@
 import _ from 'lodash';
-import utils from '../../../utils';
+import * as utils from '../../../utils';
 const driver = utils.getDriver();
-const C = driver.constants;
+
 
 export default (object, intent, scope) => {
     if(!object || object.spawning || object.type != 'invaderCore') return;
 
-    if(!object.level || !C.INVADER_CORE_CREEP_SPAWN_TIME[object.level]) return;
+    if(!object.level || !ScreepsConstants.INVADER_CORE_CREEP_SPAWN_TIME[object.level]) return;
 
     const {bulk} = scope;
 
-    intent.body = intent.body.slice(0, C.MAX_CREEP_SIZE);
+    intent.body = intent.body.slice(0, ScreepsConstants.MAX_CREEP_SIZE);
 
     const body = [];
     for(let i = 0; i < intent.body.length; i++) {
         const type = intent.body[i];
-        if(!_.contains(C.BODYPARTS_ALL, type)) {
+        if(!_.contains(ScreepsConstants.BODYPARTS_ALL, type)) {
             continue;
         }
-        if(intent.boosts && (intent.boosts.length >= i) && C.BOOSTS[type] && C.BOOSTS[type][intent.boosts[i]]){
+        if(intent.boosts && (intent.boosts.length >= i) && ScreepsConstants.BOOSTS[type] && ScreepsConstants.BOOSTS[type][intent.boosts[i]]){
             body.push({
                 type,
                 hits: 100,
@@ -32,7 +32,7 @@ export default (object, intent, scope) => {
         }
     }
 
-    const storeCapacity = utils.calcBodyEffectiveness(body, C.CARRY, 'capacity', C.CARRY_CAPACITY, true);
+    const storeCapacity = utils.calcBodyEffectiveness(body, ScreepsConstants.CARRY, 'capacity', ScreepsConstants.CARRY_CAPACITY, true);
 
     const creep = {
         strongholdId: object.strongholdId,
@@ -58,8 +58,8 @@ export default (object, intent, scope) => {
     bulk.update(object, {
         spawning: {
             name: intent.name,
-            needTime: C.INVADER_CORE_CREEP_SPAWN_TIME[object.level] * body.length,
-            remainingTime: C.INVADER_CORE_CREEP_SPAWN_TIME[object.level] * body.length
+            needTime: ScreepsConstants.INVADER_CORE_CREEP_SPAWN_TIME[object.level] * body.length,
+            remainingTime: ScreepsConstants.INVADER_CORE_CREEP_SPAWN_TIME[object.level] * body.length
         }
     });
 };
