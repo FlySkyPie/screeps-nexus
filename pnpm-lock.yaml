@@ -443,6 +443,37 @@ importers:
         specifier: ^0.38.3
         version: 0.38.3
 
+  packages/vm-runtime:
+    dependencies:
+      '@screeps/driver':
+        specifier: workspace:*
+        version: link:../driver
+      '@screeps/engine':
+        specifier: workspace:*
+        version: link:../engine
+      '@screeps/pathfinding':
+        specifier: workspace:*
+        version: link:../PathFinding.js
+      isolated-vm:
+        specifier: ^5.0.1
+        version: 5.0.1
+      lodash:
+        specifier: ^3.10.1
+        version: 3.10.1
+    devDependencies:
+      '@types/lodash':
+        specifier: ^3.10.1
+        version: 3.10.9
+      '@types/node':
+        specifier: ^22.10.1
+        version: 22.10.1
+      '@vercel/ncc':
+        specifier: ^0.38.3
+        version: 0.38.3
+      typescript:
+        specifier: ^5.7.2
+        version: 5.7.2
+
 packages:
 
   '@babel/code-frame@7.26.2':
@@ -4666,6 +4697,11 @@ packages:
 
   typedarray@0.0.7:
     resolution: {integrity: sha512-ueeb9YybpjhivjbHP2LdFDAjbS948fGEPj+ACAMs4xCMmh72OCOMQWBQKlaN4ZNQ04yfLSDLSx1tGRIoWimObQ==}
+
+  typescript@5.7.2:
+    resolution: {integrity: sha512-i5t66RHxDvVN40HfDd1PsEThGNnlMCMT3jMUuoh9/0TaqWevNontacunWyN02LA9/fIbEWlcHZcgTKb9QoaLfg==}
+    engines: {node: '>=14.17'}
+    hasBin: true
 
   uglify-js@2.2.5:
     resolution: {integrity: sha512-viLk+/8G0zm2aKt1JJAVcz5J/5ytdiNaIsKgrre3yvSUjwVG6ZUujGH7E2TiPigZUwLYCe7eaIUEP2Zka2VJPA==}
@@ -9980,6 +10016,8 @@ snapshots:
   typedarray@0.0.6: {}
 
   typedarray@0.0.7: {}
+
+  typescript@5.7.2: {}
 
   uglify-js@2.2.5:
     dependencies:
