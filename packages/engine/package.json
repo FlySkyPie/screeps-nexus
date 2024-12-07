@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@screeps/driver": "workspace:*",
-    "@screeps/pathfinding": "^0.4.16",
+    "@screeps/pathfinding": "workspace:*",
     "bulk-require": "^0.2.1",
     "cross-env": "^5.2.0",
     "lodash": "3.10.1",
