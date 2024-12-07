@@ -9,12 +9,13 @@ import common from '@screeps/common';
 import bulk from './bulk';
 import * as queue from './queue';
 import * as runtimeUserVm from './runtime/user-vm';
+import * as pathFinderFactory from './path-finder';
 
 const db = common.storage.db;
 const env = common.storage.env;
 const pubsub = common.storage.pubsub;
 const _config = Object.assign(common.configManager.config, { engine: new EventEmitter() });
-const roomStatsUpdates = {};
+const roomStatsUpdates: Record<string, any> = {};
 let worldSize: any;
 
 _.extend(_config.engine, {
@@ -33,7 +34,7 @@ _.extend(_config.engine, {
     enableInspector: false,
 });
 
-_config.engine.on('playerSandbox', (sandbox) => {
+_config.engine.on('playerSandbox', (sandbox: any) => {
     sandbox.run(`Game.shard = Object.create(null, {
         name: {
             value: "${os.hostname()}",
@@ -55,7 +56,7 @@ _config.engine.on('playerSandbox', (sandbox) => {
 export var customObjectPrototypes = [];
 
 Object.defineProperty(_config.engine, 'registerCustomObjectPrototype', {
-    value: function (objectType, name, opts) {
+    value: function (objectType: any, name: any, opts: any) {
         if (!objectType) {
             throw new Error('No object type provided!');
         }
@@ -68,24 +69,24 @@ Object.defineProperty(_config.engine, 'registerCustomObjectPrototype', {
 
 export var config = _config.engine;
 
-function checkNotificationOnline(userId) {
+function checkNotificationOnline(_userId: any) {
     return q.when(true); // TODO
 }
 
 function getAllTerrainData() {
     return env.get(env.keys.TERRAIN_DATA)
-        .then(compressed => {
+        .then((compressed: any) => {
             const buf = Buffer.from(compressed, 'base64');
             return q.ninvoke(zlib, 'inflate', buf);
         })
-        .then(data => JSON.parse(data));
+        .then((data: any) => JSON.parse(data));
 }
 
 export { getAllTerrainData };
-import pathFinderFactory from './path-finder';
+
 export var pathFinder = pathFinderFactory.create(require('../native/build/Release/native'));
 
-export function connect(processType) {
+export function connect(processType: any) {
 
     common.configManager.load();
 
@@ -105,7 +106,7 @@ export function connect(processType) {
 
             if (processType == 'processor') {
                 getAllTerrainData()
-                    .then(rooms => pathFinderFactory.init(require('../native/build/Release/native'), rooms));
+                    .then((rooms: any) => pathFinderFactory.init(require('../native/build/Release/native'), rooms));
             }
 
             if (processType == 'main') {
@@ -113,7 +114,7 @@ export function connect(processType) {
         })
         .then(() => db.rooms.find({}, { _id: true }))
         .then(common.calcWorldSize)
-        .then(_worldSize => worldSize = _worldSize)
+        .then((_worldSize: any) => worldSize = _worldSize)
         .then(() => {
             _config.engine.emit('init', processType);
             return true;
@@ -122,14 +123,14 @@ export function connect(processType) {
 
 export function getAllUsers() {
     return db.users.find({ $and: [{ active: { $ne: 0 } }, { cpu: { $gt: 0 } }] })
-        .then((data) => {
-            data.sort((a, b) => (b.lastUsedDirtyTime || 0) - (a.lastUsedDirtyTime || 0));
+        .then((data: any) => {
+            data.sort((a: any, b: any) => (b.lastUsedDirtyTime || 0) - (a.lastUsedDirtyTime || 0));
 
             return data;
         })
 }
 
-export function saveUserMemory(userId, memory) {
+export function saveUserMemory(userId: any, memory: any) {
 
     if (memory.data.length > 2 * 1024 * 1024) {
         return q.reject('Script execution has been terminated: memory allocation limit reached');
@@ -138,7 +139,7 @@ export function saveUserMemory(userId, memory) {
     return env.set(env.keys.MEMORY + userId, memory.data);
 }
 
-export function saveUserMemorySegments(userId, segments) {
+export function saveUserMemorySegments(userId: any, segments: any) {
 
     if (Object.keys(segments).length > 0) {
         return env.hmset(env.keys.MEMORY_SEGMENTS + userId, segments);
@@ -146,7 +147,7 @@ export function saveUserMemorySegments(userId, segments) {
     return q.when();
 }
 
-export function saveUserIntents(userId, intents) {
+export function saveUserIntents(userId: any, intents: any) {
     const updates = [];
     for (const room in intents) {
 
@@ -160,7 +161,7 @@ export function saveUserIntents(userId, intents) {
 
                     const promises = [q.when()];
 
-                    intents.notify.forEach((i) => {
+                    intents.notify.forEach((i: any) => {
                         if (i.groupInterval < 0) {
                             i.groupInterval = 0;
                         }
@@ -210,16 +211,16 @@ export function getAllRooms() {
     return db.rooms.find({ active: true });
 }
 
-export function getRoomIntents(roomId) {
+export function getRoomIntents(roomId: any) {
     return db['rooms.intents'].findOne({ room: roomId });
 }
 
-export function getRoomObjects(roomId) {
-    const result = {};
+export function getRoomObjects(roomId: any) {
+    const result: Record<string, any> = {};
     return db['rooms.objects'].find({ room: roomId })
-        .then((objects) => {
-            let users = {};
-            result.objects = exports.mapById(objects, obj => {
+        .then((objects: any) => {
+            let users: Record<string, any> = {};
+            result.objects = exports.mapById(objects, (obj: any) => {
                 if (obj.user) {
                     users[obj.user] = true;
                 }
@@ -232,19 +233,19 @@ export function getRoomObjects(roomId) {
                 return [];
             }
         })
-        .then(users => {
+        .then((users: any) => {
             result.users = exports.mapById(users);
             return result;
         });
 }
 
-export function getRoomFlags(roomId) {
+export function getRoomFlags(roomId: any) {
     return db['rooms.flags'].find({ room: roomId });
 }
 
-export function getRoomTerrain(roomId) {
+export function getRoomTerrain(roomId: any) {
     return db['rooms.terrain'].find({ room: roomId })
-        .then((result) => exports.mapById(result));
+        .then((result: any) => exports.mapById(result));
 }
 
 export function bulkObjectsWrite() {
@@ -287,7 +288,7 @@ export function bulkUsersPowerCreeps() {
     return bulk('users.power_creeps');
 }
 
-export function clearRoomIntents(roomId) {
+export function clearRoomIntents(roomId: any) {
     return db['rooms.intents'].removeWhere({ room: roomId });
 }
 
@@ -295,8 +296,8 @@ export function clearGlobalIntents() {
     return db['users.intents'].clear();
 }
 
-export function mapById(array, fn) {
-    return _.reduce(array, (result, i) => {
+export function mapById(array: any, fn?: any) {
+    return _.reduce(array, (result: any, i: any) => {
         result[i._id.toString()] = i;
         fn && fn(i);
         return result;
@@ -305,7 +306,7 @@ export function mapById(array, fn) {
 
 export function notifyTickStarted() {
     return env.get(env.keys.MAIN_LOOP_PAUSED)
-        .then(paused => {
+        .then((paused: any) => {
             if (+paused) {
                 return q.reject('Simulation paused');
             }
@@ -313,11 +314,11 @@ export function notifyTickStarted() {
         });
 }
 
-export function notifyRoomsDone(gameTime) {
+export function notifyRoomsDone(gameTime: any) {
     return pubsub.publish(pubsub.keys.ROOMS_DONE, gameTime);
 }
 
-export function sendConsoleMessages(userId, messages) {
+export function sendConsoleMessages(userId: any, messages: any) {
     if (userId == '3') {
         if (messages.log.length) {
             console.log("Source Keeper console", messages.log);
@@ -333,7 +334,7 @@ export function sendConsoleMessages(userId, messages) {
     return pubsub.publish(`user:${userId}/console`, JSON.stringify({ messages, userId }));
 }
 
-export function sendConsoleError(userId, error) {
+export function sendConsoleError(userId: any, error: any) {
 
     if (!error) {
         return q.when();
@@ -351,10 +352,10 @@ export function sendConsoleError(userId, error) {
 
     error = error.toString();
 
-    let user;
+    let user: any;
 
     db.users.findOne({ _id: userId })
-        .then((_user) => {
+        .then((_user: any) => {
             user = _user;
             return checkNotificationOnline(user);
         })
@@ -380,14 +381,14 @@ export function getGameTime() {
 
 export function incrementGameTime() {
     return common.getGametime()
-        .then(gameTime => env.set(env.keys.GAMETIME, gameTime + 1));
+        .then((gameTime: any) => env.set(env.keys.GAMETIME, gameTime + 1));
 }
 
-export function getRoomInfo(roomId) {
+export function getRoomInfo(roomId: any) {
     return db.rooms.findOne({ _id: roomId });
 }
 
-export function saveRoomInfo(roomId, roomInfo) {
+export function saveRoomInfo(roomId: any, roomInfo: any) {
     return db.rooms.update({ _id: roomId }, { $set: roomInfo });
 }
 
@@ -396,14 +397,16 @@ export function getInterRoom() {
         common.getGametime(),
         db['rooms.objects'].find({ $and: [{ type: { $in: ['creep', 'powerCreep'] } }, { interRoom: { $ne: null } }] }),
         db.rooms.find({ status: 'normal' })
-            .then((rooms) => exports.mapById(_.filter(rooms, i => !i.openTime || i.openTime < Date.now()))),
+            .then((rooms: any) =>
+                exports.mapById(_.filter(rooms, (i: any) =>
+                    !i.openTime || i.openTime < Date.now()))),
         db['rooms.objects'].find({ type: { $in: ['terminal', 'powerSpawn', 'powerCreep'] } }),
         q.all([
             db['market.orders'].find(),
             db['users.power_creeps'].find(),
             db['users.intents'].find()
         ]).then(result => db.users.find({ _id: { $in: _.map(_.flatten(result), 'user') } })
-            .then(users => ({
+            .then((users: any) => ({
                 users,
                 orders: result[0],
                 userPowerCreeps: result[1],
@@ -413,11 +416,11 @@ export function getInterRoom() {
     ]);
 }
 
-export function setRoomStatus(roomId, status) {
+export function setRoomStatus(roomId: any, status: any) {
     return db.rooms.update({ _id: roomId }, { $set: { status } });
 }
 
-export function sendNotification(userId, message) {
+export function sendNotification(userId: any, message: any) {
     return checkNotificationOnline(userId)
         .then(() => db['users.notifications'].update({
             user: userId,
@@ -435,9 +438,9 @@ export function sendNotification(userId, message) {
         }, { upsert: true }));
 }
 
-export function getRoomStatsUpdater(room) {
+export function getRoomStatsUpdater(room: any) {
     return {
-        inc(name, userId, amount) {
+        inc(name: any, userId: any, amount: any) {
             roomStatsUpdates[room] = roomStatsUpdates[room] || {};
             roomStatsUpdates[room][userId] = roomStatsUpdates[room][userId] || {};
             roomStatsUpdates[room][userId][name] = roomStatsUpdates[room][userId][name] || 0;
@@ -453,17 +456,17 @@ export function roomsStatsSave() {
 
 export function updateAccessibleRoomsList() {
     return db.rooms.find({ status: 'normal' })
-        .then((rooms) => {
-            const list = _(rooms).filter(i => !i.openTime || i.openTime < Date.now()).map('_id').value();
+        .then((rooms: any) => {
+            const list = _(rooms).filter((i: any) => !i.openTime || i.openTime < Date.now()).map('_id').value();
             return env.set(env.keys.ACCESSIBLE_ROOMS, JSON.stringify(list));
         });
 }
 
-export function saveIdleTime(name, time) {
+export function saveIdleTime(_name: any, _time: any) {
     return q.when();
 }
 
-export function mapViewSave(roomId, mapView) {
+export function mapViewSave(roomId: any, mapView: any) {
     return env.set(env.keys.MAP_VIEW + roomId, JSON.stringify(mapView));
 }
 
@@ -475,31 +478,31 @@ export function getWorldSize() {
     return worldSize;
 }
 
-export function addRoomToUser(roomId, user, bulk) {
+export function addRoomToUser(roomId: any, user: any, bulk: any) {
     if (!user.rooms || user.rooms.indexOf(roomId) == -1) {
         bulk.addToSet(user, 'rooms', roomId);
     }
 }
 
-export function removeRoomFromUser(roomId, user, bulk) {
+export function removeRoomFromUser(roomId: any, user: any, bulk: any) {
     if (user.rooms && user.rooms.indexOf(roomId) != -1) {
         bulk.pull(user, 'rooms', roomId);
     }
 }
 
-export function bufferFromBase64(base64) {
+export function bufferFromBase64(base64: any) {
     return Buffer.from(base64, 'base64');
 }
 
-export function startLoop(name, fn) {
+export function startLoop(name: any, fn: any) {
 
     let counter = 0;
 
     const pool = genericPool.createPool({
-        create() { return { name: name + (counter++) } },
-        destroy() { }
+        async create() { return { name: name + (counter++) } },
+        async destroy() { },
     }, {
-        max: process.env.RUNNER_THREADS || 2,
+        max: parseInt(process.env.RUNNER_THREADS ?? "") || 2,
         min: 0
     });
 
@@ -516,7 +519,7 @@ export function startLoop(name, fn) {
     loop();
 }
 
-export function saveRoomEventLog(roomId, eventLog) {
+export function saveRoomEventLog(roomId: any, eventLog: any) {
     return env.hset(env.keys.ROOM_EVENT_LOG, roomId, JSON.stringify(eventLog));
 }
 

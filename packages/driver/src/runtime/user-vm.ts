@@ -7,31 +7,31 @@ import common from '@screeps/common';
 import * as index from '../index';
 
 const nativeModPath = '../../native/build/Release/native.node';
-const native = require(nativeModPath);
+// const native = require(nativeModPath);
 const nativeMod = new ivm.NativeModule(require.resolve(nativeModPath));
 const config = common.configManager.config;
-let vms = {};
-let snapshot;
+let vms: Record<string, any> = {};
+let snapshot: any;
 
-export async function create({ userId, staticTerrainData, staticTerrainDataSize, codeTimestamp }) {
+export async function create({ userId, staticTerrainData, staticTerrainDataSize, codeTimestamp }: any) {
     userId = "" + userId;
 
     if (vms[userId]) {
         if (vms[userId].isolate.isDisposed) {
-            exports.clear(userId);
+            clear(userId);
             throw 'Script execution has been terminated: your isolate disposed unexpectedly, restarting virtual machine';
         }
         if (!vms[userId].ready) {
             return vms[userId].promise;
         } else if (codeTimestamp > vms[userId].codeTimestamp) {
-            exports.clear(userId);
+            clear(userId);
         }
     }
 
     if (!vms[userId]) {
         let inspector = config.engine.enableInspector;
         let isolate = new ivm.Isolate({ inspector, snapshot, memoryLimit: 256 + staticTerrainDataSize / 1024 / 1024 });
-        let vm = vms[userId] = { isolate, ready: false };
+        let vm: Record<string, any> = vms[userId] = { isolate, ready: false };
         vm.promise = (async () => {
             let context = await isolate.createContext({ inspector });
             if (!snapshot) {
@@ -42,7 +42,7 @@ export async function create({ userId, staticTerrainData, staticTerrainDataSize,
             let [nativeModInstance, initScript, cleanupScript] = await Promise.all([
                 nativeMod.create(context),
                 isolate.compileScript('_init();'),
-                isolate.compileScript('new ' + (() => {
+                isolate.compileScript('new ' + `(() => {
                     delete global._ivm;
                     delete global._isolate;
                     delete global._context;
@@ -53,7 +53,7 @@ export async function create({ userId, staticTerrainData, staticTerrainDataSize,
                     delete global._worldSize;
                     delete global._nativeMod;
                     delete global._halt;
-                })),
+                })`),
             ]);
 
             context.global.setIgnored('global', context.global.derefInto());
@@ -97,7 +97,7 @@ export async function create({ userId, staticTerrainData, staticTerrainDataSize,
     vms[userId].lastUsed = Date.now();
 }
 
-export function get(userId) {
+export function get(userId: any) {
     userId = "" + userId;
     let vm = vms[userId];
     if (vm && vm.ready) {
@@ -105,7 +105,7 @@ export function get(userId) {
     }
 }
 
-export function clear(userId) {
+export function clear(userId: any) {
     userId = "" + userId;
     if (vms[userId]) {
         try {
@@ -123,15 +123,15 @@ export function clear(userId) {
 
 export function clearAll() {
     for (const userId in vms) {
-        exports.clear(userId);
+        clear(userId);
     }
     vms = {};
 }
 
 export function getMetrics() {
-    return Object.keys(vms).reduce((accum, userId) => {
+    return Object.keys(vms).reduce((accum: any, userId: any) => {
         if (vms[userId]) {
-            const result = {
+            const result: Record<string, any> = {
                 userId,
                 codeTimestamp: vms[userId].codeTimestamp,
                 lastUsed: vms[userId].lastUsed,
@@ -158,7 +158,7 @@ export function init() {
     setInterval(() => {
         for (let userId in vms) {
             if (vms[userId] && vms[userId].lastUsed < Date.now() - 3 * 60 * 1000) {
-                exports.clear(userId);
+                clear(userId);
             }
         }
     }, 60 * 1000);
@@ -170,10 +170,10 @@ export function init() {
             console.log(`# Main heap: ${heap.total_heap_size}`);
             console.log(`# ExternalCopy.totalExternalSize: ${ivm.ExternalCopy.totalExternalSize}`);
 
-            exports.getMetrics().forEach(user => {
+            getMetrics().forEach((user: any) => {
                 console.log(`# User ${user.userId} heap: ${user.heap.total_heap_size + user.heap.externally_allocated_size}`);
             });
             console.log('---');
         }, config.engine.reportMemoryUsageInterval);
     }
-}
+};

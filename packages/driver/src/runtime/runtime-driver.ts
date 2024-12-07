@@ -1,17 +1,19 @@
 import _ from 'lodash';
 
+import * as pathFinderFactory from '../path-finder';
+
 import * as runtime from './runtime';
 
-function EvalCodeError(message) {
-    this.toString = () => message;
+class EvalCodeError extends Error {
+    constructor(public readonly message: string) {
+        super(message);
+    };
 }
 
-const runtimeCache = {};
-const worldSize = global._worldSize;
+const runtimeCache: Record<string, any> = {};
+const worldSize = (global as any)._worldSize;
 
-export var constants = require('@screeps/common/lib/constants');
-
-export function bufferFromBase64(base64) {
+export function bufferFromBase64(base64: any) {
     return Buffer.from(base64, 'base64');
 }
 
@@ -19,9 +21,9 @@ export function getWorldSize() {
     return worldSize;
 }
 
-export function evalCode(module, globals, returnValue, timeout, scriptCachedData) {
+export function evalCode(module: any, globals: any, returnValue: any, timeout: any, _scriptCachedData: any) {
 
-    const options = { filename: module.name };
+    const options: Record<string, any> = { filename: module.name };
 
     const oldModule = globals.__module || {};
 
@@ -43,7 +45,7 @@ export function evalCode(module, globals, returnValue, timeout, scriptCachedData
 
     try {
 
-        let result;
+        let result: any;
 
         if (returnValue) {
             var code = '(function(code,module,exports) { return "" + eval(code); })(' + JSON.stringify(module.code) + ', __module, __module.exports)';
@@ -88,7 +90,7 @@ export function evalCode(module, globals, returnValue, timeout, scriptCachedData
 
         return result;
     }
-    catch (e) {
+    catch (e: any) {
 
         if (e instanceof EvalCodeError) throw e;
 
@@ -111,5 +113,5 @@ export function evalCode(module, globals, returnValue, timeout, scriptCachedData
     }
 }
 
-import pathFinderFactory from '../path-finder';
-export var pathFinder = pathFinderFactory.create(global._nativeMod);
+
+export var pathFinder = pathFinderFactory.create((global as any)._nativeMod);

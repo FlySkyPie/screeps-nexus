@@ -1,22 +1,15 @@
-import child_process from 'child_process';
-import { EventEmitter } from 'events';
 import q from 'q';
-import vm from 'vm';
 import _ from 'lodash';
-import os from 'os';
-import util from 'util';
 
-import common from '@screeps/common';
+import * as common from '@screeps/common';
 
-import bulk from '../bulk';
-import * as queue from '../queue';
 import * as driver from '../index';
 
 const db = common.storage.db;
 const env = common.storage.env;
 const config = common.configManager.config;
 
-const accessibleRoomsCache = {
+const accessibleRoomsCache: Record<string, any> = {
     timestamp: 0
 };
 
@@ -30,14 +23,14 @@ const cachedMarketHistory = {
     history: {}
 };
 
-function getCachedMarketOrders(gameTime) {
+function getCachedMarketOrders(gameTime: any) {
     if (gameTime == cachedMarketOrders.gameTime) {
         return q.when(cachedMarketOrders.orders);
     }
     return db['market.orders'].find({ active: true })
-        .then(orders => {
-            const result = { all: {} };
-            orders.forEach(i => {
+        .then((orders: any) => {
+            const result: Record<string, any> = { all: {} };
+            orders.forEach((i: any) => {
                 i.id = "" + i._id;
                 delete i._id;
                 result[i.resourceType] = result[i.resourceType] || {};
@@ -58,10 +51,10 @@ function getCachedMarketHistory() {
     }
 
     return db['market.stats'].find({})
-        .then(history => {
-            const result = { all: [] };
+        .then((history: any) => {
+            const result: Record<string, any> = { all: [] };
 
-            history.forEach(i => {
+            history.forEach((i: any) => {
                 delete i._id;
                 if (i.meta) delete i.meta;
                 if (i['$loki']) delete i['$loki'];
@@ -79,7 +72,7 @@ function getCachedMarketHistory() {
 function getAccessibleRooms() {
     if (Date.now() > accessibleRoomsCache.timestamp + 60 * 1000) {
         accessibleRoomsCache.timestamp = Date.now();
-        return env.get(env.keys.ACCESSIBLE_ROOMS).then(data => {
+        return env.get(env.keys.ACCESSIBLE_ROOMS).then((data: any) => {
             accessibleRoomsCache.data = data;
             return accessibleRoomsCache.data;
         });
@@ -88,13 +81,13 @@ function getAccessibleRooms() {
 
 }
 
-export function get(userId) {
-    let userObjects;
-    let runtimeData;
+export function get(userId: any) {
+    let userObjects: any;
+    let runtimeData: any;
     const userIdsHash = { [userId]: true };
 
     return db['rooms.objects'].find({ user: userId })
-        .then((_userObjects) => {
+        .then((_userObjects: any) => {
 
             if (!_userObjects.length) {
                 db.users.update({ _id: userId }, { $set: { active: 0 } });
@@ -103,8 +96,8 @@ export function get(userId) {
 
             userObjects = driver.mapById(_userObjects);
 
-            const roomIdsHash = {};
-            _userObjects.forEach((i) => {
+            const roomIdsHash: Record<string, any> = {};
+            _userObjects.forEach((i: any) => {
 
                 if (i.type == 'flag' || i.type == 'constructionSite') {
                     return;
@@ -131,13 +124,13 @@ export function get(userId) {
                 db.transactions.findEx({ sender: userId }, { sort: { time: -1 }, limit: 100 }),
                 db.transactions.findEx({ recipient: userId }, { sort: { time: -1 }, limit: 100 }),
                 db['rooms.flags'].find({ user: userId }),
-                env.hmget(env.keys.ROOM_EVENT_LOG, roomIds).then(data => _.zipObject(roomIds, data)),
+                env.hmget(env.keys.ROOM_EVENT_LOG, roomIds).then((data: any) => _.zipObject(roomIds, data)),
                 db['users.power_creeps'].find({ user: userId }),
             ]);
-        }).then((result) => {
+        }).then((result: any) => {
             const gameTime = result[4];
 
-            db['users.console'].removeWhere({ _id: { $in: _.map(result[3], (i) => i._id) } });
+            db['users.console'].removeWhere({ _id: { $in: _.map(result[3], (i: any) => i._id) } });
 
             let cpu;
             let cpuBucket;
@@ -167,9 +160,9 @@ export function get(userId) {
                 }
             }
 
-            const userIds = [];
-            const powerCreepsIds = [];
-            result[6].forEach((i) => {
+            const userIds: any[] = [];
+            const powerCreepsIds: any[] = [];
+            result[6].forEach((i: any) => {
                 if (i.user) {
                     userIdsHash[i.user] = true;
                 }
@@ -183,8 +176,8 @@ export function get(userId) {
                     powerCreepsIds.push(i._id);
                 }
             });
-            result[8].forEach(i => i.recipient && (userIdsHash[i.recipient] = true));
-            result[9].forEach(i => i.sender && (userIdsHash[i.sender] = true));
+            result[8].forEach((i: any) => i.recipient && (userIdsHash[i.recipient] = true));
+            result[9].forEach((i: any) => i.sender && (userIdsHash[i.sender] = true));
             Object.getOwnPropertyNames(userIdsHash).forEach(i => {
                 userIds.push(i);
             });
@@ -228,7 +221,7 @@ export function get(userId) {
                     ]) :
                     q.when(),
             ]);
-        }).then((result) => {
+        }).then((result: any) => {
             runtimeData.users = driver.mapById(result[0]);
             runtimeData.market = {
                 orders: result[1],
@@ -250,4 +243,4 @@ export function get(userId) {
             }
             return runtimeData;
         });
-}
+};

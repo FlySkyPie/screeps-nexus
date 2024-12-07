@@ -1,8 +1,8 @@
 import q from 'q';
 import _ from 'lodash';
-import common from '@screeps/common';
+import * as common from '@screeps/common';
 
-const register = {};
+const register: Record<string, any> = {};
 const queue = common.storage.queue;
 const pubsub = common.storage.pubsub;
 
@@ -16,7 +16,7 @@ process.on('SIGTERM', () => {
     }, 2000);
 });
 
-export function create(name) {
+export function create(name: any) {
 
     if (name == 'users') {
         name = 'usersIvm';
@@ -33,15 +33,15 @@ export function create(name) {
                 return queue.fetch(name);
             },
 
-            markDone(id) {
+            markDone(id: any) {
                 return queue.markDone(name, id);
             },
 
-            add(id) {
+            add(id: any) {
                 return queue.add(name, id);
             },
 
-            addMulti(array) {
+            addMulti(array: any) {
                 if (!array.length) {
                     return q.when();
                 }
@@ -65,6 +65,6 @@ export function resetAll() {
     return q.all(Object.keys(register).map(i => queue.reset(i)));
 }
 
-export function createDoneListener(name, fn) {
+export function createDoneListener(name: any, fn: any) {
     pubsub.subscribe(pubsub.keys.QUEUE_DONE + name, fn);
-}
+};

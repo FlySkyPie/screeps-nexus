@@ -4,12 +4,14 @@ import ivm from 'isolated-vm';
 
 import common from '@screeps/common';
 
-import native from '../../native/build/Release/native.node';
+// import native from '../../native/build/Release/native.node';
 import * as driver from '../index';
 import * as pathfinderFactory from '../path-finder';
 
 import * as runtimeData from './data';
 import * as runtimeUserVm from './user-vm';
+
+const native = require('../../native/build/Release/native.node');
 
 const db = common.storage.db;
 const env = common.storage.env;
@@ -39,7 +41,7 @@ function getAllTerrainData() {
                 roomOffsets: {},
             };
 
-            result.forEach((room, roomIndex) => {
+            result.forEach((room: any, roomIndex: any) => {
                 const offset = roomIndex * 2500;
                 for (let i = 0; i < 2500; i++) {
                     view[i + offset] = Number(room.terrain.charAt(i));
@@ -52,9 +54,9 @@ function getAllTerrainData() {
 }
 
 
-function getUserData(userId) {
+function getUserData(userId: any) {
     return db.users.findOne({ _id: userId })
-        .then((user) => {
+        .then((user: any) => {
 
             let cpu;
             if (user.cpu) {
@@ -100,7 +102,7 @@ function getUserData(userId) {
         });
 }
 
-async function make(scope, userId) {
+async function make(scope: any, userId: any) {
 
     let userData;
 
@@ -127,7 +129,7 @@ async function make(scope, userId) {
         throw { error };
     }
 
-    let runResult;
+    let runResult: any;
 
     try {
 
@@ -154,13 +156,13 @@ async function make(scope, userId) {
         }
 
         config.engine.emit('playerSandbox', {
-            run(code) {
+            run(code: any) {
                 return vm.isolate.compileScriptSync(code).runSync(vm.context);
             },
-            set(name, value) {
+            set(name: any, value: any) {
                 return vm.context.global.setSync(name, new ivm.ExternalCopy(value).copyInto());
             },
-            get(name) {
+            get(name: any) {
                 return vm.context.global.getSync(name).copySync();
             },
             getIsolate() {
@@ -179,7 +181,7 @@ async function make(scope, userId) {
         run.release();
         dataRef.release();
 
-        const $set = {
+        const $set: Record<string, any> = {
             lastUsedCpu: runResult.usedTime,
             lastUsedDirtyTime: runResult.usedDirtyTime
         };
@@ -219,7 +221,7 @@ async function make(scope, userId) {
                 }
                 else {
                     db.users.findOne({ username: runResult.activeForeignSegment.username }, { defaultPublicSegment: true })
-                        .then(user => {
+                        .then((user: any) => {
                             runResult.activeForeignSegment.user_id = user._id;
                             if (!runResult.activeForeignSegment.id && user.defaultPublicSegment) {
                                 runResult.activeForeignSegment.id = user.defaultPublicSegment;
@@ -266,7 +268,7 @@ async function make(scope, userId) {
 
         return runResult;
     }
-    catch (error) {
+    catch (error: any) {
         let vm = runtimeUserVm.get(userId);
         if (vm && vm.didHaltByUserRequest) {
             runtimeUserVm.clear(userId);
@@ -284,9 +286,9 @@ async function make(scope, userId) {
     }
 }
 
-export default userId => {
+export default (userId: any) => {
     const scope = { abort: false };
-    let timeout;
+    let timeout: any;
     return new Promise((resolve, reject) => {
         timeout = setTimeout(() => {
             scope.abort = true;

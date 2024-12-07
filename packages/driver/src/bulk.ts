@@ -3,40 +3,40 @@ import _ from 'lodash';
 import common from '@screeps/common';
 
 
-function removeHidden(obj) {
-    for(const i in obj) {
-        if(i[0] == '_') {
+function removeHidden(obj: any) {
+    for (const i in obj) {
+        if (i[0] == '_') {
             delete obj[i];
             continue;
         }
-        if(_.isArray(obj[i])) {
+        if (_.isArray(obj[i])) {
             obj[i].forEach(removeHidden);
             continue;
         }
-        if(_.isObject(obj[i])) {
+        if (_.isObject(obj[i])) {
             removeHidden(obj[i]);
         }
     }
-    if(obj.$loki) {
+    if (obj.$loki) {
         delete obj.$loki;
     }
 }
 
-export default collectionName => {
-    const bulk = [];
+export default (collectionName: any) => {
+    const bulk: any[] = [];
     let opsCnt = 0;
-    const updates = {};
+    const updates: Record<string, any> = {};
 
     return {
-        update(id, data) {
-            if(!id) {
+        update(id: any, data: any) {
+            if (!id) {
                 return;
             }
             opsCnt++;
             data = _.cloneDeep(data);
 
-            _.forEach(data, (value, key) => {
-                if(_.isObject(value)) {
+            _.forEach(data, (value: any, key: any) => {
+                if (_.isObject(value)) {
                     if (!_.isObject(id)) {
                         throw new Error(`can not update an object diff property '${key}' without object reference`);
                     }
@@ -45,7 +45,7 @@ export default collectionName => {
                     data[key] = originalValue;
                 }
             });
-            if(_.isObject(id)) {
+            if (_.isObject(id)) {
                 _.merge(id, data);
                 id = id._id;
             }
@@ -55,26 +55,26 @@ export default collectionName => {
             updates[id] = updates[id] || {};
             _.extend(updates[id], data);
         },
-        insert(data, id) {
+        insert(data: any, id: any) {
             data = _.cloneDeep(data);
             removeHidden(data);
 
-            if(id) {
+            if (id) {
                 data._id = id;
             }
 
             opsCnt++;
-            bulk.push({op: 'insert', data});
+            bulk.push({ op: 'insert', data });
         },
-        remove(id) {
-            if(!id) {
+        remove(id: any) {
+            if (!id) {
                 return;
             }
             opsCnt++;
-            bulk.push({op: 'remove', id});
+            bulk.push({ op: 'remove', id });
         },
-        inc(id, key, amount) {
-            if(!id) {
+        inc(id: any, key: any, amount: any) {
+            if (!id) {
                 return;
             }
             if (_.isObject(id)) {
@@ -82,32 +82,32 @@ export default collectionName => {
                 id = id._id;
             }
             opsCnt++;
-            bulk.push({op: 'update', id, update: {$inc: {[key]: amount}}});
+            bulk.push({ op: 'update', id, update: { $inc: { [key]: amount } } });
         },
-        addToSet(id, key, value) {
-            if(!id) {
+        addToSet(id: any, key: any, value: any) {
+            if (!id) {
                 return;
             }
             if (_.isObject(id)) {
                 id = id._id;
             }
             opsCnt++;
-            bulk.push({op: 'update', id, update: {$addToSet: {[key]: value}}});
+            bulk.push({ op: 'update', id, update: { $addToSet: { [key]: value } } });
         },
-        pull(id, key, value) {
-            if(!id) {
+        pull(id: any, key: any, value: any) {
+            if (!id) {
                 return;
             }
             if (_.isObject(id)) {
                 id = id._id;
             }
             opsCnt++;
-            bulk.push({op: 'update', id, update: {$pull: {[key]: value}}});
+            bulk.push({ op: 'update', id, update: { $pull: { [key]: value } } });
         },
         execute() {
-            if(!opsCnt) return q.when({});
-            for(const id in updates) {
-                bulk.push({op: 'update', id, update: {$set: updates[id]}});
+            if (!opsCnt) return q.when({});
+            for (const id in updates) {
+                bulk.push({ op: 'update', id, update: { $set: updates[id] } });
             }
             return common.storage.db[collectionName].bulk(bulk);
         }

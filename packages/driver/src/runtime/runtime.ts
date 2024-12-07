@@ -1,17 +1,17 @@
 global._init = (() => {
+    const _ = require('lodash');
     const game = require('@screeps/engine/src/game/game');
     const fakeConsole = require('@screeps/engine/src/game/console');
-    const WorldMapGrid = require('./mapgrid');
     const utils = require('@screeps/engine/src/utils');
-    const _ = require('lodash');
+    const WorldMapGrid = require('./mapgrid');
 
-    const isolate = _isolate;
-    const context = _context;
-    const ivm = _ivm;
-    const cpuHalt = _halt;
-    let mapGrid;
-    let staticTerrainData = {};
-    let scope;
+    const isolate: any = _isolate;
+    const context: any = _context;
+    const ivm: any = _ivm;
+    const cpuHalt: any = _halt;
+    let mapGrid: any;
+    let staticTerrainData: any = {};
+    let scope: any;
 
     function nowCpuTime() {
         return isolate.cpuTime[0] * 1e3 + isolate.cpuTime[1] / 1e6;
@@ -20,37 +20,37 @@ global._init = (() => {
     module.exports.isolate = isolate;
     module.exports.context = context;
 
-    global._setStaticTerrainData = (buffer, roomOffsets) => {
+    global._setStaticTerrainData = (buffer: any, roomOffsets: any) => {
         for (let room in roomOffsets) {
             staticTerrainData[room] = new Uint8Array(buffer, roomOffsets[room], 2500);
         }
     };
 
-    global._evalFn = fnString => {
-        eval('('+fnString+')(scope)');
+    global._evalFn = (fnString: any) => {
+        eval('(' + fnString + ')(scope)');
     };
 
-    global._start = data => {
-        let activeSegments;
-        let publicSegments;
-        let defaultPublicSegment;
-        let activeForeignSegment;
-        let startTime;
+    global._start = (data: any) => {
+        let activeSegments: any;
+        let publicSegments: any;
+        let defaultPublicSegment: any;
+        let activeForeignSegment: any;
+        let startTime: any;
         let startDirtyTime = nowCpuTime();
         let intentCpu = 0.2;
-        let freeMethods = {say: true, pull: true};
+        let freeMethods: Record<string, any> = { say: true, pull: true };
 
-        let intents = {
+        let intents: any = {
             list: {},
             cpu: 0,
-            set(id, name, data) {
+            set(id: any, name: any, data: any) {
                 this.list[id] = this.list[id] || {};
                 if (!freeMethods[name] && !this.list[id][name]) {
                     this.cpu += intentCpu;
                 }
                 this.list[id][name] = data;
             },
-            push(name, data, maxLen) {
+            push(name: any, data: any, maxLen: any) {
                 this.list[name] = this.list[name] || [];
                 if (maxLen && this.list[name].length >= maxLen) {
                     return false;
@@ -59,7 +59,7 @@ global._init = (() => {
                 this.cpu += intentCpu;
                 return true;
             },
-            pushByName(id, name, data, maxLen) {
+            pushByName(id: any, name: any, data: any, maxLen: any) {
                 this.list[id] = this.list[id] || {};
                 this.list[id][name] = this.list[id][name] || [];
                 if (maxLen && this.list[id][name].length >= maxLen) {
@@ -69,7 +69,7 @@ global._init = (() => {
                 this.cpu += intentCpu;
                 return true;
             },
-            remove(id, name) {
+            remove(id: any, name: any) {
                 if (this.list[id] && this.list[id][name]) {
                     delete this.list[id][name];
                     return true;
@@ -85,7 +85,7 @@ global._init = (() => {
                 }
             },
             set: {
-                value: function (value) {
+                value: function (value: any) {
                     if (!_.isString(value)) {
                         throw new Error('Raw memory value is not a string');
                     }
@@ -106,7 +106,7 @@ global._init = (() => {
                 writable: true
             },
             setActiveSegments: {
-                value: function (ids) {
+                value: function (ids: any) {
                     if (!_.isArray(ids)) {
                         throw new Error(`"${ids}" is not an array`);
                     }
@@ -125,7 +125,7 @@ global._init = (() => {
                 }
             },
             setPublicSegments: {
-                value: function (ids) {
+                value: function (ids: any) {
                     if (!_.isArray(ids)) {
                         throw new Error(`"${ids}" is not an array`);
                     }
@@ -140,7 +140,7 @@ global._init = (() => {
                 }
             },
             setDefaultPublicSegment: {
-                value: function (id) {
+                value: function (id: any) {
                     if (id !== null) {
                         id = parseInt(id);
                         if (_.isNaN(id) || id > 99 || id < 0) {
@@ -151,7 +151,7 @@ global._init = (() => {
                 }
             },
             setActiveForeignSegment: {
-                value: function (username, id) {
+                value: function (username: any, id: any) {
                     if (username === null) {
                         activeForeignSegment = null;
                         return;
@@ -162,7 +162,7 @@ global._init = (() => {
                             throw new Error(`"${id}" is not a valid segment ID`);
                         }
                     }
-                    activeForeignSegment = {username, id};
+                    activeForeignSegment = { username, id };
                 }
             }
         });
@@ -182,14 +182,14 @@ global._init = (() => {
             return nowCpuTime() + intents.cpu - startTime;
         };
 
-        if(!mapGrid) {
+        if (!mapGrid) {
             mapGrid = new WorldMapGrid(JSON.parse(data.accessibleRooms), staticTerrainData);
         }
 
         data.mapGrid = mapGrid;
         data.staticTerrainData = staticTerrainData;
 
-        const outMessage = {};
+        const outMessage: Record<string, any> = {};
 
         scope = game.init(
             global,
@@ -197,11 +197,11 @@ global._init = (() => {
             data,
             intents,
             rawMemory,
-            fakeConsole.makeConsole(data.user._id, fn => { return fn }),
+            fakeConsole.makeConsole(data.user._id, (fn: any) => { return fn }),
             data.consoleCommands,
             data.cpu,
             getUsedCpu,
-            name => {},
+            (name: any) => { },
             undefined,
             () => {
                 return isolate.getHeapStatisticsSync();
@@ -216,7 +216,7 @@ global._init = (() => {
                 game.run(data.user._id);
                 outMessage.type = 'done';
             }
-            catch (e) {
+            catch (e: any) {
                 outMessage.type = 'error';
                 outMessage.error = _.isObject(e) && e.stack || e.toString();
             }

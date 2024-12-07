@@ -1,29 +1,30 @@
 'use strict';
 
 import _ from 'lodash';
-let globals;
+
+let globals: any;
 
 //
 // Convert a room name to/from usable coordinates
 // "E1N1" -> { xx: 129, yy: 126 }
 let kWorldSize = 255; // Talk to marcel before growing world larger than W127N127 :: E127S127
-function parseRoomName(roomName) {
+function parseRoomName(roomName: any) {
     let room = /^([WE])([0-9]+)([NS])([0-9]+)$/.exec(roomName);
     if (!room) {
         throw new Error('Invalid room name');
     }
     let rx = (kWorldSize >> 1) + (room[1] === 'W' ? -Number(room[2]) : Number(room[2]) + 1);
     let ry = (kWorldSize >> 1) + (room[3] === 'N' ? -Number(room[4]) : Number(room[4]) + 1);
-    if (!(rx >=0 && rx <= kWorldSize && ry >= 0 && ry <= kWorldSize)) {
+    if (!(rx >= 0 && rx <= kWorldSize && ry >= 0 && ry <= kWorldSize)) {
         throw new Error('Invalid room name');
     }
     return { xx: rx, yy: ry };
 }
 
-export function init(mod, rooms) {
+export function init(mod: any, rooms: any) {
 
-    let terrainData = [];
-    rooms.forEach(room => {
+    let terrainData: any[] = [];
+    rooms.forEach((room: any) => {
         let pack = new Uint8Array(50 * 50 / 4);
         let terrain = room.terrain;
         for (let xx = 0; xx < 50; ++xx) {
@@ -45,21 +46,21 @@ export function init(mod, rooms) {
     mod.loadTerrain(terrainData);
 }
 
-export function create(mod) {
-//
-// Converts return value of `parseRoomName` back into a normal room name
-    function generateRoomName(xx, yy) {
+export function create(mod: any) {
+    //
+    // Converts return value of `parseRoomName` back into a normal room name
+    function generateRoomName(xx: any, yy: any) {
         return (
-            (xx <= kWorldSize >> 1 ? 'W'+ ((kWorldSize >> 1) - xx) : 'E'+ (xx - (kWorldSize >> 1) - 1))+
-            (yy <= kWorldSize >> 1 ? 'N'+ ((kWorldSize >> 1) - yy) : 'S'+ (yy - (kWorldSize >> 1) - 1))
+            (xx <= kWorldSize >> 1 ? 'W' + ((kWorldSize >> 1) - xx) : 'E' + (xx - (kWorldSize >> 1) - 1)) +
+            (yy <= kWorldSize >> 1 ? 'N' + ((kWorldSize >> 1) - yy) : 'S' + (yy - (kWorldSize >> 1) - 1))
         );
     }
-//
-// Helper function to convert RoomPosition objects into global coordinate objects
-    function toWorldPosition(rp) {
+    //
+    // Helper function to convert RoomPosition objects into global coordinate objects
+    function toWorldPosition(rp: any) {
         let xx = rp.x | 0;
         let yy = rp.y | 0;
-        if (!(xx >=0 && xx < 50 && yy >= 0 && yy < 50)) {
+        if (!(xx >= 0 && xx < 50 && yy >= 0 && yy < 50)) {
             throw new Error('Invalid room position');
         }
         let offset = parseRoomName(rp.roomName);
@@ -69,9 +70,9 @@ export function create(mod) {
         };
     }
 
-//
-// Converts back to a RoomPosition
-    function fromWorldPosition(wp) {
+    //
+    // Converts back to a RoomPosition
+    function fromWorldPosition(wp: any) {
         return new globals.RoomPosition(
             wp[0] % 50,
             wp[1] % 50,
@@ -79,11 +80,11 @@ export function create(mod) {
         );
     }
 
-    const make = _globals => {
+    const make = (_globals: any) => {
         globals = _globals;
     };
 
-    const search = (origin, goal, options) => {
+    const search = (origin: any, goal: any, options: any) => {
 
         // Options
         options = options || {};
@@ -96,7 +97,7 @@ export function create(mod) {
         let flee = !!options.flee;
 
         // Convert one-or-many goal into standard format for native extension
-        let goals = _.map(Array.isArray(goal) ? goal : [ goal ], goal => {
+        let goals = _.map(Array.isArray(goal) ? goal : [goal], goal => {
             if (goal.x !== undefined && goal.y !== undefined && goal.roomName !== undefined) {
                 return {
                     range: 0,
@@ -118,7 +119,7 @@ export function create(mod) {
                 cb = undefined;
             } else {
                 cb = (cb => {
-                    return (xx, yy) => {
+                    return (xx: any, yy: any) => {
                         let ret = cb(generateRoomName(xx, yy));
                         if (ret === false) {
                             return ret;
@@ -141,5 +142,5 @@ export function create(mod) {
         return ret;
     };
 
-    return {make, search};
-}
+    return { make, search };
+};
