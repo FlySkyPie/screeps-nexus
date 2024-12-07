@@ -1,20 +1,21 @@
-import q from 'q';
 import _ from 'lodash';
-import utils from '../../../utils';
-const driver = utils.getDriver();
-const C = driver.constants;
 
-export default (
-    intent,
-    user,
-    {roomObjectsByType, userPowerCreeps, gameTime, bulkObjects, bulkUsersPowerCreeps}
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { POWER_INFO } from '@screeps/common/src/tables/power-info';
+
+export default (intent: any,
+    user: any, {
+        roomObjectsByType,
+        userPowerCreeps,
+        bulkObjects,
+        bulkUsersPowerCreeps }: any
 ) => {
 
-    const thisUserPowerCreeps = _.filter(userPowerCreeps, i => i.user == user._id);
+    const thisUserPowerCreeps = _.filter(userPowerCreeps, (i: any) => i.user == user._id);
 
-    const powerLevel = Math.floor(Math.pow((user.power || 0) / C.POWER_LEVEL_MULTIPLY, 1 / C.POWER_LEVEL_POW));
-    const used = thisUserPowerCreeps.length + _.sum(thisUserPowerCreeps, 'level') + (user._usedPowerLevels||0);
-    if(used >= powerLevel) {
+    const powerLevel = Math.floor(Math.pow((user.power || 0) / ScreepsConstants.POWER_LEVEL_MULTIPLY, 1 / ScreepsConstants.POWER_LEVEL_POW));
+    const used = thisUserPowerCreeps.length + _.sum(thisUserPowerCreeps, 'level') + (user._usedPowerLevels || 0);
+    if (used >= powerLevel) {
         return;
     }
 
@@ -23,26 +24,26 @@ export default (
         return;
     }
 
-    if(powerCreep.level >= C.POWER_CREEP_MAX_LEVEL) {
+    if (powerCreep.level >= ScreepsConstants.POWER_CREEP_MAX_LEVEL) {
         return;
     }
-    const powerInfo = C.POWER_INFO[intent.power];
-    if(!powerInfo) {
+    const powerInfo = POWER_INFO[intent.power];
+    if (!powerInfo) {
         return;
     }
-    if(powerInfo.className !== powerCreep.className) {
+    if (powerInfo.className !== powerCreep.className) {
         return;
     }
 
     let level = powerCreep.level;
-    if(!powerCreep.powers[intent.power]) {
-        powerCreep.powers[intent.power] = {level: 0};
+    if (!powerCreep.powers[intent.power]) {
+        powerCreep.powers[intent.power] = { level: 0 };
     }
-    if(powerCreep.powers[intent.power].level == 5) {
+    if (powerCreep.powers[intent.power].level == 5) {
         return;
     }
 
-    if(level < powerInfo.level[powerCreep.powers[intent.power].level]) {
+    if (level < powerInfo.level[powerCreep.powers[intent.power].level]) {
         return;
     }
 
@@ -51,8 +52,8 @@ export default (
     let hitsMax = powerCreep.hitsMax + 1000;
     powerCreep.powers[intent.power].level++;
 
-    let roomPowerCreep = _.find(roomObjectsByType.powerCreep, i => i._id == intent.id);
-    if(roomPowerCreep) {
+    let roomPowerCreep = _.find(roomObjectsByType.powerCreep, (i: any) => i._id == intent.id);
+    if (roomPowerCreep) {
         bulkObjects.update(roomPowerCreep, {
             level,
             hitsMax,

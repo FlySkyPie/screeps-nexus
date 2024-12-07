@@ -238,12 +238,18 @@ importers:
 
   packages/engine:
     dependencies:
+      '@screeps/common':
+        specifier: workspace:*
+        version: link:../common
       '@screeps/driver':
         specifier: workspace:*
         version: link:../driver
       '@screeps/pathfinding':
         specifier: workspace:*
         version: link:../PathFinding.js
+      '@screeps/vm-runtime':
+        specifier: workspace:*
+        version: link:../vm-runtime
       bulk-require:
         specifier: ^0.2.1
         version: 0.2.1
@@ -260,6 +266,9 @@ importers:
       '@types/lodash':
         specifier: ^3.0.0
         version: 3.10.9
+      '@types/node':
+        specifier: ^22.10.1
+        version: 22.10.1
       '@types/q':
         specifier: ^1.0.0
         version: 1.5.8
@@ -293,6 +302,9 @@ importers:
       jasmine:
         specifier: ^3.3.0
         version: 3.99.0
+      typescript:
+        specifier: ^5.7.2
+        version: 5.7.2
 
   packages/greenworks:
     dependencies:

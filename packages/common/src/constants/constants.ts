@@ -1,5 +1,5 @@
 export abstract class ScreepsConstants {
-    public static readonly BODYPART_COST = {
+    public static readonly BODYPART_COST: Record<string, number> = {
         "move": 50,
         "work": 100,
         "attack": 80,

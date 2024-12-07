@@ -1,29 +1,27 @@
-import q from 'q';
 import _ from 'lodash';
-import utils from '../../../utils';
-const driver = utils.getDriver();
-const C = driver.constants;
 
-export default (intent, user, {userPowerCreeps, bulkObjects, bulkUsersPowerCreeps}) => {
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
-    const powerCreep = _.find(userPowerCreeps, i => i.user == user._id && i._id == intent.id);
+export default (intent: any, user: any, { userPowerCreeps, bulkUsersPowerCreeps }: any) => {
+
+    const powerCreep = _.find(userPowerCreeps, (i: any) => i.user == user._id && i._id == intent.id);
 
     if (!powerCreep || powerCreep.spawnCooldownTime === null) {
         return;
     }
 
-    if(intent.cancel) {
-        bulkUsersPowerCreeps.update(powerCreep._id, {deleteTime: null});
+    if (intent.cancel) {
+        bulkUsersPowerCreeps.update(powerCreep._id, { deleteTime: null });
     }
     else {
         console.log(user.powerExperimentationTime);
-        if(user.powerExperimentationTime > Date.now()) {
+        if (user.powerExperimentationTime > Date.now()) {
             bulkUsersPowerCreeps.remove(powerCreep._id);
             return;
         }
         if (powerCreep.deleteTime) {
             return;
         }
-        bulkUsersPowerCreeps.update(powerCreep._id, {deleteTime: Date.now() + C.POWER_CREEP_DELETE_COOLDOWN});
+        bulkUsersPowerCreeps.update(powerCreep._id, { deleteTime: Date.now() + ScreepsConstants.POWER_CREEP_DELETE_COOLDOWN });
     }
 };

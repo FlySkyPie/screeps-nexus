@@ -40,7 +40,8 @@ export abstract class Boosts {
             upgradeController: 2
         }
     };
-    attack = {
+
+    public static attack = {
         UH: {
             attack: 2
         },
@@ -51,7 +52,7 @@ export abstract class Boosts {
             attack: 4
         }
     }
-    ranged_attack = {
+    public static ranged_attack = {
         KO: {
             rangedAttack: 2,
             rangedMassAttack: 2
@@ -65,7 +66,7 @@ export abstract class Boosts {
             rangedMassAttack: 4
         }
     }
-    heal = {
+    public static heal = {
         LO: {
             heal: 2,
             rangedHeal: 2
@@ -79,7 +80,7 @@ export abstract class Boosts {
             rangedHeal: 4
         }
     }
-    carry = {
+    public static carry = {
         KH: {
             capacity: 2
         },
@@ -90,7 +91,7 @@ export abstract class Boosts {
             capacity: 4
         }
     }
-    move = {
+    public static move = {
         ZO: {
             fatigue: 2
         },
@@ -101,7 +102,7 @@ export abstract class Boosts {
             fatigue: 4
         }
     }
-    tough = {
+    public static tough = {
         GO: {
             damage: .7
         },
@@ -110,47 +111,6 @@ export abstract class Boosts {
         },
         XGHO2: {
             damage: .3
-        }
-    }
-    work = {
-        UO: {
-            harvest: 3
-        },
-        UHO2: {
-            harvest: 5
-        },
-        XUHO2: {
-            harvest: 7
-        },
-        LH: {
-            build: 1.5,
-            repair: 1.5
-        },
-        LH2O: {
-            build: 1.8,
-            repair: 1.8
-        },
-        XLH2O: {
-            build: 2,
-            repair: 2
-        },
-        ZH: {
-            dismantle: 2
-        },
-        ZH2O: {
-            dismantle: 3
-        },
-        XZH2O: {
-            dismantle: 4
-        },
-        GH: {
-            upgradeController: 1.5
-        },
-        GH2O: {
-            upgradeController: 1.8
-        },
-        XGH2O: {
-            upgradeController: 2
         }
     }
 };

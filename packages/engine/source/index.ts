@@ -1,3 +1,5 @@
-export var game = require('./game/game');
-export var utils = require('./utils');
-export var console = require('./game/console');
+import * as game from './game/game';
+import * as utils from './utils';
+import * as console from './game/console';
+
+export { game, utils, console };

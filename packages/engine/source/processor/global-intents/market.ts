@@ -1,64 +1,87 @@
 import q from 'q';
 import _ from 'lodash';
-import utils from '../../utils';
-const driver = utils.getDriver();
-const C = driver.constants;
 
-export default (
-    {orders, userIntents, usersById, gameTime, roomObjectsByType, bulkObjects,
-                                  bulkUsers, bulkTransactions, bulkUsersMoney, bulkUsersResources,
-                                  bulkMarketOrders, bulkMarketIntershardOrders}
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { POWER_INFO } from '@screeps/common/src/tables/power-info';
+import { PWRCode } from '@screeps/common/src/constants/pwr-code';
+import { ListItems } from '@screeps/common/src/tables/list-items';
+import { Resource } from '@screeps/common/src/constants/resource';
+import { IntershardResources } from '@screeps/common/src/constants/intershard-resources';
+
+import * as  utils from '../../utils';
+
+const driver = utils.getDriver();
+
+export default ({
+    orders,
+    userIntents,
+    usersById,
+    gameTime,
+    roomObjectsByType,
+    bulkObjects,
+    bulkUsers,
+    bulkTransactions,
+    bulkUsersMoney,
+    bulkUsersResources,
+    bulkMarketOrders,
+    bulkMarketIntershardOrders }: any
 ) => {
     const terminals = roomObjectsByType.terminal;
 
-    const terminalsByRoom = _.indexBy(terminals, 'room');
+    const terminalsByRoom: any = _.indexBy(terminals, 'room');
 
-    function executeTransfer(fromTerminal, toTerminal, resourceType, amount, transferFeeTerminal, additionalFields) {
+    function executeTransfer(
+        fromTerminal: any,
+        toTerminal: any,
+        resourceType: any,
+        amount: any,
+        transferFeeTerminal: any,
+        additionalFields: any) {
 
         additionalFields = additionalFields || {};
 
-        if(!fromTerminal || !toTerminal || !transferFeeTerminal) {
+        if (!fromTerminal || !toTerminal || !transferFeeTerminal) {
             return false;
         }
-        if(fromTerminal.user && (!fromTerminal.store || !fromTerminal.store[resourceType] || fromTerminal.store[resourceType] < amount)) {
+        if (fromTerminal.user && (!fromTerminal.store || !fromTerminal.store[resourceType] || fromTerminal.store[resourceType] < amount)) {
             return false;
         }
-        if(toTerminal.user) {
+        if (toTerminal.user) {
             const targetResourceTotal = utils.calcResources(toTerminal), freeSpace = Math.max(0, toTerminal.storeCapacity - targetResourceTotal);
             amount = Math.min(amount, freeSpace);
         }
-        if(!(amount > 0)) {
+        if (!(amount > 0)) {
             return;
         }
 
         const range = utils.calcRoomsDistance(fromTerminal.room, toTerminal.room, true);
-        let transferCost = utils.calcTerminalEnergyCost(amount,range);
+        let transferCost = utils.calcTerminalEnergyCost(amount, range);
 
-        const effect = _.find(transferFeeTerminal.effects, {power: C.PWR_OPERATE_TERMINAL});
-        if(effect && effect.endTime > gameTime) {
-            transferCost = Math.ceil(transferCost * C.POWER_INFO[C.PWR_OPERATE_TERMINAL].effect[effect.level-1]);
+        const effect: any = _.find(transferFeeTerminal.effects, { power: PWRCode.PWR_OPERATE_TERMINAL });
+        if (effect && effect.endTime > gameTime) {
+            transferCost = Math.ceil(transferCost * POWER_INFO[PWRCode.PWR_OPERATE_TERMINAL].effect[effect.level - 1]);
         }
 
-        if(transferFeeTerminal === fromTerminal &&
-            (resourceType != C.RESOURCE_ENERGY && fromTerminal.store.energy < transferCost ||
-             resourceType == C.RESOURCE_ENERGY && fromTerminal.store.energy < amount + transferCost) ||
-           transferFeeTerminal === toTerminal && toTerminal.store.energy < transferCost) {
+        if (transferFeeTerminal === fromTerminal &&
+            (resourceType != Resource.RESOURCE_ENERGY && fromTerminal.store.energy < transferCost ||
+                resourceType == Resource.RESOURCE_ENERGY && fromTerminal.store.energy < amount + transferCost) ||
+            transferFeeTerminal === toTerminal && toTerminal.store.energy < transferCost) {
             return false;
         }
 
-        if(toTerminal.user) {
+        if (toTerminal.user) {
             toTerminal.store = toTerminal.store || {};
             toTerminal.store[resourceType] = (toTerminal.store[resourceType] || 0) + amount;
-            bulkObjects.update(toTerminal, {store: {[resourceType]: toTerminal.store[resourceType]}});
+            bulkObjects.update(toTerminal, { store: { [resourceType]: toTerminal.store[resourceType] } });
         }
 
-        bulkObjects.update(fromTerminal, {store:{[resourceType]: fromTerminal.store[resourceType] - amount}});
-        bulkObjects.update(transferFeeTerminal, {store:{energy: transferFeeTerminal.store.energy - transferCost}});
+        bulkObjects.update(fromTerminal, { store: { [resourceType]: fromTerminal.store[resourceType] - amount } });
+        bulkObjects.update(transferFeeTerminal, { store: { energy: transferFeeTerminal.store.energy - transferCost } });
 
         bulkTransactions.insert(_.extend({
             time: +gameTime,
-            sender: fromTerminal.user ? ""+fromTerminal.user : undefined,
-            recipient: toTerminal.user ? ""+toTerminal.user : undefined,
+            sender: fromTerminal.user ? "" + fromTerminal.user : undefined,
+            recipient: toTerminal.user ? "" + toTerminal.user : undefined,
             resourceType: resourceType,
             amount: amount,
             from: fromTerminal.room,
@@ -68,56 +91,57 @@ export default (
         return true;
     }
 
-    _.filter(terminals, i => !!i.send).forEach(terminal => {
+    _.filter(terminals, (i: any) => !!i.send).forEach(terminal => {
 
         const intent = terminal.send;
 
-        bulkObjects.update(terminal, {send: null});
+        bulkObjects.update(terminal, { send: null });
 
-        if(terminal.cooldownTime > gameTime) {
+        if (terminal.cooldownTime > gameTime) {
             return;
         }
-        if(!terminalsByRoom[intent.targetRoomName] || !terminalsByRoom[intent.targetRoomName].user) {
+        if (!terminalsByRoom[intent.targetRoomName] ||
+            !terminalsByRoom[intent.targetRoomName].user) {
             return;
         }
 
-        let cooldown = C.TERMINAL_COOLDOWN;
-        const effect = _.find(terminal.effects, {power: C.PWR_OPERATE_TERMINAL});
-        if(effect && effect.endTime > gameTime) {
-            cooldown = Math.round(cooldown * C.POWER_INFO[C.PWR_OPERATE_TERMINAL].effect[effect.level-1]);
+        let cooldown = ScreepsConstants.TERMINAL_COOLDOWN;
+        const effect: any = _.find(terminal.effects, { power: PWRCode.PWR_OPERATE_TERMINAL });
+        if (effect && effect.endTime > gameTime) {
+            cooldown = Math.round(cooldown * POWER_INFO[PWRCode.PWR_OPERATE_TERMINAL].effect[effect.level - 1]);
         }
 
-        if(executeTransfer(terminal, terminalsByRoom[intent.targetRoomName], intent.resourceType, intent.amount, terminal, {
+        if (executeTransfer(terminal, terminalsByRoom[intent.targetRoomName], intent.resourceType, intent.amount, terminal, {
             description: intent.description ? intent.description.replace(/</g, '&lt;') : undefined
         })) {
-            bulkObjects.update(terminal, {cooldownTime: gameTime + cooldown});
+            bulkObjects.update(terminal, { cooldownTime: gameTime + cooldown });
         }
     });
 
 
 
-    const ordersById = _.indexBy(orders, '_id');
-    const terminalDeals = [];
-    let directDeals = [];
+    const ordersById: any = _.indexBy(orders, '_id');
+    const terminalDeals: any[] = [];
+    let directDeals: any[] = [];
 
     const nowTimestamp = new Date().getTime();
 
-    if(userIntents) {
-        userIntents.forEach(iUserIntents => {
+    if (userIntents) {
+        userIntents.forEach((iUserIntents: any) => {
 
             const user = usersById[iUserIntents.user];
 
             if (iUserIntents.intents.createOrder) {
-                iUserIntents.intents.createOrder.forEach(intent => {
+                iUserIntents.intents.createOrder.forEach((intent: any) => {
 
                     if (!intent.price || !intent.totalAmount) {
                         return;
                     }
-                    if (!_.contains(C.RESOURCES_ALL, intent.resourceType) && !_.contains(C.INTERSHARD_RESOURCES,
-                            intent.resourceType)) {
+                    if (!_.contains(ListItems.RESOURCES_ALL, intent.resourceType) && !_.contains(ListItems.INTERSHARD_RESOURCES,
+                        intent.resourceType)) {
                         return;
                     }
-                    if (!_.contains(C.INTERSHARD_RESOURCES, intent.resourceType) &&
+                    if (!_.contains(ListItems.INTERSHARD_RESOURCES, intent.resourceType) &&
                         (!terminalsByRoom[intent.roomName] || terminalsByRoom[intent.roomName].user != iUserIntents.user)) {
                         return;
                     }
@@ -125,7 +149,7 @@ export default (
                         return;
                     }
 
-                    const fee = Math.ceil(intent.price * intent.totalAmount * C.MARKET_FEE);
+                    const fee = Math.ceil(intent.price * intent.totalAmount * ScreepsConstants.MARKET_FEE);
 
                     if (user.money < fee) {
                         return;
@@ -133,17 +157,17 @@ export default (
 
                     bulkUsers.inc(user, 'money', -fee);
 
-                    const order = _.extend({
+                    const order: any = _.extend({
                         createdTimestamp: nowTimestamp,
                         user: iUserIntents.user,
                         active: false,
-                        type: intent.type == C.ORDER_SELL ? C.ORDER_SELL : C.ORDER_BUY,
+                        type: intent.type == ScreepsConstants.ORDER_SELL ? ScreepsConstants.ORDER_SELL : ScreepsConstants.ORDER_BUY,
                         amount: 0,
                         remainingAmount: intent.totalAmount
                     }, intent);
 
                     let bulk = bulkMarketIntershardOrders;
-                    if (!_.contains(C.INTERSHARD_RESOURCES, intent.resourceType)) {
+                    if (!_.contains(ListItems.INTERSHARD_RESOURCES, intent.resourceType)) {
                         bulk = bulkMarketOrders;
                         order.created = gameTime;
                     }
@@ -167,8 +191,8 @@ export default (
             }
 
             if (iUserIntents.intents.changeOrderPrice) {
-                iUserIntents.intents.changeOrderPrice.forEach(intent => {
-                    const order = ordersById[intent.orderId];
+                iUserIntents.intents.changeOrderPrice.forEach((intent: any) => {
+                    const order: any = ordersById[intent.orderId];
                     if (!order || order.user != iUserIntents.user) {
                         return;
                     }
@@ -179,7 +203,7 @@ export default (
 
                     if (intent.newPrice > order.price) {
 
-                        const fee = Math.ceil((intent.newPrice - order.price) * order.remainingAmount * C.MARKET_FEE);
+                        const fee = Math.ceil((intent.newPrice - order.price) * order.remainingAmount * ScreepsConstants.MARKET_FEE);
 
                         if (user.money < fee) {
                             return;
@@ -204,15 +228,15 @@ export default (
                         });
                     }
 
-                    const bulk = _.contains(C.INTERSHARD_RESOURCES,
+                    const bulk = _.contains(ListItems.INTERSHARD_RESOURCES,
                         order.resourceType) ? bulkMarketIntershardOrders : bulkMarketOrders;
                     bulk.inc(order, 'price', intent.newPrice - order.price);
                 });
             }
 
             if (iUserIntents.intents.extendOrder) {
-                iUserIntents.intents.extendOrder.forEach(intent => {
-                    const order = ordersById[intent.orderId];
+                iUserIntents.intents.extendOrder.forEach((intent: any) => {
+                    const order: any = ordersById[intent.orderId];
                     if (!order || order.user != iUserIntents.user) {
                         return;
                     }
@@ -220,7 +244,7 @@ export default (
                         return;
                     }
 
-                    const fee = Math.ceil(order.price * intent.addAmount * C.MARKET_FEE);
+                    const fee = Math.ceil(order.price * intent.addAmount * ScreepsConstants.MARKET_FEE);
 
                     if (user.money < fee) {
                         return;
@@ -243,7 +267,7 @@ export default (
                         }
                     });
 
-                    const bulk = _.contains(C.INTERSHARD_RESOURCES,
+                    const bulk = _.contains(ListItems.INTERSHARD_RESOURCES,
                         order.resourceType) ? bulkMarketIntershardOrders : bulkMarketOrders;
                     bulk.inc(order, 'remainingAmount', intent.addAmount);
                     bulk.inc(order, 'totalAmount', intent.addAmount);
@@ -252,7 +276,7 @@ export default (
 
 
             if (iUserIntents.intents.cancelOrder) {
-                iUserIntents.intents.cancelOrder.forEach(intent => {
+                iUserIntents.intents.cancelOrder.forEach((intent: any) => {
                     if (ordersById[intent.orderId] && ordersById[intent.orderId].user == iUserIntents.user) {
                         ordersById[intent.orderId].remainingAmount = 0;
                         ordersById[intent.orderId]._cancelled = true;
@@ -262,7 +286,7 @@ export default (
             }
 
             if (iUserIntents.intents.deal) {
-                iUserIntents.intents.deal.forEach(intent => {
+                iUserIntents.intents.deal.forEach((intent: any) => {
                     intent.user = iUserIntents.user;
 
                     if (!ordersById[intent.orderId]) {
@@ -271,7 +295,7 @@ export default (
                     if (intent.amount <= 0) {
                         return;
                     }
-                    if (_.contains(C.INTERSHARD_RESOURCES, ordersById[intent.orderId].resourceType)) {
+                    if (_.contains(ListItems.INTERSHARD_RESOURCES, ordersById[intent.orderId].resourceType)) {
                         directDeals.push(intent);
                         return;
                     }
@@ -285,7 +309,7 @@ export default (
         });
     }
 
-    terminalDeals.sort((a,b) => utils.calcRoomsDistance(a.targetRoomName, ordersById[a.orderId].roomName, true) - utils.calcRoomsDistance(b.targetRoomName, ordersById[b.orderId].roomName, true))
+    terminalDeals.sort((a, b) => utils.calcRoomsDistance(a.targetRoomName, ordersById[a.orderId].roomName, true) - utils.calcRoomsDistance(b.targetRoomName, ordersById[b.orderId].roomName, true))
 
     terminalDeals.forEach(deal => {
         const order = ordersById[deal.orderId];
@@ -294,16 +318,16 @@ export default (
         let buyer;
         let seller;
 
-        if(!orderTerminal || !targetTerminal) {
+        if (!orderTerminal || !targetTerminal) {
             return;
         }
-        if(targetTerminal.cooldownTime > gameTime) {
+        if (targetTerminal.cooldownTime > gameTime) {
             return;
         }
         orderTerminal.store = orderTerminal.store || {};
         targetTerminal.store = targetTerminal.store || {};
 
-        if(order.type == C.ORDER_SELL) {
+        if (order.type == ScreepsConstants.ORDER_SELL) {
             buyer = targetTerminal;
             seller = orderTerminal;
         }
@@ -313,48 +337,50 @@ export default (
         }
 
         let amount = Math.min(deal.amount, order.remainingAmount);
-        if(seller.user) {
+        if (seller.user) {
             amount = Math.min(amount, seller.store[order.resourceType] || 0);
         }
-        if(buyer.user) {
+        if (buyer.user) {
             const targetResourceTotal = utils.calcResources(buyer), targetFreeSpace = Math.max(0, buyer.storeCapacity - targetResourceTotal);
             amount = Math.min(amount, targetFreeSpace);
         }
-        if(!(amount > 0)) {
+        if (!(amount > 0)) {
             return;
         }
 
         let dealCost = amount * order.price;
 
-        if(buyer.user) {
+        if (buyer.user) {
             dealCost = Math.min(dealCost, usersById[buyer.user].money || 0);
-            amount = Math.floor(dealCost/order.price);
+            amount = Math.floor(dealCost / order.price);
             dealCost = amount * order.price;
-            if(!amount) {
+            if (!amount) {
                 return;
             }
         }
 
-        if(executeTransfer(seller, buyer, order.resourceType, amount, targetTerminal, {order: {
-                id: ""+order._id,
+        if (executeTransfer(seller, buyer, order.resourceType, amount, targetTerminal, {
+            order: {
+                id: "" + order._id,
                 type: order.type,
-                price: order.price/1000
-            }})) {
+                price: order.price / 1000
+            }
+        })) {
 
-            if(seller.user) {
+            if (seller.user) {
                 bulkUsers.inc(usersById[seller.user], 'money', dealCost);
                 bulkUsersMoney.insert({
                     date: new Date(),
                     tick: gameTime,
                     user: seller.user,
                     type: 'market.sell',
-                    balance: usersById[seller.user].money/1000,
-                    change: dealCost/1000,
+                    balance: usersById[seller.user].money / 1000,
+                    change: dealCost / 1000,
                     market: {
                         resourceType: order.resourceType,
                         roomName: order.roomName,
                         targetRoomName: deal.targetRoomName,
-                        price: order.price/1000,
+                        price: order.price / 1000,
                         npc: !buyer.user,
                         owner: order.user,
                         dealer: deal.user,
@@ -362,20 +388,20 @@ export default (
                     }
                 });
             }
-            if(buyer.user) {
+            if (buyer.user) {
                 bulkUsers.inc(usersById[buyer.user], 'money', -dealCost);
                 bulkUsersMoney.insert({
                     date: new Date(),
                     tick: gameTime,
                     user: buyer.user,
                     type: 'market.buy',
-                    balance: usersById[buyer.user].money/1000,
-                    change: -dealCost/1000,
+                    balance: usersById[buyer.user].money / 1000,
+                    change: -dealCost / 1000,
                     market: {
                         resourceType: order.resourceType,
                         roomName: order.roomName,
                         targetRoomName: deal.targetRoomName,
-                        price: order.price/1000,
+                        price: order.price / 1000,
                         npc: !seller.user,
                         owner: order.user,
                         dealer: deal.user,
@@ -387,12 +413,12 @@ export default (
                 amount: order.amount - amount,
                 remainingAmount: order.remainingAmount - amount
             });
-            let cooldown = C.TERMINAL_COOLDOWN;
-            const effect = _.find(targetTerminal.effects, {power: C.PWR_OPERATE_TERMINAL});
-            if(effect && effect.endTime > gameTime) {
-                cooldown = Math.round(cooldown * C.POWER_INFO[C.PWR_OPERATE_TERMINAL].effect[effect.level-1]);
+            let cooldown = ScreepsConstants.TERMINAL_COOLDOWN;
+            const effect: any = _.find(targetTerminal.effects, { power: PWRCode.PWR_OPERATE_TERMINAL });
+            if (effect && effect.endTime > gameTime) {
+                cooldown = Math.round(cooldown * POWER_INFO[PWRCode.PWR_OPERATE_TERMINAL].effect[effect.level - 1]);
             }
-            bulkObjects.update(targetTerminal, {cooldownTime: gameTime + cooldown});
+            bulkObjects.update(targetTerminal, { cooldownTime: gameTime + cooldown });
         }
     });
 
@@ -402,9 +428,11 @@ export default (
         const order = ordersById[deal.orderId];
         let buyer;
         let seller;
-        const userFieldNames = {[C.SUBSCRIPTION_TOKEN]: 'subscriptionTokens'};
+        const userFieldNames: Record<string, any> = {
+            [IntershardResources.SUBSCRIPTION_TOKEN]: 'subscriptionTokens'
+        };
 
-        if(order.type == C.ORDER_SELL) {
+        if (order.type == ScreepsConstants.ORDER_SELL) {
             buyer = usersById[deal.user];
             seller = usersById[order.user];
         }
@@ -413,18 +441,18 @@ export default (
             buyer = usersById[order.user];
         }
 
-        if(!seller || !buyer) {
+        if (!seller || !buyer) {
             return;
         }
 
         const amount = Math.min(deal.amount, order.remainingAmount, seller[userFieldNames[order.resourceType]] || 0);
-        if(!amount || amount < 0) {
+        if (!amount || amount < 0) {
             return;
         }
 
         const dealCost = amount * order.price;
 
-        if(buyer.user && (!buyer.money || buyer.money < dealCost)) {
+        if (buyer.user && (!buyer.money || buyer.money < dealCost)) {
             return;
         }
 
@@ -434,26 +462,26 @@ export default (
         bulkUsersMoney.insert({
             date: new Date(),
             tick: gameTime,
-            user: ""+seller._id,
+            user: "" + seller._id,
             type: 'market.sell',
-            balance: seller.money/1000,
-            change: dealCost/1000,
+            balance: seller.money / 1000,
+            change: dealCost / 1000,
             market: {
                 resourceType: order.resourceType,
-                price: order.price/1000,
+                price: order.price / 1000,
                 amount
             }
         });
         bulkUsersResources.insert({
             date: new Date(),
             resourceType: order.resourceType,
-            user: ""+seller._id,
+            user: "" + seller._id,
             change: -amount,
             balance: seller[userFieldNames[order.resourceType]],
-            marketOrderId: ""+order._id,
+            marketOrderId: "" + order._id,
             market: {
-                orderId: ""+order._id,
-                anotherUser: ""+buyer._id
+                orderId: "" + order._id,
+                anotherUser: "" + buyer._id
             }
         });
 
@@ -463,35 +491,35 @@ export default (
         bulkUsersMoney.insert({
             date: new Date(),
             tick: gameTime,
-            user: ""+buyer._id,
+            user: "" + buyer._id,
             type: 'market.buy',
-            balance: buyer.money/1000,
-            change: -dealCost/1000,
+            balance: buyer.money / 1000,
+            change: -dealCost / 1000,
             market: {
                 resourceType: order.resourceType,
-                price: order.price/1000,
+                price: order.price / 1000,
                 amount
             }
         });
-        const bulk = _.contains(C.INTERSHARD_RESOURCES, order.resourceType) ? bulkMarketIntershardOrders : bulkMarketOrders;
+        const bulk = _.contains(ListItems.INTERSHARD_RESOURCES, order.resourceType) ? bulkMarketIntershardOrders : bulkMarketOrders;
         bulk.inc(order, 'amount', -amount);
         bulk.inc(order, 'remainingAmount', -amount);
         bulkUsersResources.insert({
             date: new Date(),
             resourceType: order.resourceType,
-            user: ""+buyer._id,
+            user: "" + buyer._id,
             change: amount,
             balance: buyer[userFieldNames[order.resourceType]],
             market: {
-                orderId: ""+order._id,
-                anotherUser: ""+seller._id
+                orderId: "" + order._id,
+                anotherUser: "" + seller._id
             }
         });
     });
 
-    if(orders) {
-        orders.forEach(order => {
-            const bulk = _.contains(C.INTERSHARD_RESOURCES,
+    if (orders) {
+        orders.forEach((order: any) => {
+            const bulk = _.contains(ListItems.INTERSHARD_RESOURCES,
                 order.resourceType) ? bulkMarketIntershardOrders : bulkMarketOrders;
 
             if (order._cancelled) {
@@ -499,10 +527,10 @@ export default (
                 return;
             }
 
-            if(order.user && (nowTimestamp - order.createdTimestamp > C.MARKET_ORDER_LIFE_TIME)) {
-                const remainingFee = order.remainingAmount * order.price * C.MARKET_FEE;
+            if (order.user && (nowTimestamp - order.createdTimestamp > ScreepsConstants.MARKET_ORDER_LIFE_TIME)) {
+                const remainingFee = order.remainingAmount * order.price * ScreepsConstants.MARKET_FEE;
                 console.log(`${order.id} remaining fee: ${remainingFee}`);
-                if(remainingFee > 0) {
+                if (remainingFee > 0) {
                     const user = usersById[order.user];
                     bulkUsers.inc(user, 'money', remainingFee);
                     bulkUsersMoney.insert({
@@ -535,9 +563,9 @@ export default (
 
             const terminal = terminalsByRoom[order.roomName];
 
-            if (order.type == C.ORDER_SELL) {
+            if (order.type == ScreepsConstants.ORDER_SELL) {
 
-                let availableResourceAmount = order.resourceType == C.SUBSCRIPTION_TOKEN ?
+                let availableResourceAmount = order.resourceType == IntershardResources.SUBSCRIPTION_TOKEN ?
                     (usersById[order.user].subscriptionTokens || 0) :
                     terminal && terminal.user == order.user ? terminal.store[order.resourceType] || 0 : 0;
 
@@ -545,11 +573,11 @@ export default (
 
                 if (order.active) {
                     if (!availableResourceAmount || availableResourceAmount < 0) {
-                        bulk.update(order, {active: false, amount: 0});
+                        bulk.update(order, { active: false, amount: 0 });
                         return;
                     }
                     if (order.amount != availableResourceAmount) {
-                        bulk.update(order, {amount: availableResourceAmount});
+                        bulk.update(order, { amount: availableResourceAmount });
                     }
                 }
                 else {
@@ -562,10 +590,10 @@ export default (
                 }
             }
 
-            if (order.type == C.ORDER_BUY) {
+            if (order.type == ScreepsConstants.ORDER_BUY) {
 
                 const user = usersById[order.user], userMoney = user.money || 0;
-                const isOwner = _.contains(C.INTERSHARD_RESOURCES,
+                const isOwner = _.contains(ListItems.INTERSHARD_RESOURCES,
                     order.resourceType) || (!!terminal && terminal.user == order.user);
 
                 let newAmount = Math.min(Math.floor(userMoney / order.price), order.remainingAmount);
@@ -577,7 +605,7 @@ export default (
                 const newActive = isOwner && newAmount > 0;
 
                 if (order.amount != newAmount || order.active != newActive) {
-                    bulk.update(order, {amount: newAmount, active: newActive});
+                    bulk.update(order, { amount: newAmount, active: newActive });
                 }
             }
         });
