@@ -1,41 +1,43 @@
 import _ from 'lodash';
+
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+
 import * as utils from '../../../utils';
-const driver = utils.getDriver();
 
-import movement from '../movement';
+import * as movement from '../movement';
 
-export default (object, intent, {roomObjects}) => {
+export default (object: any, intent: any, { roomObjects }: any) => {
 
-    if(object.spawning) {
+    if (object.spawning) {
         return;
     }
 
     object._oldFatigue = object.fatigue;
 
     let d = null;
-    if(intent.direction) {
+    if (intent.direction) {
         d = utils.getOffsetsByDirection(intent.direction);
     }
-    if(intent.id) {
+    if (intent.id) {
         const creep = roomObjects[intent.id];
-        if(creep && creep.type == 'creep' && utils.dist(object, creep) == 1) {
-            d = [creep.x-object.x, creep.y-object.y];
+        if (creep && creep.type == 'creep' && utils.dist(object, creep) == 1) {
+            d = [creep.x - object.x, creep.y - object.y];
         }
     }
 
-    if(!d) {
+    if (!d) {
         return;
     }
 
-    const [dx,dy] = d;
+    const [dx, dy] = d;
 
-    if(object.x + dx < 0 || object.x + dx > 49 || object.y + dy < 0 || object.y + dy > 49) {
+    if (object.x + dx < 0 || object.x + dx > 49 || object.y + dy < 0 || object.y + dy > 49) {
         return;
     }
 
-    const targetObjects = _.filter(roomObjects, {x: object.x+dx, y: object.y+dy});
+    const targetObjects = _.filter(roomObjects, { x: object.x + dx, y: object.y + dy });
 
-    if(!_.any(targetObjects, (target) => _.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, target.type) &&
+    if (!_.any(targetObjects, (target:any) => _.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, target.type) &&
         target.type != 'creep' && target.type != 'powerCreep' ||
         target.type == 'rampart' && !target.isPublic && object.user != target.user ||
         object.type == 'powerCreep' && target.type == 'portal' && target.destination.shard)) {

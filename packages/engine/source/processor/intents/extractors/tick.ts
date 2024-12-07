@@ -2,7 +2,7 @@ import _ from 'lodash';
 import * as utils from '../../../utils';
 const driver = utils.getDriver();
 
-import movement from '../movement';
+import * as movement from '../movement';
 
 export default (object, {bulk}) => {
 

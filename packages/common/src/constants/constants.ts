@@ -38,8 +38,14 @@ export abstract class ScreepsConstants {
     public static readonly RAMPART_DECAY_TIME = 100;
     public static readonly RAMPART_HITS = 1;
 
-    public static readonly RAMPART_HITS_MAX = {
-        2: 300000, 3: 1000000, 4: 3000000, 5: 10000000, 6: 30000000, 7: 100000000, 8: 300000000
+    public static readonly RAMPART_HITS_MAX: Record<number, number> = {
+        2: 300000,
+        3: 1000000,
+        4: 3000000,
+        5: 10000000,
+        6: 30000000,
+        7: 100000000,
+        8: 300000000
     };
 
     public static readonly ENERGY_REGEN_TIME = 300;

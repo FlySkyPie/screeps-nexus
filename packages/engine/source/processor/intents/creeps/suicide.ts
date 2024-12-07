@@ -1,14 +1,11 @@
 import _ from 'lodash';
-import * as utils from '../../../utils';
-const driver = utils.getDriver();
 
+export default (object: any, _intent: any, scope: any) => {
 
-export default (object, intent, scope) => {
-
-    if(object.type != 'creep') {
+    if (object.type != 'creep') {
         return;
     }
-    if(object.spawning) {
+    if (object.spawning) {
         return;
     }
 

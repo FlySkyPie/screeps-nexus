@@ -1,11 +1,11 @@
 import _ from 'lodash';
 
-let result = {};
+let result: Record<string, any> = {};
 
 try {
     result = require('./local-config');
 }
-catch(e) {}
+catch (e) { }
 
 _.merge(result, {
     redis: {

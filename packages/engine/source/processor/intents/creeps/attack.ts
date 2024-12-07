@@ -1,45 +1,46 @@
 import _ from 'lodash';
+
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { BodyParts } from '@screeps/common/src/constants/body-parts';
+import { EventAttackType } from '@screeps/common/src/constants/event-attack-type';
+
 import * as utils from '../../../utils';
-const driver = utils.getDriver();
 
+export default (object: any, intent: any, scope: any) => {
 
-export default (object, intent, scope) => {
+    let { roomObjects, roomController, gameTime } = scope;
 
-    let {roomObjects, roomController, gameTime} = scope;
-
-    if(object.type != 'creep') {
+    if (object.type != 'creep') {
         return;
     }
-    if(object.spawning) {
+    if (object.spawning) {
         return;
     }
 
     let target = roomObjects[intent.id];
-    if(!target || target == object) {
+    if (!target || target == object) {
         return;
     }
-    if(Math.abs(target.x - object.x) > 1 || Math.abs(target.y - object.y) > 1) {
+    if (Math.abs(target.x - object.x) > 1 || Math.abs(target.y - object.y) > 1) {
         return;
     }
-    if(target.type == 'creep' && target.spawning) {
+    if (target.type == 'creep' && target.spawning) {
         return;
     }
-    if(!target.hits) {
+    if (!target.hits) {
         return;
     }
-    if(roomController && roomController.user != object.user && roomController.safeMode > gameTime) {
+    if (roomController && roomController.user != object.user && roomController.safeMode > gameTime) {
         return;
     }
-    const rampart = _.find(roomObjects, {type: 'rampart', x: target.x, y: target.y});
-    if(rampart) {
+    const rampart = _.find(roomObjects, { type: 'rampart', x: target.x, y: target.y });
+    if (rampart) {
         target = rampart;
     }
 
-    const attackPower = utils.calcBodyEffectiveness(object.body, ScreepsConstants.ATTACK, 'attack', ScreepsConstants.ATTACK_POWER);
+    const attackPower = utils.calcBodyEffectiveness(object.body, BodyParts.ATTACK, 'attack', ScreepsConstants.ATTACK_POWER);
 
-    require('../_damage')(object, target, attackPower, ScreepsConstants.EVENT_ATTACK_TYPE_MELEE, scope);
+    require('../_damage')(object, target, attackPower, EventAttackType.EVENT_ATTACK_TYPE_MELEE, scope);
 
     object._attack = true;
-
-
 };
