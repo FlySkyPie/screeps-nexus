@@ -1,0 +1,80 @@
+import _ from 'lodash';
+const messages = {};
+const commandResults = {};
+const visual = {};
+
+export function makeConsole(id, sandboxedFunctionWrapper) {
+    messages[id] = [];
+    commandResults[id] = [];
+    visual[id] = {};
+    return Object.create(null, {
+        log: {
+            writable: true,
+            configurable: true,
+            value: sandboxedFunctionWrapper(function() {
+
+                if(typeof self != 'undefined' && self.navigator.userAgent) {
+                    self['console']['log'].apply(console, arguments);
+                }
+
+                messages[id].push(
+                _.map(arguments, (i) => {
+                    if(i && i.toString) return i.toString();
+                    if(typeof i === 'undefined') return 'undefined';
+                    return JSON.stringify(i);
+                }).join(' '));
+            })
+        },
+        commandResult: {
+            value: sandboxedFunctionWrapper(message => {
+                if(typeof self != 'undefined' && self.navigator.userAgent) {
+                    self['console']['log'].call(console, message);
+                }
+                commandResults[id].push(String(message));
+            })
+        },
+        addVisual: {
+            value: sandboxedFunctionWrapper((roomName, data) => {
+                roomName = roomName || "";
+                visual[id][roomName] = visual[id][roomName] || "";
+                if(visual[id][roomName].length > 500*1024) {
+                    throw new Error(`RoomVisual size in room ${roomName} has exceeded 500 KB limit`);
+                }
+                visual[id][roomName] += JSON.stringify(data)+"\n";
+            })
+        },
+        getVisualSize: {
+            value: sandboxedFunctionWrapper(roomName => {
+                roomName = roomName || "";
+                if(!visual[id][roomName]) {
+                    return 0;
+                }
+                return visual[id][roomName].length;
+            })
+        },
+        clearVisual: {
+            value: sandboxedFunctionWrapper(roomName => {
+                roomName = roomName || "";
+                visual[id][roomName] = "";
+            })
+        }
+    });
+}
+
+export function getMessages(id) {
+    const result = messages[id];
+    messages[id] = [];
+    return result;
+}
+
+export function getCommandResults(id) {
+    const result = commandResults[id];
+    commandResults[id] = [];
+    return result;
+}
+
+export function getVisual(id) {
+    const result = visual[id];
+    visual[id] = [];
+    return result;
+}

@@ -257,6 +257,12 @@ importers:
         specifier: ^1.0.1
         version: 1.5.1
     devDependencies:
+      '@types/lodash':
+        specifier: ^3.0.0
+        version: 3.10.9
+      '@types/q':
+        specifier: ^1.0.0
+        version: 1.5.8
       babel-plugin-transform-es2015-destructuring:
         specifier: ^6.23.0
         version: 6.23.0
