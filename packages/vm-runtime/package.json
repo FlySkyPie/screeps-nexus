@@ -1,0 +1,24 @@
+{
+    "name": "@screeps/vm-runtime",
+    "version": "5.0.0",
+    "description": "",
+    "main": "lib/index.js",
+    "author": "Artem Chivchalov <contact@screeps.com>",
+    "license": "ISC",
+    "scripts": {
+        "build": "ncc build src/runtime.ts -o dist -s"
+    },
+    "dependencies": {
+        "@screeps/driver": "workspace:*",
+        "@screeps/engine": "workspace:*",
+        "@screeps/pathfinding": "workspace:*",
+        "isolated-vm": "^5.0.1",
+        "lodash": "^3.10.1"
+    },
+    "devDependencies": {
+        "@types/lodash": "^3.10.1",
+        "@types/node": "^22.10.1",
+        "@vercel/ncc": "^0.38.3",
+        "typescript": "^5.7.2"
+    }
+}
