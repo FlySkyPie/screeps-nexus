@@ -202,7 +202,7 @@ export default async function start(_opts: IOptions, output: any) {
     }
 
     await _startProcess('backend',
-        path.resolve(path.dirname(require.resolve('@screeps/backend')), '../bin/start.js'), {
+        path.resolve(path.dirname(require.resolve('@screeps/backend')), '../dist/index.js'), {
         GAME_PORT: result.gamePort,
         GAME_HOST: opts.host,
         CLI_PORT: result.cliPort,
