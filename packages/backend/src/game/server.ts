@@ -92,10 +92,10 @@ const startServer = async () => {
     const leaderboardRouter = await import('./api/leaderboard');
 
     config.backend.router.use('/auth', auth.router);
-    config.backend.router.use('/user', userRouter);
-    config.backend.router.use('/register', registerRouter);
-    config.backend.router.use('/game', gameRouter);
-    config.backend.router.use('/leaderboard', leaderboardRouter);
+    config.backend.router.use('/user', userRouter.default);
+    config.backend.router.use('/register', registerRouter.default);
+    config.backend.router.use('/game', gameRouter.default);
+    config.backend.router.use('/leaderboard', leaderboardRouter.default);
 
     if (!process.env.GAME_PORT) {
         throw new Error('GAME_PORT environment variable is not set!');
