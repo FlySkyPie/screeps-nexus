@@ -6,6 +6,7 @@ import * as common from '@screeps/common/src/index';
 import * as databaseMethods from './db';
 import * as pubsub from './pubsub';
 import * as queueMethods from './queue';
+import { StorageConstants } from './constants';
 
 const { RpcServer } = common.rpc;
 const { config } = common.configManager;
@@ -31,10 +32,10 @@ Object.assign(config.storage, {
 
 export function start() {
 
-    if (!process.env.STORAGE_PORT) {
+    if (!StorageConstants.STORAGE_PORT) {
         throw new Error('STORAGE_PORT environment variable is not set!');
     }
-    if (!process.env.DB_PATH) {
+    if (!StorageConstants.DB_PATH) {
         throw new Error('DB_PATH environment variable is not set!');
     }
 
@@ -47,15 +48,15 @@ export function start() {
         const server = net.createServer(config.storage.socketListener);
 
         server.on('listening', () => {
-            console.log('Storage listening on', process.env.STORAGE_PORT);
+            console.log('Storage listening on', StorageConstants.STORAGE_PORT);
             if (process.send) {
                 process.send('storageLaunched');
             }
         });
 
         server.listen(
-            parseInt(process.env.STORAGE_PORT ?? ""),
-            process.env.STORAGE_HOST || 'localhost');
+            parseInt(StorageConstants.STORAGE_PORT ?? ""),
+            StorageConstants.STORAGE_HOST);
     })
         .catch((error: any) => console.error(error));
 };

@@ -6,6 +6,7 @@ import _ from 'lodash';
 import * as common from '@screeps/common/src/index';
 import { Resource } from '@screeps/common/src/constants/resource';
 import { ListItems } from '@screeps/common/src/tables/list-items';
+import { StorageConstants } from './constants';
 
 const config = common.configManager.config;
 
@@ -18,12 +19,12 @@ Object.assign(config.storage, {
     dbOptions: { autosave: true, autosaveInterval: 10000 },
     getDb() {
         try {
-            fs.statSync(process.env.DB_PATH ?? "");
+            fs.statSync(StorageConstants.DB_PATH ?? "");
         }
         catch (e) {
-            fs.writeFileSync(process.env.DB_PATH ?? "", '');
+            fs.writeFileSync(StorageConstants.DB_PATH ?? "", '');
         }
-        return new loki(process.env.DB_PATH ?? "", config.storage.dbOptions);
+        return new loki(StorageConstants.DB_PATH ?? "", config.storage.dbOptions);
     },
     async loadDb() {
         db = config.storage.getDb();
