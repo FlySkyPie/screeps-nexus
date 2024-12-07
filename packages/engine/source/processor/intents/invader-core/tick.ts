@@ -1,16 +1,15 @@
 import _ from 'lodash';
-import * as utils from '../../../utils';
-const driver = utils.getDriver();
 
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
-export default (object, scope) => {
-    if(!object || object.type != 'invaderCore') return;
+export default (object: any, scope: any) => {
+    if (!object || object.type != 'invaderCore') return;
 
-    const {roomObjects, roomController, bulk, roomInfo, gameTime} = scope;
+    const { roomObjects, roomController, bulk, roomInfo, gameTime } = scope;
 
-    const collapseEffect = _.find(object.effects, {effect: ScreepsConstants.EFFECT_COLLAPSE_TIMER});
-    if(collapseEffect && collapseEffect.endTime <= gameTime) {
-        if(roomController) {
+    const collapseEffect :any= _.find(object.effects, { effect: ScreepsConstants.EFFECT_COLLAPSE_TIMER });
+    if (collapseEffect && collapseEffect.endTime <= gameTime) {
+        if (roomController) {
             bulk.update(roomController, {
                 user: null,
                 level: 0,
@@ -26,27 +25,27 @@ export default (object, scope) => {
         return;
     }
 
-    if(object.spawning) {
+    if (object.spawning) {
         object.spawning.remainingTime--;
 
-        if(object.spawning.remainingTime <= 0) {
-            const spawningCreep = _.find(roomObjects, {type: 'creep', name: object.spawning.name, x: object.x, y: object.y});
+        if (object.spawning.remainingTime <= 0) {
+            const spawningCreep = _.find(roomObjects, { type: 'creep', name: object.spawning.name, x: object.x, y: object.y });
             const bornOk = require('../spawns/_born-creep')(object, spawningCreep, scope);
 
-            if(bornOk) {
-                bulk.update(object, {spawning: null});
+            if (bornOk) {
+                bulk.update(object, { spawning: null });
             }
             else {
-                bulk.update(object, {spawning: {remainingTime: 0}});
+                bulk.update(object, { spawning: { remainingTime: 0 } });
             }
         }
         else {
-            bulk.update(object, {spawning: {remainingTime: object.spawning.remainingTime}});
+            bulk.update(object, { spawning: { remainingTime: object.spawning.remainingTime } });
         }
     }
 
-    if(!_.isEqual(object.actionLog, object._actionLog)) {
+    if (!_.isEqual(object.actionLog, object._actionLog)) {
         roomInfo.active = true;
-        bulk.update(object, {actionLog: object.actionLog});
+        bulk.update(object, { actionLog: object.actionLog });
     }
 };

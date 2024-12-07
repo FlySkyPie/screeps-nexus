@@ -1,46 +1,50 @@
 import _ from 'lodash';
-import * as utils from '../../../utils';
-const driver = utils.getDriver();
 
 import stronghold from './stronghold/stronghold';
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { StructureEnum } from '@screeps/common/src/constants/structure-enum';
 
-export default (object, scope) => {
-    const {gameTime, roomObjects, roomController, bulk} = scope;
+export default (object: any, scope: any) => {
+    const { gameTime, roomObjects, roomController, bulk } = scope;
     const user = object.user;
-    const intents = {
+    const intents: any = {
         list: {},
-        set(id, name, data) {
+        set(id: any, name: any, data: any) {
             this.list[id] = this.list[id] || {};
             this.list[id][name] = data;
         }
     };
 
     const behavior = object.deployTime ? 'deploy' : object.strongholdBehavior || 'default';
-    if(!stronghold.behaviors[behavior]) {
+    if (!stronghold.behaviors[behavior]) {
         return;
     }
 
-    const creeps = [], defenders = [], hostiles = [], towers = [], ramparts = [];
+    const creeps: any[] = [],
+        defenders: any[] = [],
+        hostiles: any[] = [],
+        towers: any[] = [],
+        ramparts: any[] = [];
     _.forEach(roomObjects, o => {
-        if(o.type == 'creep' && !o.spawning) {
+        if (o.type == 'creep' && !o.spawning) {
             creeps.push(o);
-            if(o.user == user) {
+            if (o.user == user) {
                 defenders.push(o);
-            } else if(o.user != '3') {
+            } else if (o.user != '3') {
                 hostiles.push(o);
             }
             return;
         }
-        if(o.type == ScreepsConstants.STRUCTURE_TOWER && o.user == user) {
+        if (o.type == StructureEnum.STRUCTURE_TOWER && o.user == user) {
             towers.push(o);
             return;
         }
-        if(o.type == ScreepsConstants.STRUCTURE_RAMPART && o.user == user) {
+        if (o.type == StructureEnum.STRUCTURE_RAMPART && o.user == user) {
             ramparts.push(o);
         }
     });
 
-    const context = {scope, intents, roomObjects, gameTime, bulk, creeps, defenders, hostiles, towers, ramparts, roomController, core: object};
+    const context = { scope, intents, roomObjects, gameTime, bulk, creeps, defenders, hostiles, towers, ramparts, roomController, core: object };
 
     stronghold.behaviors[behavior](context);
 

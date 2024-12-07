@@ -1210,7 +1210,7 @@ export function capacityForResource(object: any, resourceType: any) {
         Math.max(0, (object.storeCapacity || 0) - _.sum(object.storeCapacityResource));
 }
 
-export function calcReward(resourceDensities: any, targetDensity: any, itemsLimit: any) {
+export function calcReward(resourceDensities: any, targetDensity: any, itemsLimit?: any) {
     let resources: any[] = [];
     let densities: any[] = [];
     _.forEach(resourceDensities, (density, resource) => {

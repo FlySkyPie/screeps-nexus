@@ -1,11 +1,10 @@
 import _ from 'lodash';
-import * as utils from '../../../utils';
-const driver = utils.getDriver();
 
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
-export default (object, {roomObjects, bulk}) => {
+export default (object: any, { roomObjects, bulk }: any) => {
 
-    if(!object || object.type != 'energy') return;
+    if (!object || object.type != 'energy') return;
 
     const resourceType = object.resourceType || 'energy';
 
@@ -19,6 +18,6 @@ export default (object, {roomObjects, bulk}) => {
         delete roomObjects[object._id];
     }
     else {
-        bulk.update(object, {[resourceType]: object[resourceType]});
+        bulk.update(object, { [resourceType]: object[resourceType] });
     }
 };

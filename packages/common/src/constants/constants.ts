@@ -65,8 +65,16 @@ export abstract class ScreepsConstants {
     public static readonly WALL_HITS_MAX = 300000000;
 
     public static readonly EXTENSION_HITS = 1000;
-    public static readonly EXTENSION_ENERGY_CAPACITY = {
-        0: 50, 1: 50, 2: 50, 3: 50, 4: 50, 5: 50, 6: 50, 7: 100, 8: 200
+    public static readonly EXTENSION_ENERGY_CAPACITY: Record<number, number> = {
+        0: 50,
+        1: 50,
+        2: 50,
+        3: 50,
+        4: 50,
+        5: 50,
+        6: 50,
+        7: 100,
+        8: 200
     };
 
     public static readonly ROAD_HITS = 5000;
@@ -221,13 +229,13 @@ export abstract class ScreepsConstants {
     };
     public static readonly MINERAL_RANDOM_FACTOR = 2;
 
-    public static readonly MINERAL_DENSITY: any = {
+    public static readonly MINERAL_DENSITY: Record<number, number> = {
         1: 15000,
         2: 35000,
         3: 70000,
         4: 100000
     };
-    public static readonly MINERAL_DENSITY_PROBABILITY: any = {
+    public static readonly MINERAL_DENSITY_PROBABILITY: Record<number, number> = {
         1: 0.1,
         2: 0.5,
         3: 0.9,
@@ -262,7 +270,7 @@ export abstract class ScreepsConstants {
     public static readonly NUKER_GHODIUM_CAPACITY = 5000;
     public static readonly NUKE_LAND_TIME = 50000;
     public static readonly NUKE_RANGE = 10;
-    public static readonly NUKE_DAMAGE = {
+    public static readonly NUKE_DAMAGE: Record<number, number> = {
         0: 10000000,
         2: 5000000
     };
@@ -326,15 +334,31 @@ export abstract class ScreepsConstants {
     public static readonly EFFECT_COLLAPSE_TIMER = 1002;
 
     public static readonly INVADER_CORE_HITS = 100000;
-    public static readonly INVADER_CORE_CREEP_SPAWN_TIME = {
-        0: 0, 1: 0, 2: 6, 3: 3, 4: 2, 5: 1
+    public static readonly INVADER_CORE_CREEP_SPAWN_TIME: Record<number, number> = {
+        0: 0,
+        1: 0,
+        2: 6,
+        3: 3,
+        4: 2,
+        5: 1
     };
     public static readonly INVADER_CORE_EXPAND_TIME: Record<any, number> = {
-        1: 4000, 2: 3500, 3: 3000, 4: 2500, 5: 2000
+        1: 4000,
+        2: 3500,
+        3: 3000,
+        4: 2500,
+        5: 2000
     };
     public static readonly INVADER_CORE_CONTROLLER_POWER = 2;
     public static readonly INVADER_CORE_CONTROLLER_DOWNGRADE = 5000;
-    public static readonly STRONGHOLD_RAMPART_HITS = { 0: 0, 1: 100000, 2: 200000, 3: 500000, 4: 1000000, 5: 2000000 };
+    public static readonly STRONGHOLD_RAMPART_HITS: Record<number, number> = {
+        0: 0,
+        1: 100000,
+        2: 200000,
+        3: 500000,
+        4: 1000000,
+        5: 2000000
+    };
     public static readonly STRONGHOLD_DECAY_TICKS = 75000;
 
     public static readonly OBSTACLE_OBJECT_TYPES = [

@@ -134,4 +134,452 @@ export abstract class ListItems {
         IntershardResources.PIXEL,
         IntershardResources.ACCESS_KEY
     ]
+
+    public static readonly COMMODITIES: Record<string, any> = {
+        [Resource.RESOURCE_UTRIUM_BAR]: {
+            amount: 100,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_UTRIUM]: 500,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_UTRIUM]: {
+            amount: 500,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_UTRIUM_BAR]: 100,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_LEMERGIUM_BAR]: {
+            amount: 100,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_LEMERGIUM]: 500,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_LEMERGIUM]: {
+            amount: 500,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_LEMERGIUM_BAR]: 100,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_ZYNTHIUM_BAR]: {
+            amount: 100,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_ZYNTHIUM]: 500,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_ZYNTHIUM]: {
+            amount: 500,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_ZYNTHIUM_BAR]: 100,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_KEANIUM_BAR]: {
+            amount: 100,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_KEANIUM]: 500,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_KEANIUM]: {
+            amount: 500,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_KEANIUM_BAR]: 100,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_GHODIUM_MELT]: {
+            amount: 100,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_GHODIUM]: 500,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_GHODIUM]: {
+            amount: 500,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_GHODIUM_MELT]: 100,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_OXIDANT]: {
+            amount: 100,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_OXYGEN]: 500,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_OXYGEN]: {
+            amount: 500,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_OXIDANT]: 100,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_REDUCTANT]: {
+            amount: 100,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_HYDROGEN]: 500,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_HYDROGEN]: {
+            amount: 500,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_REDUCTANT]: 100,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_PURIFIER]: {
+            amount: 100,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_CATALYST]: 500,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_CATALYST]: {
+            amount: 500,
+            cooldown: 20,
+            components: {
+                [Resource.RESOURCE_PURIFIER]: 100,
+                [Resource.RESOURCE_ENERGY]: 200
+            }
+        },
+        [Resource.RESOURCE_BATTERY]: {
+            amount: 50,
+            cooldown: 10,
+            components: {
+                [Resource.RESOURCE_ENERGY]: 600
+            }
+        },
+        [Resource.RESOURCE_ENERGY]: {
+            amount: 500,
+            cooldown: 10,
+            components: {
+                [Resource.RESOURCE_BATTERY]: 50
+            }
+        },
+        [Resource.RESOURCE_COMPOSITE]: {
+            level: 1,
+            amount: 20,
+            cooldown: 50,
+            components: {
+                [Resource.RESOURCE_UTRIUM_BAR]: 20,
+                [Resource.RESOURCE_ZYNTHIUM_BAR]: 20,
+                [Resource.RESOURCE_ENERGY]: 20
+            }
+        },
+        [Resource.RESOURCE_CRYSTAL]: {
+            level: 2,
+            amount: 6,
+            cooldown: 21,
+            components: {
+                [Resource.RESOURCE_LEMERGIUM_BAR]: 6,
+                [Resource.RESOURCE_KEANIUM_BAR]: 6,
+                [Resource.RESOURCE_PURIFIER]: 6,
+                [Resource.RESOURCE_ENERGY]: 45
+            }
+        },
+        [Resource.RESOURCE_LIQUID]: {
+            level: 3,
+            amount: 12,
+            cooldown: 60,
+            components: {
+                [Resource.RESOURCE_OXIDANT]: 12,
+                [Resource.RESOURCE_REDUCTANT]: 12,
+                [Resource.RESOURCE_GHODIUM_MELT]: 12,
+                [Resource.RESOURCE_ENERGY]: 90
+            }
+        },
+
+        [Resource.RESOURCE_WIRE]: {
+            amount: 20,
+            cooldown: 8,
+            components: {
+                [Resource.RESOURCE_UTRIUM_BAR]: 20,
+                [Resource.RESOURCE_SILICON]: 100,
+                [Resource.RESOURCE_ENERGY]: 40
+            }
+        },
+        [Resource.RESOURCE_SWITCH]: {
+            level: 1,
+            amount: 5,
+            cooldown: 70,
+            components: {
+                [Resource.RESOURCE_WIRE]: 40,
+                [Resource.RESOURCE_OXIDANT]: 95,
+                [Resource.RESOURCE_UTRIUM_BAR]: 35,
+                [Resource.RESOURCE_ENERGY]: 20
+            }
+        },
+        [Resource.RESOURCE_TRANSISTOR]: {
+            level: 2,
+            amount: 1,
+            cooldown: 59,
+            components: {
+                [Resource.RESOURCE_SWITCH]: 4,
+                [Resource.RESOURCE_WIRE]: 15,
+                [Resource.RESOURCE_REDUCTANT]: 85,
+                [Resource.RESOURCE_ENERGY]: 8
+            }
+        },
+        [Resource.RESOURCE_MICROCHIP]: {
+            level: 3,
+            amount: 1,
+            cooldown: 250,
+            components: {
+                [Resource.RESOURCE_TRANSISTOR]: 2,
+                [Resource.RESOURCE_COMPOSITE]: 50,
+                [Resource.RESOURCE_WIRE]: 117,
+                [Resource.RESOURCE_PURIFIER]: 25,
+                [Resource.RESOURCE_ENERGY]: 16
+            }
+        },
+        [Resource.RESOURCE_CIRCUIT]: {
+            level: 4,
+            amount: 1,
+            cooldown: 800,
+            components: {
+                [Resource.RESOURCE_MICROCHIP]: 1,
+                [Resource.RESOURCE_TRANSISTOR]: 5,
+                [Resource.RESOURCE_SWITCH]: 4,
+                [Resource.RESOURCE_OXIDANT]: 115,
+                [Resource.RESOURCE_ENERGY]: 32
+            }
+        },
+        [Resource.RESOURCE_DEVICE]: {
+            level: 5,
+            amount: 1,
+            cooldown: 600,
+            components: {
+                [Resource.RESOURCE_CIRCUIT]: 1,
+                [Resource.RESOURCE_MICROCHIP]: 3,
+                [Resource.RESOURCE_CRYSTAL]: 110,
+                [Resource.RESOURCE_GHODIUM_MELT]: 150,
+                [Resource.RESOURCE_ENERGY]: 64
+            }
+        },
+
+        [Resource.RESOURCE_CELL]: {
+            amount: 20,
+            cooldown: 8,
+            components: {
+                [Resource.RESOURCE_LEMERGIUM_BAR]: 20,
+                [Resource.RESOURCE_BIOMASS]: 100,
+                [Resource.RESOURCE_ENERGY]: 40
+            }
+        },
+        [Resource.RESOURCE_PHLEGM]: {
+            level: 1,
+            amount: 2,
+            cooldown: 35,
+            components: {
+                [Resource.RESOURCE_CELL]: 20,
+                [Resource.RESOURCE_OXIDANT]: 36,
+                [Resource.RESOURCE_LEMERGIUM_BAR]: 16,
+                [Resource.RESOURCE_ENERGY]: 8
+            }
+        },
+        [Resource.RESOURCE_TISSUE]: {
+            level: 2,
+            amount: 2,
+            cooldown: 164,
+            components: {
+                [Resource.RESOURCE_PHLEGM]: 10,
+                [Resource.RESOURCE_CELL]: 10,
+                [Resource.RESOURCE_REDUCTANT]: 110,
+                [Resource.RESOURCE_ENERGY]: 16
+            }
+        },
+        [Resource.RESOURCE_MUSCLE]: {
+            level: 3,
+            amount: 1,
+            cooldown: 250,
+            components: {
+                [Resource.RESOURCE_TISSUE]: 3,
+                [Resource.RESOURCE_PHLEGM]: 3,
+                [Resource.RESOURCE_ZYNTHIUM_BAR]: 50,
+                [Resource.RESOURCE_REDUCTANT]: 50,
+                [Resource.RESOURCE_ENERGY]: 16
+            }
+        },
+        [Resource.RESOURCE_ORGANOID]: {
+            level: 4,
+            amount: 1,
+            cooldown: 800,
+            components: {
+                [Resource.RESOURCE_MUSCLE]: 1,
+                [Resource.RESOURCE_TISSUE]: 5,
+                [Resource.RESOURCE_PURIFIER]: 208,
+                [Resource.RESOURCE_OXIDANT]: 256,
+                [Resource.RESOURCE_ENERGY]: 32
+            }
+        },
+        [Resource.RESOURCE_ORGANISM]: {
+            level: 5,
+            amount: 1,
+            cooldown: 600,
+            components: {
+                [Resource.RESOURCE_ORGANOID]: 1,
+                [Resource.RESOURCE_LIQUID]: 150,
+                [Resource.RESOURCE_TISSUE]: 6,
+                [Resource.RESOURCE_CELL]: 310,
+                [Resource.RESOURCE_ENERGY]: 64
+            }
+        },
+
+        [Resource.RESOURCE_ALLOY]: {
+            amount: 20,
+            cooldown: 8,
+            components: {
+                [Resource.RESOURCE_ZYNTHIUM_BAR]: 20,
+                [Resource.RESOURCE_METAL]: 100,
+                [Resource.RESOURCE_ENERGY]: 40
+            }
+        },
+        [Resource.RESOURCE_TUBE]: {
+            level: 1,
+            amount: 2,
+            cooldown: 45,
+            components: {
+                [Resource.RESOURCE_ALLOY]: 40,
+                [Resource.RESOURCE_ZYNTHIUM_BAR]: 16,
+                [Resource.RESOURCE_ENERGY]: 8
+            }
+        },
+        [Resource.RESOURCE_FIXTURES]: {
+            level: 2,
+            amount: 1,
+            cooldown: 115,
+            components: {
+                [Resource.RESOURCE_COMPOSITE]: 20,
+                [Resource.RESOURCE_ALLOY]: 41,
+                [Resource.RESOURCE_OXIDANT]: 161,
+                [Resource.RESOURCE_ENERGY]: 8
+            }
+        },
+        [Resource.RESOURCE_FRAME]: {
+            level: 3,
+            amount: 1,
+            cooldown: 125,
+            components: {
+                [Resource.RESOURCE_FIXTURES]: 2,
+                [Resource.RESOURCE_TUBE]: 4,
+                [Resource.RESOURCE_REDUCTANT]: 330,
+                [Resource.RESOURCE_ZYNTHIUM_BAR]: 31,
+                [Resource.RESOURCE_ENERGY]: 16
+            }
+        },
+        [Resource.RESOURCE_HYDRAULICS]: {
+            level: 4,
+            amount: 1,
+            cooldown: 800,
+            components: {
+                [Resource.RESOURCE_LIQUID]: 150,
+                [Resource.RESOURCE_FIXTURES]: 3,
+                [Resource.RESOURCE_TUBE]: 15,
+                [Resource.RESOURCE_PURIFIER]: 208,
+                [Resource.RESOURCE_ENERGY]: 32
+            }
+        },
+        [Resource.RESOURCE_MACHINE]: {
+            level: 5,
+            amount: 1,
+            cooldown: 600,
+            components: {
+                [Resource.RESOURCE_HYDRAULICS]: 1,
+                [Resource.RESOURCE_FRAME]: 2,
+                [Resource.RESOURCE_FIXTURES]: 3,
+                [Resource.RESOURCE_TUBE]: 12,
+                [Resource.RESOURCE_ENERGY]: 64
+            }
+        },
+
+        [Resource.RESOURCE_CONDENSATE]: {
+            amount: 20,
+            cooldown: 8,
+            components: {
+                [Resource.RESOURCE_KEANIUM_BAR]: 20,
+                [Resource.RESOURCE_MIST]: 100,
+                [Resource.RESOURCE_ENERGY]: 40
+            }
+        },
+        [Resource.RESOURCE_CONCENTRATE]: {
+            level: 1,
+            amount: 3,
+            cooldown: 41,
+            components: {
+                [Resource.RESOURCE_CONDENSATE]: 30,
+                [Resource.RESOURCE_KEANIUM_BAR]: 15,
+                [Resource.RESOURCE_REDUCTANT]: 54,
+                [Resource.RESOURCE_ENERGY]: 12
+            }
+        },
+        [Resource.RESOURCE_EXTRACT]: {
+            level: 2,
+            amount: 2,
+            cooldown: 128,
+            components: {
+                [Resource.RESOURCE_CONCENTRATE]: 10,
+                [Resource.RESOURCE_CONDENSATE]: 30,
+                [Resource.RESOURCE_OXIDANT]: 60,
+                [Resource.RESOURCE_ENERGY]: 16
+            }
+        },
+        [Resource.RESOURCE_SPIRIT]: {
+            level: 3,
+            amount: 1,
+            cooldown: 200,
+            components: {
+                [Resource.RESOURCE_EXTRACT]: 2,
+                [Resource.RESOURCE_CONCENTRATE]: 6,
+                [Resource.RESOURCE_REDUCTANT]: 90,
+                [Resource.RESOURCE_PURIFIER]: 20,
+                [Resource.RESOURCE_ENERGY]: 16
+            }
+        },
+        [Resource.RESOURCE_EMANATION]: {
+            level: 4,
+            amount: 1,
+            cooldown: 800,
+            components: {
+                [Resource.RESOURCE_SPIRIT]: 2,
+                [Resource.RESOURCE_EXTRACT]: 2,
+                [Resource.RESOURCE_CONCENTRATE]: 3,
+                [Resource.RESOURCE_KEANIUM_BAR]: 112,
+                [Resource.RESOURCE_ENERGY]: 32
+            }
+        },
+        [Resource.RESOURCE_ESSENCE]: {
+            level: 5,
+            amount: 1,
+            cooldown: 600,
+            components: {
+                [Resource.RESOURCE_EMANATION]: 1,
+                [Resource.RESOURCE_SPIRIT]: 3,
+                [Resource.RESOURCE_CRYSTAL]: 110,
+                [Resource.RESOURCE_GHODIUM_MELT]: 150,
+                [Resource.RESOURCE_ENERGY]: 64
+            }
+        },
+    }
 };

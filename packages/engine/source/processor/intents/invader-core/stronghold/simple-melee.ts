@@ -1,28 +1,28 @@
 import _ from 'lodash';
 import * as utils from '../../../../utils';
-const driver = utils.getDriver();
+
 
 import * as fakeRuntime from '../../../common/fake-runtime';
-import defence from './defence';
+import * as defence from './defence';
 
-export default (creep, context) => {
+export default (creep: any, context: any) => {
     const { hostiles, intents, scope } = context;
 
-    if(!_.some(hostiles)) {
+    if (!_.some(hostiles)) {
         return;
     }
 
     const safeMatrixCallback = defence.createSafeMatrixCallback(context);
 
-    const target = fakeRuntime.findClosestByPath(creep, hostiles, { costCallback: safeMatrixCallback }, scope);
+    const target: any = fakeRuntime.findClosestByPath(creep, hostiles, { costCallback: safeMatrixCallback }, scope);
 
-    if(!target) {
+    if (!target) {
         return;
     }
 
-    if(utils.dist(creep, target) <= 1) {
-        intents.set(creep._id, 'attack', {id: target._id, x: target.x, y: target.y});
+    if (utils.dist(creep, target) <= 1) {
+        intents.set(creep._id, 'attack', { id: target._id, x: target.x, y: target.y });
     } else {
-        fakeRuntime.walkTo(creep, target,{ costCallback: safeMatrixCallback }, context);
+        fakeRuntime.walkTo(creep, target, { costCallback: safeMatrixCallback }, context);
     }
 };

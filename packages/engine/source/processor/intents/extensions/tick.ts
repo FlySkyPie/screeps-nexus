@@ -1,18 +1,17 @@
 import _ from 'lodash';
-import * as utils from '../../../utils';
-const driver = utils.getDriver();
 
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
-export default (object, {bulk, roomController}) => {
+export default (object: any, { bulk, roomController }: any) => {
 
-    if(!object || object.type != 'extension') return;
+    if (!object || object.type != 'extension') return;
 
-    if(roomController) {
+    if (roomController) {
         const storeCapacity = ScreepsConstants.EXTENSION_ENERGY_CAPACITY[roomController.level] || 0;
-        if(!object.storeCapacityResource ||
+        if (!object.storeCapacityResource ||
             !object.storeCapacityResource.energy ||
             storeCapacity != object.storeCapacityResource.energy) {
-            bulk.update(object, {storeCapacityResource: {energy: storeCapacity}});
+            bulk.update(object, { storeCapacityResource: { energy: storeCapacity } });
         }
     }
 

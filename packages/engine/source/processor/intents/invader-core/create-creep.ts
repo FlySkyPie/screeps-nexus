@@ -1,24 +1,31 @@
 import _ from 'lodash';
+
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { ListItems } from '@screeps/common/src/tables/list-items';
+import { Boosts } from '@screeps/common/src/constants/boosts';
+import { BodyParts } from '@screeps/common/src/constants/body-parts';
+
 import * as utils from '../../../utils';
-const driver = utils.getDriver();
 
+export default (object: any, intent: any, scope: any) => {
+    if (!object || object.spawning || object.type != 'invaderCore') return;
 
-export default (object, intent, scope) => {
-    if(!object || object.spawning || object.type != 'invaderCore') return;
+    if (!object.level || !ScreepsConstants.INVADER_CORE_CREEP_SPAWN_TIME[object.level]) return;
 
-    if(!object.level || !ScreepsConstants.INVADER_CORE_CREEP_SPAWN_TIME[object.level]) return;
-
-    const {bulk} = scope;
+    const { bulk } = scope;
 
     intent.body = intent.body.slice(0, ScreepsConstants.MAX_CREEP_SIZE);
 
     const body = [];
-    for(let i = 0; i < intent.body.length; i++) {
+    for (let i = 0; i < intent.body.length; i++) {
         const type = intent.body[i];
-        if(!_.contains(ScreepsConstants.BODYPARTS_ALL, type)) {
+        if (!_.contains(ListItems.BODYPARTS_ALL, type)) {
             continue;
         }
-        if(intent.boosts && (intent.boosts.length >= i) && ScreepsConstants.BOOSTS[type] && ScreepsConstants.BOOSTS[type][intent.boosts[i]]){
+        if (intent.boosts &&
+            (intent.boosts.length >= i) &&
+            (Boosts as any)[type] &&
+            (Boosts as any)[type][intent.boosts[i]]) {
             body.push({
                 type,
                 hits: 100,
@@ -32,7 +39,7 @@ export default (object, intent, scope) => {
         }
     }
 
-    const storeCapacity = utils.calcBodyEffectiveness(body, ScreepsConstants.CARRY, 'capacity', ScreepsConstants.CARRY_CAPACITY, true);
+    const storeCapacity = utils.calcBodyEffectiveness(body, BodyParts.CARRY, 'capacity', ScreepsConstants.CARRY_CAPACITY, true);
 
     const creep = {
         strongholdId: object.strongholdId,
