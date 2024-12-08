@@ -1,12 +1,10 @@
-"use strict";
-
 //
 // Simple open-closed list
 export class OpenClosed {
-	public list: any;
-	public marker: any;
+    public list: any;
+    public marker: any;
 
-    constructor(size) {
+    constructor(size: any) {
         this.list = new Uint8Array(size);
         this.marker = 1;
     }
@@ -20,19 +18,19 @@ export class OpenClosed {
         }
     }
 
-    isOpen(index) {
+    isOpen(index: any) {
         return this.list[index] === this.marker;
     }
 
-    isClosed(index) {
+    isClosed(index: any) {
         return this.list[index] === this.marker + 1;
     }
 
-    open(index) {
+    open(index: any) {
         this.list[index] = this.marker;
     }
 
-    close(index) {
+    close(index: any) {
         this.list[index] = this.marker + 1;
     }
 }
@@ -40,11 +38,11 @@ export class OpenClosed {
 //
 // Priority queue implementation w/ support for updating priorities
 export class Heap {
-	public priorities: any;
-	public heap: any;
-	public size_: any;
+    public priorities: any;
+    public heap: any;
+    public size_: any;
 
-    constructor(size, ctor) {
+    constructor(size: any, ctor: any) {
         this.priorities = new (ctor || Uint16Array)(size + 1);
         this.heap = new Uint16Array(size + 1);
         this.size_ = 0;
@@ -62,7 +60,7 @@ export class Heap {
         return this.size_;
     }
 
-    priority(index) {
+    priority(index: any) {
         return this.priorities[index];
     }
 
@@ -94,14 +92,14 @@ export class Heap {
         } while (true);
     }
 
-    push(index, priority) {
+    push(index: any, priority: any) {
         this.priorities[index] = priority;
         let ii = ++this.size_;
         this.heap[ii] = index;
         this.bubbleUp(ii);
     }
 
-    update(index, priority) {
+    update(index: any, priority: any) {
         for (let ii = this.size_; ii > 0; --ii) {
             if (this.heap[ii] === index) {
                 this.priorities[index] = priority;
@@ -111,7 +109,7 @@ export class Heap {
         }
     }
 
-    bubbleUp(ii) {
+    bubbleUp(ii: any) {
         while (ii !== 1) {
             if (this.priorities[this.heap[ii]] <= this.priorities[this.heap[ii >>> 1]]) {
                 let tmp = this.heap[ii];
@@ -127,4 +125,3 @@ export class Heap {
         this.size_ = 0;
     }
 }
-

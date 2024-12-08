@@ -1,47 +1,47 @@
-"use strict";
 import _ from 'lodash';
-let kObstacle = Infinity;
-import * as utils from '../utils';
-let driver = utils.getRuntimeDriver();
-let C = driver.constants;
 
-export function make(runtimeData, intents, register, globals) {
+import * as utils from '../utils';
+
+let kObstacle = Infinity;
+let driver = utils.getRuntimeDriver();
+
+export function make(_runtimeData: any, _intents: any, register: any, globals: any) {
 
     driver.pathFinder.make(globals);
 
-    if(globals.PathFinder) {
+    if (globals.PathFinder) {
         return;
     }
 
     //
     // 2d array of costs for pathfinding
-    const CostMatrix = register.wrapFn(function() {
+    const CostMatrix = register.wrapFn(function (this: any) {
         this._bits = new Uint8Array(2500);
     });
 
-    CostMatrix.prototype.set = register.wrapFn(function(xx, yy, val) {
-        xx = xx|0;
-        yy = yy|0;
+    CostMatrix.prototype.set = register.wrapFn(function (this: any, xx: any, yy: any, val: any) {
+        xx = xx | 0;
+        yy = yy | 0;
         this._bits[xx * 50 + yy] = Math.min(Math.max(0, val), 255);
     });
 
-    CostMatrix.prototype.get = register.wrapFn(function(xx, yy) {
-        xx = xx|0;
-        yy = yy|0;
+    CostMatrix.prototype.get = register.wrapFn(function (this: any, xx: any, yy: any) {
+        xx = xx | 0;
+        yy = yy | 0;
         return this._bits[xx * 50 + yy];
     });
 
-    CostMatrix.prototype.clone = register.wrapFn(function() {
+    CostMatrix.prototype.clone = register.wrapFn(function (this: any) {
         const newMatrix = new CostMatrix;
         newMatrix._bits = new Uint8Array(this._bits);
         return newMatrix;
     });
 
-    CostMatrix.prototype.serialize = register.wrapFn(function() {
+    CostMatrix.prototype.serialize = register.wrapFn(function (this: any) {
         return Array.prototype.slice.apply(new Uint32Array(this._bits.buffer));
     });
 
-    CostMatrix.deserialize = register.wrapFn(data => {
+    CostMatrix.deserialize = register.wrapFn((data: any) => {
         let instance = Object.create(CostMatrix.prototype);
         instance._bits = new Uint8Array(new Uint32Array(data).buffer);
         return instance;
@@ -56,9 +56,9 @@ export function make(runtimeData, intents, register, globals) {
 
         search: {
             enumerable: true,
-            value: register.wrapFn((origin, goal, options) => {
+            value: register.wrapFn((origin: any, goal: any, options: any) => {
                 if (!goal || Array.isArray(goal) && !goal.length) {
-                    return {path: [], ops: 0};
+                    return { path: [], ops: 0 };
                 }
                 return driver.pathFinder.search(origin, goal, options);
             })
@@ -66,7 +66,7 @@ export function make(runtimeData, intents, register, globals) {
 
         use: {
             enumerable: true,
-            value: register.wrapFn(isActive => {
+            value: register.wrapFn((isActive: any) => {
                 if (!isActive) {
                     register.deprecated('`PathFinder.use` is considered deprecated and will be removed soon.');
                 }
@@ -75,6 +75,6 @@ export function make(runtimeData, intents, register, globals) {
         }
     });
 
-    Object.defineProperty(globals, 'PathFinder', {enumerable: true, value: PathFinder});
+    Object.defineProperty(globals, 'PathFinder', { enumerable: true, value: PathFinder });
 
-}
+};

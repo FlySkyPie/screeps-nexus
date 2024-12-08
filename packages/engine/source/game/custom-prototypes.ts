@@ -1,12 +1,9 @@
 import * as utils from './../utils';
-import rooms from './rooms';
-const driver = utils.getRuntimeDriver();
 
+const scope: Record<string, any> = {};
 
-const scope = {};
-
-export default (name, parent, properties, prototypeExtender, userOwned) => {
-    return (_runtimeData, _intents, _register, _globals) => {
+export default (name: any, parent: any, properties: any, prototypeExtender: any, userOwned: any) => {
+    return (_runtimeData: any, _intents: any, _register: any, _globals: any) => {
 
         scope.runtimeData = _runtimeData;
         scope.intents = _intents;
@@ -17,16 +14,16 @@ export default (name, parent, properties, prototypeExtender, userOwned) => {
             return;
         }
 
-        const data = (id) => {
+        const data = (id: any) => {
             if (!scope.runtimeData.roomObjects[id]) {
                 throw new Error("Could not find an object with ID " + id);
             }
             return scope.runtimeData.roomObjects[id];
         };
 
-        const _CustomObject = scope.register.wrapFn(function (id) {
+        const _CustomObject = scope.register.wrapFn(function (this: any, id: any) {
             const _data = data(id);
-            if(parent) {
+            if (parent) {
                 scope.globals[parent].call(this, id);
             }
             else {
@@ -38,18 +35,18 @@ export default (name, parent, properties, prototypeExtender, userOwned) => {
         _CustomObject.prototype = Object.create(parent ? scope.globals[parent].prototype : scope.globals.RoomObject.prototype);
         _CustomObject.prototype.constructor = _CustomObject;
 
-        if(properties) {
+        if (properties) {
             utils.defineGameObjectProperties(_CustomObject.prototype, data, properties);
         }
 
-        if(userOwned) {
+        if (userOwned) {
             utils.defineGameObjectProperties(_CustomObject.prototype, data, {
-                my: (o) => o.user == scope.runtimeData.user._id,
-                owner: (o) => new Object({username: scope.runtimeData.users[o.user].username}),
+                my: (o: any) => o.user == scope.runtimeData.user._id,
+                owner: (o: any) => new Object({ username: scope.runtimeData.users[o.user].username }),
             });
         }
 
-        if(prototypeExtender) {
+        if (prototypeExtender) {
             prototypeExtender(_CustomObject.prototype, scope);
         }
 
