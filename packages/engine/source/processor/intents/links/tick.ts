@@ -1,18 +1,14 @@
 import _ from 'lodash';
-import * as utils from '../../../utils';
-const driver = utils.getDriver();
 
-import * as movement from '../movement';
+export default (object: any, { bulk }: any) => {
 
-export default (object, {bulk}) => {
+    if (!object || object.type != 'link') return;
 
-    if(!object || object.type != 'link') return;
-
-    if(object.cooldown > 0) {
+    if (object.cooldown > 0) {
 
         object.cooldown--;
 
-        if(object.cooldown < 0)
+        if (object.cooldown < 0)
             object.cooldown = 0;
 
         bulk.update(object, {
@@ -21,7 +17,7 @@ export default (object, {bulk}) => {
         });
     }
     else {
-        if(!_.isEqual(object._actionLog, object.actionLog)) {
+        if (!_.isEqual(object._actionLog, object.actionLog)) {
             bulk.update(object, {
                 actionLog: object.actionLog
             });

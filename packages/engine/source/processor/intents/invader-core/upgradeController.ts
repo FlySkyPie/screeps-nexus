@@ -1,6 +1,7 @@
+import _ from 'lodash';
+
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { EventCode } from '@screeps/common/src/constants/event-code';
-import _ from 'lodash';
 
 export default (object: any, intent: any, scope: any) => {
     const { roomObjects, bulk, gameTime, eventLog } = scope;

@@ -1,54 +1,54 @@
 import _ from 'lodash';
-import * as utils from '../../../utils';
-const driver = utils.getDriver();
+
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { BodyParts } from '@screeps/common/src/constants/body-parts';
+
+export default (object: any, { roomObjects, bulk, gameTime }: any) => {
+
+    if (!object || object.type != 'keeperLair') return;
 
 
-export default (object, {roomObjects, bulk, gameTime}) => {
 
-    if(!object || object.type != 'keeperLair') return;
-
-
-
-    if(!object.nextSpawnTime) {
-        var keeper = _.find(roomObjects, (i) => i.type == 'creep' && i.user == '3' && i.name == 'Keeper'+object._id);
-        if(!keeper || keeper.hits < 5000) {
-            bulk.update(object, {nextSpawnTime: gameTime + ScreepsConstants.ENERGY_REGEN_TIME});
+    if (!object.nextSpawnTime) {
+        var keeper: any = _.find(roomObjects, (i) => i.type == 'creep' && i.user == '3' && i.name == 'Keeper' + object._id);
+        if (!keeper || keeper.hits < 5000) {
+            bulk.update(object, { nextSpawnTime: gameTime + ScreepsConstants.ENERGY_REGEN_TIME });
         }
     }
 
-    if(object.nextSpawnTime && gameTime >= object.nextSpawnTime-1) {
-        var keeper = _.find(roomObjects, (i) => i.type == 'creep' && i.user == '3' && i.name == 'Keeper'+object._id);
-        if(keeper) {
+    if (object.nextSpawnTime && gameTime >= object.nextSpawnTime - 1) {
+        var keeper: any = _.find(roomObjects, (i) => i.type == 'creep' && i.user == '3' && i.name == 'Keeper' + object._id);
+        if (keeper) {
             bulk.remove(keeper._id);
         }
 
         const body = [];
 
-        for(var i=0;i<17;i++) {
+        for (var i = 0; i < 17; i++) {
             body.push({
-                type: ScreepsConstants.TOUGH,
+                type: BodyParts.TOUGH,
                 hits: 100
             });
         }
-        for(var i=0;i<13;i++) {
+        for (var i = 0; i < 13; i++) {
             body.push({
-                type: ScreepsConstants.MOVE,
+                type: BodyParts.MOVE,
                 hits: 100
             });
         }
-        for(var i=0;i<10;i++) {
+        for (var i = 0; i < 10; i++) {
             body.push({
-                type: ScreepsConstants.ATTACK,
+                type: BodyParts.ATTACK,
                 hits: 100
             });
             body.push({
-                type: ScreepsConstants.RANGED_ATTACK,
+                type: BodyParts.RANGED_ATTACK,
                 hits: 100
             });
         }
 
         bulk.insert({
-            name: 'Keeper'+object._id,
+            name: 'Keeper' + object._id,
             x: object.x,
             y: object.y,
             body,
@@ -63,10 +63,6 @@ export default (object, {roomObjects, bulk, gameTime}) => {
             fatigue: 0
         });
 
-        bulk.update(object, {nextSpawnTime: null});
+        bulk.update(object, { nextSpawnTime: null });
     }
-
-
-
-
 };

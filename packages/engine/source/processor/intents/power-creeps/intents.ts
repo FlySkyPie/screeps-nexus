@@ -1,12 +1,23 @@
 import _ from 'lodash';
+import bulk from 'bulk-require';
 
-const creepActions = ['move','usePower','withdraw','transfer','say','drop','pickup','enableRoom','renew'];
+const modules = bulk(__dirname, ['*.js']);
 
-const modules = require('bulk-require')(__dirname, ['*.js']);
+const creepActions = [
+    'move',
+    'usePower',
+    'withdraw',
+    'transfer',
+    'say',
+    'drop',
+    'pickup',
+    'enableRoom',
+    'renew'
+];
 
-export default (object, objectIntents, scope) => {
+export default (object: any, objectIntents: any, scope: any) => {
     creepActions.forEach(name => {
-        if(objectIntents[name]) {
+        if (objectIntents[name]) {
             modules[name](object, objectIntents[name], scope);
         }
     });

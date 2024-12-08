@@ -1,22 +1,22 @@
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { PWRCode } from '@screeps/common/src/constants/pwr-code';
+import { POWER_INFO } from '@screeps/common/src/tables/power-info';
 import _ from 'lodash';
-import * as utils from '../../../utils';
-const driver = utils.getDriver();
 
+export default (object: any, { bulk, gameTime }: any) => {
 
-export default (object, {bulk, gameTime}) => {
+    if (!object.mineralAmount) {
 
-    if(!object.mineralAmount) {
-
-        if(!object.nextRegenerationTime) {
+        if (!object.nextRegenerationTime) {
             object.nextRegenerationTime = gameTime + ScreepsConstants.MINERAL_REGEN_TIME;
-            bulk.update(object, {nextRegenerationTime: object.nextRegenerationTime});
+            bulk.update(object, { nextRegenerationTime: object.nextRegenerationTime });
         }
-        if(gameTime >= object.nextRegenerationTime-1) {
-            const update = {
+        if (gameTime >= object.nextRegenerationTime - 1) {
+            const update: Record<string, any> = {
                 nextRegenerationTime: null,
                 mineralAmount: ScreepsConstants.MINERAL_DENSITY[object.density]
             };
-            if(object.density == ScreepsConstants.DENSITY_LOW || object.density == ScreepsConstants.DENSITY_ULTRA ||
+            if (object.density == ScreepsConstants.DENSITY_LOW || object.density == ScreepsConstants.DENSITY_ULTRA ||
                 Math.random() < ScreepsConstants.MINERAL_DENSITY_CHANGE) {
                 const oldDensity = object.density;
                 let newDensity;
@@ -29,7 +29,7 @@ export default (object, {bulk, gameTime}) => {
                         }
                     }
                 }
-                while(newDensity == oldDensity);
+                while (newDensity == oldDensity);
 
                 update.density = object.density = newDensity;
             }
@@ -37,14 +37,13 @@ export default (object, {bulk, gameTime}) => {
         }
     }
 
-    const effect = _.find(object.effects, {power: ScreepsConstants.PWR_REGEN_MINERAL});
-    if(effect && effect.endTime > gameTime && !object.nextRegenerationTime && object.mineralAmount) {
-        const powerInfo = ScreepsConstants.POWER_INFO[ScreepsConstants.PWR_REGEN_MINERAL];
-        if(((effect.endTime - gameTime - 1) % powerInfo.period) === 0) {
+    const effect: any = _.find(object.effects, { power: PWRCode.PWR_REGEN_MINERAL });
+    if (effect && effect.endTime > gameTime && !object.nextRegenerationTime && object.mineralAmount) {
+        const powerInfo = POWER_INFO[PWRCode.PWR_REGEN_MINERAL];
+        if (((effect.endTime - gameTime - 1) % powerInfo.period) === 0) {
             bulk.update(object, {
                 mineralAmount: object.mineralAmount + powerInfo.effect[effect.level - 1]
             });
         }
     }
-
 };

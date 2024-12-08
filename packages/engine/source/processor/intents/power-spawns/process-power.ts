@@ -1,28 +1,31 @@
 import _ from 'lodash';
-import * as utils from '../../../utils';
-const driver = utils.getDriver();
 
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { PWRCode } from '@screeps/common/src/constants/pwr-code';
+import { POWER_INFO } from '@screeps/common/src/tables/power-info';
+
+import * as utils from '../../../utils';
 
 export default (
-    object,
-    intent,
-    {roomObjects, bulk, bulkUsers, roomController, stats, gameTime}
+    object: any,
+    _intent: any,
+    { roomObjects, bulk, bulkUsers, roomController, stats, gameTime }: any,
 ) => {
 
-    if(object.type != 'powerSpawn' || !object.store)
+    if (object.type != 'powerSpawn' || !object.store)
         return;
 
-    if(!utils.checkStructureAgainstController(object, roomObjects, roomController)) {
+    if (!utils.checkStructureAgainstController(object, roomObjects, roomController)) {
         return;
     }
 
     let amount = 1;
-    const effect = _.find(object.effects, {power: ScreepsConstants.PWR_OPERATE_POWER});
-    if(effect && effect.endTime >= gameTime) {
-        amount = Math.min(object.store.power, amount + ScreepsConstants.POWER_INFO[ScreepsConstants.PWR_OPERATE_POWER].effect[effect.level-1]);
+    const effect: any = _.find(object.effects, { power: PWRCode.PWR_OPERATE_POWER });
+    if (effect && effect.endTime >= gameTime) {
+        amount = Math.min(object.store.power, amount + POWER_INFO[PWRCode.PWR_OPERATE_POWER].effect[effect.level - 1]);
     }
 
-    if(object.store.power < amount || object.store.energy < amount * ScreepsConstants.POWER_SPAWN_ENERGY_RATIO) {
+    if (object.store.power < amount || object.store.energy < amount * ScreepsConstants.POWER_SPAWN_ENERGY_RATIO) {
         return;
     }
 
@@ -31,12 +34,14 @@ export default (
 
     stats.inc('powerProcessed', object.user, amount);
 
-    bulk.update(object, { store: {
-        energy: object.store.energy,
-        power: object.store.power
-    }});
+    bulk.update(object, {
+        store: {
+            energy: object.store.energy,
+            power: object.store.power
+        }
+    });
 
-    if(bulkUsers.inc) {
+    if (bulkUsers.inc) {
         bulkUsers.inc(object.user, 'power', amount);
     }
 };
