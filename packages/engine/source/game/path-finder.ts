@@ -1,7 +1,7 @@
 "use strict";
 import _ from 'lodash';
 let kObstacle = Infinity;
-import utils from '../utils';
+import * as utils from '../utils';
 let driver = utils.getRuntimeDriver();
 let C = driver.constants;
 

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import utils from './../utils';
+import * as utils from './../utils';
 const driver = utils.getRuntimeDriver();
 
 

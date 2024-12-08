@@ -1036,7 +1036,7 @@ export function checkStructureAgainstController(object: any, roomObjects: any, r
     return true;
 }
 
-export function defineGameObjectProperties(obj: any, _dataFn: any, properties: any, opts: any) {
+export function defineGameObjectProperties(obj: any, _dataFn: any, properties: any, opts?: any) {
     const propertiesInfo = {};
     opts = opts || {};
     if (opts.enumerable === undefined) {

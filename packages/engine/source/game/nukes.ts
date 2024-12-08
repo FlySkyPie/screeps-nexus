@@ -1,4 +1,4 @@
-import utils from './../utils';
+import * as utils from './../utils';
 import rooms from './rooms';
 const driver = utils.getRuntimeDriver();
 
