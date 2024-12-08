@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import * as pathfinding from '@screeps/pathfinding';
+import pathfinding from '@screeps/pathfinding/source/PathFinding';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { FindCode } from '@screeps/common/src/constants/find-code';
 import { LookEnum } from '@screeps/common/src/constants/look-enum';
