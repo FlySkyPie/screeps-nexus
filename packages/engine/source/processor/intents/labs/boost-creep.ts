@@ -5,6 +5,8 @@ import { BodyParts } from '@screeps/common/src/constants/body-parts';
 import { Boosts } from '@screeps/common/src/constants/boosts';
 import { Resource } from '@screeps/common/src/constants/resource';
 
+import _recalcBody from '../creeps/_recalc-body';
+
 export default (object: any, intent: any, { roomObjects, bulk }: any) => {
     if (!object || !object.store) {
         return;
@@ -61,7 +63,7 @@ export default (object: any, intent: any, { roomObjects, bulk }: any) => {
         });
     }
 
-    require('../creeps/_recalc-body')(target);
+    _recalcBody(target);
 
     bulk.update(target, { body: target.body, storeCapacity: target.storeCapacity });
     target.actionLog.healed = { x: object.x, y: object.y };

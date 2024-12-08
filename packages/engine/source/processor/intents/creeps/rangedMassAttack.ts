@@ -2,10 +2,12 @@ import _ from 'lodash';
 
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { BodyParts } from '@screeps/common/src/constants/body-parts';
-
-import * as utils from '../../../utils';
 import { PWRCode } from '@screeps/common/src/constants/pwr-code';
 import { EventAttackType } from '@screeps/common/src/constants/event-attack-type';
+
+import * as utils from '../../../utils';
+
+import _damage from '../_damage';
 
 export default (object: any, _intent: any, scope: any) => {
     const { roomObjects, roomController, gameTime } = scope;
@@ -58,7 +60,7 @@ export default (object: any, _intent: any, scope: any) => {
 
         const targetAttackPower = Math.round(attackPower * distanceRate[distance]);
 
-        require('../_damage')(object, target, targetAttackPower, EventAttackType.EVENT_ATTACK_TYPE_RANGED_MASS, scope);
+        _damage(object, target, targetAttackPower, EventAttackType.EVENT_ATTACK_TYPE_RANGED_MASS, scope);
     }
 
     object.actionLog.rangedMassAttack = {};

@@ -8,6 +8,9 @@ import { EventCode } from '@screeps/common/src/constants/event-code';
 
 import * as utils from '../../utils';
 
+import clearNewbieWalls from './creeps/_clear-newbie-walls';
+import _destroy from './structures/_destroy';
+
 export default (object: any, target: any, damage: any, attackType: any, scope: any) => {
 
     const { roomObjects, bulk, roomController, gameTime, roomInfo, eventLog } = scope;
@@ -49,12 +52,12 @@ export default (object: any, target: any, damage: any, attackType: any, scope: a
     }
 
     if (target.type == 'constructedWall' && target.decayTime) {
-        require('./creeps/_clear-newbie-walls')(scope);
+        clearNewbieWalls(scope);
     }
     else if (target.hits <= 0) {
         if (target.type != 'creep' && target.type != 'powerCreep') {
 
-            require('./structures/_destroy')(target, scope, attackType);
+            _destroy(target, scope, attackType);
 
             eventLog.push({ event: EventCode.EVENT_OBJECT_DESTROYED, objectId: target._id, type: object.type });
         }

@@ -5,6 +5,10 @@ import { StructureEnum } from '@screeps/common/src/constants/structure-enum';
 
 import * as fakeRuntime from '../../../common/fake-runtime';
 
+import healer from './healer';
+import findAttack from './findAttack';
+import shootAtWill from './shootAtWill';;
+
 export default (creep: any, scope: any) => {
     const { roomObjects } = scope;
 
@@ -51,12 +55,12 @@ export default (creep: any, scope: any) => {
     const context = { scope, intents, roomObjects, creeps, invaders, healers, hostiles, defenders, fortifications };
 
     if (_.some(creep.body, { type: BodyParts.HEAL })) {
-        require('./healer')(creep, context);
+        healer(creep, context);
     } else {
-        require('./findAttack')(creep, context);
+        findAttack(creep, context);
     }
 
-    require('./shootAtWill')(creep, context);
+    shootAtWill(creep, context);
 
     return intents.list;
 };

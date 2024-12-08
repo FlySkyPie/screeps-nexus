@@ -1,5 +1,7 @@
 import _ from 'lodash';
 
+import _die from '../creeps/_die';
+
 export default (object: any, intent: any, scope: any) => {
 
     const { roomObjects } = scope;
@@ -16,5 +18,5 @@ export default (object: any, intent: any, scope: any) => {
         return;
     }
 
-    require('../creeps/_die')(target, 1.0, false, scope);
+    _die(target, 1.0, false, scope);
 };

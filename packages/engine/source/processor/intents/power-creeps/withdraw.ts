@@ -1,5 +1,7 @@
 import _ from 'lodash';
 
+import withdraw from '../creeps/withdraw';
+
 export default (object: any, intent: any, scope: any) => {
-    require('../creeps/withdraw')(object, intent, scope);
+    withdraw(object, intent, scope);
 };

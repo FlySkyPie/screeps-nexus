@@ -1,5 +1,7 @@
 import _ from 'lodash';
 
+import _diePowerCreep from './_diePowerCreep';
+
 export default (intent: any, user: any, scope: any) => {
     const { roomObjectsByType } = scope;
 
@@ -8,5 +10,5 @@ export default (intent: any, user: any, scope: any) => {
         return;
     }
 
-    require('./_diePowerCreep')(powerCreep, scope);
+    _diePowerCreep(powerCreep, scope);
 };

@@ -1,9 +1,19 @@
 import path from 'node:path';
 import _ from 'lodash';
+import bulk from 'bulk-require';
 
-const intentTypes = ['spawnPowerCreep', 'suicidePowerCreep', 'deletePowerCreep', 'upgradePowerCreep', 'createPowerCreep', 'renamePowerCreep'];
+import _diePowerCreep from './power/_diePowerCreep';
 
-const modules = require('bulk-require')(path.resolve(__dirname, 'power'), ['*.js']);
+const intentTypes = [
+    'spawnPowerCreep',
+    'suicidePowerCreep',
+    'deletePowerCreep',
+    'upgradePowerCreep',
+    'createPowerCreep',
+    'renamePowerCreep'
+];
+
+const modules = bulk(path.resolve(__dirname, 'power'), ['*.js']);
 
 export default (scope: any) => {
 
@@ -26,7 +36,7 @@ export default (scope: any) => {
     if (roomObjectsByType.powerCreep) {
         roomObjectsByType.powerCreep.forEach((creep: any) => {
             if (gameTime >= creep.ageTime - 1 || creep.hits <= 0) {
-                require('./power/_diePowerCreep')(creep, scope);
+                _diePowerCreep(creep, scope);
             }
         })
     }

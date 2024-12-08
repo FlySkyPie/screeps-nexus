@@ -1,5 +1,12 @@
 import _ from 'lodash';
 
+import removeFlag from './remove-flag';
+import createFlag from './create-flag';
+import createConstructionSite from './create-construction-site';
+import removeConstructionSite from './remove-construction-site';
+import destroyStructure from './destroy-structure';
+import genEnergy from './gen-energy';
+
 export default (userId: any, objectIntents: any, scope: any) => {
 
     const { flags, bulkFlags } = scope;
@@ -11,32 +18,32 @@ export default (userId: any, objectIntents: any, scope: any) => {
 
     if (objectIntents.removeFlag) {
         _.forEach(objectIntents.removeFlag, (i) => {
-            require('./remove-flag')(userId, i, scope);
+            removeFlag(userId, i, scope);
         });
     }
     if (objectIntents.createFlag) {
         _.forEach(objectIntents.createFlag, (i) => {
-            require('./create-flag')(userId, i, scope);
+            createFlag(userId, i, scope);
         });
     }
     if (objectIntents.createConstructionSite) {
         _.forEach(objectIntents.createConstructionSite, (i) => {
-            require('./create-construction-site')(userId, i, scope);
+            createConstructionSite(userId, i, scope);
         });
     }
     if (objectIntents.removeConstructionSite) {
         _.forEach(objectIntents.removeConstructionSite, (i) => {
-            require('./remove-construction-site')(userId, i, scope);
+            removeConstructionSite(userId, i, scope);
         });
     }
     if (objectIntents.destroyStructure) {
         _.forEach(objectIntents.destroyStructure, (i) => {
-            require('./destroy-structure')(userId, i, scope);
+            destroyStructure(userId, i, scope);
         });
     }
 
     if (objectIntents.genEnergy) {
-        require('./gen-energy')(userId, objectIntents.genEnergy, scope);
+        genEnergy(userId, objectIntents.genEnergy, scope);
     }
 
     flags.forEach((i: any) => {

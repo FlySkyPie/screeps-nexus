@@ -2,6 +2,8 @@ import _ from 'lodash';
 
 import { ListItems } from '@screeps/common/src/tables/list-items';
 
+import _createEnergy from './_create-energy';
+
 export default (object: any, intent: any, scope: any) => {
 
     const { bulk } = scope;
@@ -15,7 +17,7 @@ export default (object: any, intent: any, scope: any) => {
 
     if (intent.amount > 0) {
         object.store[intent.resourceType] -= intent.amount;
-        require('./_create-energy')(object.x, object.y, object.room, intent.amount, intent.resourceType, scope);
+        _createEnergy(object.x, object.y, object.room, intent.amount, intent.resourceType, scope);
     }
 
     bulk.update(object, { store: { [intent.resourceType]: object.store[intent.resourceType] } });

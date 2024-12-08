@@ -6,6 +6,8 @@ import { EventAttackType } from '@screeps/common/src/constants/event-attack-type
 
 import * as utils from '../../../utils';
 
+import _damage from '../_damage';
+
 export default (object: any, intent: any, scope: any) => {
 
     const { roomObjects, roomController, gameTime } = scope;
@@ -41,6 +43,6 @@ export default (object: any, intent: any, scope: any) => {
 
     const attackPower = utils.calcBodyEffectiveness(object.body, BodyParts.RANGED_ATTACK, 'rangedAttack', ScreepsConstants.RANGED_ATTACK_POWER);
 
-    require('../_damage')(object, target, attackPower, EventAttackType.EVENT_ATTACK_TYPE_RANGED, scope);
+    _damage(object, target, attackPower, EventAttackType.EVENT_ATTACK_TYPE_RANGED, scope);
 
 };

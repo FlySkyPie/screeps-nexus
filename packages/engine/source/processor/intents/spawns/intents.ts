@@ -1,17 +1,23 @@
+import createCreep from './create-creep';
+import renewCreep from './renew-creep';
+import recycleCreep from './recycle-creep';
+import setSpawnDirections from './set-spawn-directions';
+import cancelSpawning from './cancel-spawning';
+
 export default (object: any, objectIntents: any, scope: any) => {
 
     if (objectIntents.createCreep)
-        require('./create-creep')(object, objectIntents.createCreep, scope);
+        createCreep(object, objectIntents.createCreep, scope);
 
     if (objectIntents.renewCreep)
-        require('./renew-creep')(object, objectIntents.renewCreep, scope);
+        renewCreep(object, objectIntents.renewCreep, scope);
 
     if (objectIntents.recycleCreep)
-        require('./recycle-creep')(object, objectIntents.recycleCreep, scope);
+        recycleCreep(object, objectIntents.recycleCreep, scope);
 
     if (objectIntents.setSpawnDirections)
-        require('./set-spawn-directions')(object, objectIntents.setSpawnDirections, scope);
+        setSpawnDirections(object, objectIntents.setSpawnDirections, scope);
 
     if (objectIntents.cancelSpawning)
-        require('./cancel-spawning')(object, objectIntents.cancelSpawning, scope);
+        cancelSpawning(object, objectIntents.cancelSpawning, scope);
 };

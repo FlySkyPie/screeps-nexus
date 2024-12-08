@@ -6,6 +6,9 @@ import { Boosts } from '@screeps/common/src/constants/boosts';
 
 import * as utils from '../../utils';
 
+import createEnergy from './creeps/_create-energy';
+import addFatigue from './creeps/_add-fatigue';
+
 let matrix: any;
 let objects: any;
 let affectedCnt: any;
@@ -240,7 +243,7 @@ export function execute(object: any, scope: any) {
         if (constructionSite) {
             bulk.remove(constructionSite._id);
             if (constructionSite.progress > 1) {
-                require('./creeps/_create-energy')(constructionSite.x, constructionSite.y,
+                createEnergy(constructionSite.x, constructionSite.y,
                     constructionSite.room, Math.floor(constructionSite.progress / 2), 'energy', scope);
             }
         }
@@ -262,7 +265,7 @@ export function execute(object: any, scope: any) {
     } else {
         bulk.update(object, { x: move.x, y: move.y });
         if (object.type == 'creep') {
-            require('./creeps/_add-fatigue')(object, fatigue, scope);
+            addFatigue(object, fatigue, scope);
         }
     }
 }

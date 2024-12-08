@@ -12,7 +12,7 @@ export default (
     dropRate: any,
     violentDeath: any,
     { roomObjects, bulk, stats, gameTime, eventLog }: any,
-    attackType: any
+    attackType?: any
 ) => {
 
     if (dropRate === undefined) {

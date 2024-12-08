@@ -1,16 +1,22 @@
+import transfer from "./transfer";
+import createCreep from "./create-creep";
+import reserveController from "./reserveController";
+import attackController from "./attackController";
+import upgradeController from "./upgradeController";
+
 export default (object: any, objectIntents: any, scope: any) => {
     if (objectIntents.transfer)
-        require('./transfer')(object, objectIntents.transfer, scope);
+        transfer(object, objectIntents.transfer, scope);
 
     if (objectIntents.createCreep)
-        require('./create-creep')(object, objectIntents.createCreep, scope);
+        createCreep(object, objectIntents.createCreep, scope);
 
     if (objectIntents.reserveController)
-        require('./reserveController')(object, objectIntents.reserveController, scope);
+        reserveController(object, objectIntents.reserveController, scope);
 
     if (objectIntents.attackController)
-        require('./attackController')(object, objectIntents.attackController, scope);
+        attackController(object, objectIntents.attackController, scope);
 
     if (objectIntents.upgradeController)
-        require('./upgradeController')(object, objectIntents.upgradeController, scope);
+        upgradeController(object, objectIntents.upgradeController, scope);
 };

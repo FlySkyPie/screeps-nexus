@@ -1,6 +1,7 @@
 import _ from 'lodash';
 
-export default (object: any, intent: any, scope: any) => {
+import drop from '../creeps/drop';
 
-    require('../creeps/drop')(object, intent, scope);
+export default (object: any, intent: any, scope: any) => {
+    drop(object, intent, scope);
 };

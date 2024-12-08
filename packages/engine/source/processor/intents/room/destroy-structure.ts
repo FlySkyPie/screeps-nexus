@@ -3,6 +3,9 @@ import _ from 'lodash';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { StructureEnum } from '@screeps/common/src/constants/structure-enum';
 
+import _destroy from '../structures/_destroy';
+import _clearNewbieWalls from '../creeps/_clear-newbie-walls';
+
 export default (userId: any, intent: any, scope: any) => {
 
     const { roomObjects, roomController } = scope;
@@ -17,10 +20,10 @@ export default (userId: any, intent: any, scope: any) => {
 
     if (_.any(roomObjects, (i: any) => (i.type == 'creep' || i.type == 'powerCreep') && i.user != userId)) return;
 
-    require('../structures/_destroy')(object, scope);
+    _destroy(object, scope);
 
     if (object.type == 'constructedWall' && object.decayTime && object.user) {
-        require('../creeps/_clear-newbie-walls')(scope);
+        _clearNewbieWalls(scope);
     }
 
 };

@@ -1,10 +1,13 @@
+import heal from './heal';
+import repair from './repair';
+import attack from './attack';
 
 export default (object: any, objectIntents: any, scope: any) => {
 
     if (objectIntents.heal)
-        require('./heal')(object, objectIntents.heal, scope);
+        heal(object, objectIntents.heal, scope);
     else if (objectIntents.repair)
-        require('./repair')(object, objectIntents.repair, scope);
+        repair(object, objectIntents.repair, scope);
     else if (objectIntents.attack)
-        require('./attack')(object, objectIntents.attack, scope);
+        attack(object, objectIntents.attack, scope);
 };

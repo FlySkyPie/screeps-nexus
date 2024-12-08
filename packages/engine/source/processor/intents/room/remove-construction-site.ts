@@ -1,5 +1,7 @@
 import _ from 'lodash';
 
+import _createEnergy from '../creeps/_create-energy';
+
 export default (userId: any, intent: any, scope: any) => {
 
     const { roomObjects, bulk, roomController } = scope;
@@ -12,6 +14,6 @@ export default (userId: any, intent: any, scope: any) => {
 
     bulk.remove(object._id);
     if (object.progress > 1) {
-        require('../creeps/_create-energy')(object.x, object.y, object.room, Math.floor(object.progress / 2), 'energy', scope);
+        _createEnergy(object.x, object.y, object.room, Math.floor(object.progress / 2), 'energy', scope);
     }
 };

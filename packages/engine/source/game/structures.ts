@@ -13,6 +13,8 @@ import { Boosts } from '@screeps/common/src/constants/boosts';
 import { ListItems } from '@screeps/common/src/tables/list-items';
 import { BodyParts } from '@screeps/common/src/constants/body-parts';
 
+import * as names from './names';
+
 let runtimeData: any,
     intents: any,
     register: any,
@@ -908,7 +910,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
         }
 
         if (!name) {
-            name = require('./names').getUniqueName((i: any) => {
+            name = names.getUniqueName((i: any) => {
                 return _.any(runtimeData.roomObjects, { type: 'creep', user: data(this.id).user, name: i }) ||
                     createdCreepNames.indexOf(i) != -1;
             });

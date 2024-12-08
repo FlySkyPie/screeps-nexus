@@ -7,6 +7,10 @@ import { EventAttackType } from '@screeps/common/src/constants/event-attack-type
 
 import * as utils from '../../../utils';
 
+import _damage from '../_damage';
+
+import drop from './drop';
+
 export default (object: any, intent: any, scope: any) => {
     const { roomObjects, bulk, roomController, gameTime } = scope;
 
@@ -53,9 +57,9 @@ export default (object: any, intent: any, scope: any) => {
 
         const usedSpace = utils.calcResources(object);
         if (usedSpace > object.storeCapacity) {
-            require('./drop')(object, { amount: usedSpace - object.storeCapacity, resourceType: 'energy' }, scope);
+            drop(object, { amount: usedSpace - object.storeCapacity, resourceType: 'energy' }, scope);
         }
 
-        require('../_damage')(object, target, amount, EventAttackType.EVENT_ATTACK_TYPE_DISMANTLE, scope);
+        _damage(object, target, amount, EventAttackType.EVENT_ATTACK_TYPE_DISMANTLE, scope);
     }
 };

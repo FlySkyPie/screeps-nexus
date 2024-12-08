@@ -6,6 +6,9 @@ import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { ListItems } from '@screeps/common/src/tables/list-items';
 import { Resource } from '@screeps/common/src/constants/resource';
 
+import _recalcBody from '../creeps/_recalc-body';
+import _createEnergy from '../creeps/_create-energy';
+
 export default (object: any, intent: any, scope: any) => {
     const { roomObjects, bulk, roomController, gameTime } = scope;
 
@@ -33,7 +36,7 @@ export default (object: any, intent: any, scope: any) => {
     }
 
     target.body.forEach((p: any) => { p.boost = null; });
-    require('../creeps/_recalc-body')(target);
+    _recalcBody(target);
     bulk.update(target, { body: target.body, storeCapacity: target.storeCapacity });
 
     const cooldown = _.reduce(ListItems.RESOURCES_ALL, (a, r) => {
@@ -43,12 +46,12 @@ export default (object: any, intent: any, scope: any) => {
 
         const energyReturn = boostedParts[r] * ScreepsConstants.LAB_UNBOOST_ENERGY;
         if (energyReturn > 0) {
-            require('../creeps/_create-energy')(target.x, target.y, target.room, energyReturn, Resource.RESOURCE_ENERGY, scope);
+            _createEnergy(target.x, target.y, target.room, energyReturn, Resource.RESOURCE_ENERGY, scope);
         }
 
         const mineralReturn = boostedParts[r] * ScreepsConstants.LAB_UNBOOST_MINERAL;
         if (mineralReturn > 0) {
-            require('../creeps/_create-energy')(target.x, target.y, target.room, mineralReturn, r, scope);
+            _createEnergy(target.x, target.y, target.room, mineralReturn, r, scope);
         }
 
         return a + boostedParts[r] * utils.calcTotalReactionsTime(r) * ScreepsConstants.LAB_UNBOOST_MINERAL / ScreepsConstants.LAB_REACTION_AMOUNT;

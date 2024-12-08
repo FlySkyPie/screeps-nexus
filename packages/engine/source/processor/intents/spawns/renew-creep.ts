@@ -5,6 +5,10 @@ import { BodyParts } from '@screeps/common/src/constants/body-parts';
 
 import * as utils from '../../../utils';
 
+import _chargeEnergy from './_charge-energy';
+import _recalcBody from '../creeps/_recalc-body';
+import _dropResources from '../creeps/_drop-resources-without-space';
+
 export default (object: any, intent: any, scope: any) => {
 
     const { roomObjects, bulk, stats, gameTime } = scope;
@@ -33,7 +37,7 @@ export default (object: any, intent: any, scope: any) => {
     }
 
     const cost = Math.ceil(ScreepsConstants.SPAWN_RENEW_RATIO * utils.calcCreepCost(target.body) / ScreepsConstants.CREEP_SPAWN_TIME / target.body.length);
-    const result = require('./_charge-energy')(object, cost, undefined, scope);
+    const result = _chargeEnergy(object, cost, undefined, scope);
 
     if (!result) {
         return;
@@ -48,9 +52,9 @@ export default (object: any, intent: any, scope: any) => {
         target.body.forEach((i: any) => {
             i.boost = null;
         });
-        require('../creeps/_recalc-body')(target);
+        _recalcBody(target);
         // we may not be able to hold all of the resources we could before now.
-        require('../creeps/_drop-resources-without-space')(target, scope);
+        _dropResources(target, scope);
         bulk.update(target, { body: target.body, storeCapacity: target.storeCapacity });
     }
 

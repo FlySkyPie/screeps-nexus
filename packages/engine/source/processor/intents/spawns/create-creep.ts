@@ -1,11 +1,14 @@
 import _ from 'lodash';
 
-import * as utils from '../../../utils';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { POWER_INFO } from '@screeps/common/src/tables/power-info';
 import { PWRCode } from '@screeps/common/src/constants/pwr-code';
 import { ListItems } from '@screeps/common/src/tables/list-items';
 import { BodyParts } from '@screeps/common/src/constants/body-parts';
+
+import * as utils from '../../../utils';
+
+import _chargeEnergy from './_charge-energy';
 
 export default (spawn: any, intent: any, scope: any) => {
     const { roomObjects, bulk, roomController, stats, gameTime } = scope;
@@ -41,7 +44,7 @@ export default (spawn: any, intent: any, scope: any) => {
     intent.body = intent.body.slice(0, ScreepsConstants.MAX_CREEP_SIZE);
 
     const cost = utils.calcCreepCost(intent.body);
-    const result = require('./_charge-energy')(spawn, cost, intent.energyStructures, scope);
+    const result = _chargeEnergy(spawn, cost, intent.energyStructures, scope);
 
     if (!result) {
         return;

@@ -9,6 +9,12 @@ import * as utils from '../../../utils';
 
 import * as movement from '../movement';
 
+import bornCreep from '../spawns/_born-creep';
+import die from './_die';
+import addFatigue from './_add-fatigue';
+import _recalcBody from './_recalc-body';
+import drop from './_drop-resources-without-space';
+
 function _applyDamage(object: any, damage: any) {
 
     let damageReduce = 0, damageEffective = damage;
@@ -53,7 +59,7 @@ export default (object: any, scope: any) => {
         }
         else {
             if (!spawn.spawning || spawn.spawning.name != object.name) {
-                require('../spawns/_born-creep')(spawn, object, scope);
+                bornCreep(spawn, object, scope);
             }
         }
     }
@@ -105,7 +111,7 @@ export default (object: any, scope: any) => {
             }
 
             if (gameTime >= object.ageTime - 1) {
-                require('./_die')(object, undefined, false, scope);
+                die(object, undefined, false, scope);
             }
         }
 
@@ -118,18 +124,18 @@ export default (object: any, scope: any) => {
 
     const moves = utils.calcBodyEffectiveness(object.body, BodyParts.MOVE, 'fatigue', 1);
     if (moves > 0) {
-        require('./_add-fatigue')(object, -2 * moves, scope);
+        addFatigue(object, -2 * moves, scope);
     }
 
     if (_.isNaN(object.hits) || object.hits <= 0) {
-        require('./_die')(object, undefined, true, scope);
+        die(object, undefined, true, scope);
     }
 
     if (object.userSummoned && _.any(roomObjects, (i: any) =>
         i.type == 'creep' &&
         i.user != '2' &&
         i.user != roomController.user)) {
-        require('./_die')(object, undefined, false, scope);
+        die(object, undefined, false, scope);
     }
 
     let oldHits = object.hits;
@@ -149,14 +155,14 @@ export default (object: any, scope: any) => {
     }
 
     if (object.hits <= 0) {
-        require('./_die')(object, undefined, true, scope);
+        die(object, undefined, true, scope);
     }
     else if (object.hits != oldHits) {
 
-        require('./_recalc-body')(object);
+        _recalcBody(object);
 
         if (object.hits < oldHits) {
-            require('./_drop-resources-without-space')(object, scope);
+            drop(object, scope);
         }
 
         bulk.update(object, {

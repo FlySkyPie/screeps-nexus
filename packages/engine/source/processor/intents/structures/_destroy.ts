@@ -3,7 +3,9 @@ import _ from 'lodash';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { EventAttackType } from '@screeps/common/src/constants/event-attack-type';
 
-export default (object: any, scope: any, attackType: any) => {
+import destroy from '../invader-core/destroy';
+
+export default (object: any, scope: any, attackType?: any) => {
     const { gameTime, bulk, roomObjects } = scope;
 
     if (object.type == 'spawn' && object.spawning) {
@@ -15,7 +17,7 @@ export default (object: any, scope: any, attackType: any) => {
     }
 
     if (object.type == 'invaderCore') {
-        require('../invader-core/destroy')(object, scope);
+        destroy(object, scope);
     }
 
     if (!attackType || attackType != EventAttackType.EVENT_ATTACK_TYPE_NUKE) {

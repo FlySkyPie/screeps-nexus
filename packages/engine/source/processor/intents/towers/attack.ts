@@ -7,6 +7,8 @@ import { EventAttackType } from '@screeps/common/src/constants/event-attack-type
 
 import * as utils from '../../../utils';
 
+import _damage from '../_damage';
+
 export default (object: any, intent: any, scope: any) => {
 
     let { roomObjects, bulk, roomController, gameTime } = scope;
@@ -53,7 +55,7 @@ export default (object: any, intent: any, scope: any) => {
         return;
     }
 
-    require('../_damage')(object, target, amount, EventAttackType.EVENT_ATTACK_TYPE_RANGED, scope);
+    _damage(object, target, amount, EventAttackType.EVENT_ATTACK_TYPE_RANGED, scope);
 
     object.store.energy -= ScreepsConstants.TOWER_ENERGY_COST;
     bulk.update(object, { store: { energy: object.store.energy } });

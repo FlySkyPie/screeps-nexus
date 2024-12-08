@@ -2,6 +2,8 @@ import _ from 'lodash';
 
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
+import createEnergy from '../creeps/_create-energy';
+
 export default (object: any, scope: any) => {
     const { roomObjects, bulk, roomController, gameTime, } = scope;
 
@@ -12,7 +14,7 @@ export default (object: any, scope: any) => {
             if (object.store) {
                 _.forEach(object.store, (amount, resourceType) => {
                     if (amount > 0) {
-                        require('../creeps/_create-energy')(object.x, object.y, object.room,
+                        createEnergy(object.x, object.y, object.room,
                             amount, resourceType, scope);
                     }
                 });

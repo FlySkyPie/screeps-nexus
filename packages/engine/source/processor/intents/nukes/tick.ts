@@ -3,6 +3,9 @@ import _ from 'lodash';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { EventAttackType } from '@screeps/common/src/constants/event-attack-type';
 
+import _die from '../creeps/_die';
+import _damage from '../_damage';
+
 export default (object: any, scope: any) => {
 
     const { roomObjects, bulk, roomController, gameTime, roomInfo } = scope;
@@ -20,7 +23,7 @@ export default (object: any, scope: any) => {
                 return;
             }
             if (target.type == 'creep') {
-                require('../creeps/_die')(target, 0, true, scope, EventAttackType.EVENT_ATTACK_TYPE_NUKE);
+                _die(target, 0, true, scope, EventAttackType.EVENT_ATTACK_TYPE_NUKE);
             }
             if (target.type == 'powerCreep') {
                 bulk.update(target, { hits: 0 });
@@ -48,12 +51,12 @@ export default (object: any, scope: any) => {
                 if (rampart) {
                     let rampartHits = rampart.hits;
                     _.pull(objects, rampart);
-                    require('../_damage')(object, rampart, damage, EventAttackType.EVENT_ATTACK_TYPE_NUKE, scope);
+                    _damage(object, rampart, damage, EventAttackType.EVENT_ATTACK_TYPE_NUKE, scope);
                     damage -= rampartHits;
                 }
                 if (damage > 0) {
                     objects.forEach(target => {
-                        require('../_damage')(object, target, damage, EventAttackType.EVENT_ATTACK_TYPE_NUKE, scope);
+                        _damage(object, target, damage, EventAttackType.EVENT_ATTACK_TYPE_NUKE, scope);
                     });
                 }
             }

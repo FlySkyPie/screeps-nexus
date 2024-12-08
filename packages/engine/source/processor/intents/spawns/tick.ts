@@ -5,6 +5,8 @@ import { PWRCode } from '@screeps/common/src/constants/pwr-code';
 
 import * as utils from '../../../utils';
 
+import _bornCreep from './_born-creep';
+
 export default (object: any, scope: any) => {
 
     const { roomObjects, bulk, roomController, energyAvailable, gameTime } = scope;
@@ -20,7 +22,7 @@ export default (object: any, scope: any) => {
 
             const spawningCreep = _.find(roomObjects, { type: 'creep', name: object.spawning.name, x: object.x, y: object.y });
 
-            const bornOk = require('./_born-creep')(object, spawningCreep, scope);
+            const bornOk = _bornCreep(object, spawningCreep, scope);
 
             if (bornOk) {
                 bulk.update(object, { spawning: null });

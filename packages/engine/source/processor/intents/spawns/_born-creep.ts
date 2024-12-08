@@ -1,9 +1,12 @@
 import _ from 'lodash';
 
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+
 import * as utils from '../../../utils';
 
 import * as movement from '../movement';
-import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+
+import _die from '../creeps/_die';
 
 export default (spawn: any, creep: any, scope: any) => {
     const { roomObjects, roomTerrain, bulk } = scope;
@@ -69,7 +72,7 @@ export default (spawn: any, creep: any, scope: any) => {
             }
         }
 
-        require('../creeps/_die')(hostileOccupied, undefined, true, scope);
+        _die(hostileOccupied, undefined, true, scope);
         bulk.update(creep, {
             x: hostileOccupied.x,
             y: hostileOccupied.y,

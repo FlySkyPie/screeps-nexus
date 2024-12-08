@@ -1,6 +1,9 @@
+
+import processPower from "./process-power";
+
 export default (object:any, objectIntents:any, scope:any) => {
 
     if(objectIntents.processPower)
-        require('./process-power')(object, objectIntents.processPower, scope);
+        processPower(object, objectIntents.processPower, scope);
 
 };

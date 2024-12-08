@@ -2,6 +2,8 @@ import _ from 'lodash';
 
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
+import _bornCreep from '../spawns/_born-creep';
+
 export default (object: any, scope: any) => {
     if (!object || object.type != 'invaderCore') return;
 
@@ -30,7 +32,7 @@ export default (object: any, scope: any) => {
 
         if (object.spawning.remainingTime <= 0) {
             const spawningCreep = _.find(roomObjects, { type: 'creep', name: object.spawning.name, x: object.x, y: object.y });
-            const bornOk = require('../spawns/_born-creep')(object, spawningCreep, scope);
+            const bornOk = _bornCreep(object, spawningCreep, scope);
 
             if (bornOk) {
                 bulk.update(object, { spawning: null });

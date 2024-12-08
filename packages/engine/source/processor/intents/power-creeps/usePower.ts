@@ -7,6 +7,8 @@ import { EventCode } from '@screeps/common/src/constants/event-code';
 
 import * as utils from '../../../utils';
 
+import drop from './drop';
+
 export default (object: any, intent: any, scope: any) => {
     const { roomObjects, roomTerrain, gameTime, bulk, eventLog, roomController } = scope;
 
@@ -67,7 +69,7 @@ export default (object: any, intent: any, scope: any) => {
             let sum = utils.calcResources(object);
 
             if (sum > object.storeCapacity) {
-                require('./drop')(object, {
+                drop(object, {
                     amount: Math.min(object.store[Resource.RESOURCE_OPS], sum - object.storeCapacity),
                     resourceType: Resource.RESOURCE_OPS
                 }, scope);

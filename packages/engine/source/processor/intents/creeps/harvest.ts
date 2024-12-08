@@ -7,6 +7,8 @@ import { StructureEnum } from '@screeps/common/src/constants/structure-enum';
 
 import * as utils from '../../../utils';
 
+import drop from './drop';
+
 export default (object: any, intent: any, scope: any) => {
     const { roomObjects, bulk, roomController, stats, eventLog, gameTime } = scope;
 
@@ -53,7 +55,7 @@ export default (object: any, intent: any, scope: any) => {
             let sum = utils.calcResources(object);
 
             if (sum > object.storeCapacity) {
-                require('./drop')(object, {
+                drop(object, {
                     amount: Math.min(object.store.energy, sum - object.storeCapacity),
                     resourceType: 'energy'
                 }, scope);
@@ -103,7 +105,7 @@ export default (object: any, intent: any, scope: any) => {
             let sum = utils.calcResources(object);
 
             if (sum > object.storeCapacity) {
-                require('./drop')(object, {
+                drop(object, {
                     amount: Math.min(object.store[target.mineralType], sum - object.storeCapacity),
                     resourceType: target.mineralType
                 }, scope);
@@ -135,7 +137,7 @@ export default (object: any, intent: any, scope: any) => {
         let sum = utils.calcResources(object);
 
         if (sum > object.storeCapacity) {
-            require('./drop')(object, {
+            drop(object, {
                 amount: Math.min(object.store[target.depositType], sum - object.storeCapacity),
                 resourceType: target.depositType
             }, scope);
