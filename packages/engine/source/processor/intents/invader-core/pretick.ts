@@ -1,8 +1,8 @@
 import _ from 'lodash';
 
-import stronghold from './stronghold/stronghold';
-import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { StructureEnum } from '@screeps/common/src/constants/structure-enum';
+
+import stronghold from './stronghold/stronghold';
 
 export default (object: any, scope: any) => {
     const { gameTime, roomObjects, roomController, bulk } = scope;

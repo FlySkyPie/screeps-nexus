@@ -61,7 +61,7 @@ const driver = utils.getDriver();
 
 
 let roomsQueue: any,
-    _usersQueue: any,
+    // _usersQueue: any,
     lastRoomsStatsSaveTime = 0,
     currentHistoryPromise = q.when();
 
@@ -77,8 +77,8 @@ function processRoom(
         const bulkUsers = driver.bulkUsersWrite();
         const bulkFlags = driver.bulkFlagsWrite();
         const bulkUsersPowerCreeps = driver.bulkUsersPowerCreeps();
-        const _oldObjects = {};
-        let _hasNewbieWalls = false;
+        // const _oldObjects = {};
+        // let _hasNewbieWalls = false;
         const stats = driver.getRoomStatsUpdater(roomId);
         const objectsToHistory: Record<string, any> = {};
         const roomSpawns: any[] = [];
@@ -201,7 +201,7 @@ function processRoom(
                 roomInfo.active = true;
             }
             if (object.type == 'constructedWall' && object.decayTime && object.user) {
-                _hasNewbieWalls = true;
+                // _hasNewbieWalls = true;
             }
 
             if (object.type == 'extension') {
@@ -396,7 +396,7 @@ function processRoom(
         };
 
         const resultPromises: any[] = [];
-        const userVisibility: any = {};
+        // const userVisibility: any = {};
 
         _.forEach(roomObjects, (object) => {
 

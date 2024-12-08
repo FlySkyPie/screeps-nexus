@@ -2,13 +2,13 @@ import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import * as utils from './../utils';
 
 let runtimeData: any,
-    intents: any,
+    // intents: any,
     register: any,
     globals: any;
 
 export function make(_runtimeData: any, _intents: any, _register: any, _globals: any) {
     runtimeData = _runtimeData;
-    intents = _intents;
+    // intents = _intents;
     register = _register;
     globals = _globals;
 

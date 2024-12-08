@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import * as utils from '../utils';
 
-let kObstacle = Infinity;
+// let kObstacle = Infinity;
 let driver = utils.getRuntimeDriver();
 
 export function make(_runtimeData: any, _intents: any, register: any, globals: any) {

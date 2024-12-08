@@ -5,7 +5,7 @@ import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { BodyParts } from '@screeps/common/src/constants/body-parts';
 
 let runtimeData: any,
-    intents: any,
+    // intents: any,
     register: any,
     globals: any;
 
@@ -17,9 +17,8 @@ function _storeGetter(this: any, o: any) {
 }
 
 export function make(_runtimeData: any, _intents: any, _register: any, _globals: any) {
-
     runtimeData = _runtimeData;
-    intents = _intents;
+    // intents = _intents;
     register = _register;
     globals = _globals;
 

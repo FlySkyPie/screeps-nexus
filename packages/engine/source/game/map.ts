@@ -160,7 +160,7 @@ export function makeMap(runtimeData: any, register: any, globals: any) {
 
           // Calculate costs and check if this node was already visited
           let roomName = exits[dir];
-          let graphKey = fromRoomName + ':' + roomName;
+          // let graphKey = fromRoomName + ':' + roomName;
           let [xx, yy] = utils.roomNameToXY(roomName);
           let neighborIndex = xyToIndex(xx, yy);
           if (neighborIndex === undefined || openClosed.isClosed(neighborIndex)) {

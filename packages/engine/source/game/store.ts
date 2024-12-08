@@ -4,15 +4,14 @@ import { ListItems } from '@screeps/common/src/tables/list-items';
 
 import * as utils from './../utils';
 
-let runtimeData: any,
-    intents: any,
-    register: any,
+// let runtimeData: any,
+//     intents: any,
+let register: any,
     globals: any;
 
 export function make(_runtimeData: any, _intents: any, _register: any, _globals: any) {
-
-    runtimeData = _runtimeData;
-    intents = _intents;
+    // runtimeData = _runtimeData;
+    // intents = _intents;
     register = _register;
     globals = _globals;
 
