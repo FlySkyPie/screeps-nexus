@@ -1,24 +1,39 @@
 import _ from 'lodash';
+
+import * as pathfinding from '@screeps/pathfinding';
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { FindCode } from '@screeps/common/src/constants/find-code';
+import { LookEnum } from '@screeps/common/src/constants/look-enum';
+import { ErrorCode } from '@screeps/common/src/constants/error-code';
+import { ListItems } from '@screeps/common/src/tables/list-items';
+import { ColorCode } from '@screeps/common/src/constants/color-code';
+
 import * as utils from '../utils';
-const driver = utils.getRuntimeDriver();
 
-import pathfinding from '@screeps/pathfinding';
+const abs = Math.abs;
+// const min = Math.min;
+const max = Math.max;
 
-const abs = Math.abs, min = Math.min, max = Math.max;
+let runtimeData: any,
+    intents: any,
+    register: any,
+    globals: any;
 
-let runtimeData, intents, register, globals;
+let positionsSetCacheCounter: any,
+    createdFlagNames: any,
+    createdSpawnNames: any,
+    privateStore: any,
+    createdConstructionSites: any;
 
-let positionsSetCacheCounter, createdFlagNames, createdSpawnNames, privateStore, createdConstructionSites;
+let TerrainConstructor: any = null;
+let TerrainConstructorSet: any = null;
 
-let TerrainConstructor    = null;
-let TerrainConstructorSet = null;
-
-function getPathfinder(id, opts) {
+function getPathfinder(id: any, opts: any) {
     opts = opts || {};
-    _.defaults(opts, {maxOps: 2000, heuristicWeight: 1});
+    _.defaults(opts, { maxOps: 2000, heuristicWeight: 1 });
     const key = `${opts.maxOps},${opts.heuristicWeight}`;
 
-    if(!privateStore[id].pfFinders[key]) {
+    if (!privateStore[id].pfFinders[key]) {
         privateStore[id].pfFinders[key] = new pathfinding.AStarFinder({
             diagonalMovement: 1,
             maxOpsLimit: opts.maxOps,
@@ -29,26 +44,26 @@ function getPathfinder(id, opts) {
     return privateStore[id].pfFinders[key];
 }
 
-function makePathfindingGrid(id, opts, endNodesKey) {
+function makePathfindingGrid(id: any, opts: any, endNodesKey: any) {
     opts = opts || {};
 
     const rows = new Array(50);
     let obstacleTypes = _.clone(ScreepsConstants.OBSTACLE_OBJECT_TYPES);
 
-    if(opts.ignoreDestructibleStructures) {
-        obstacleTypes = _.without(obstacleTypes, 'constructedWall','spawn','extension', 'link','storage','observer','tower','powerBank','powerSpawn','lab','terminal');
+    if (opts.ignoreDestructibleStructures) {
+        obstacleTypes = _.without(obstacleTypes, 'constructedWall', 'spawn', 'extension', 'link', 'storage', 'observer', 'tower', 'powerBank', 'powerSpawn', 'lab', 'terminal');
     }
-    if(opts.ignoreCreeps) {
+    if (opts.ignoreCreeps) {
         obstacleTypes = _.without(obstacleTypes, 'creep', 'powerCreep');
     }
 
-    for(let y=0; y<50; y++) {
+    for (let y = 0; y < 50; y++) {
         rows[y] = new Array(50);
-        for(let x=0; x<50; x++) {
+        for (let x = 0; x < 50; x++) {
             rows[y][x] = x == 0 || y == 0 || x == 49 || y == 49 ? 11 : 2;
             //var terrainCode = register.terrainByRoom.spatial[id][y][x];
-            const terrainCode = runtimeData.staticTerrainData[id][y*50+x];
-            if(terrainCode & ScreepsConstants.TERRAIN_MASK_WALL) {
+            const terrainCode = runtimeData.staticTerrainData[id][y * 50 + x];
+            if (terrainCode & ScreepsConstants.TERRAIN_MASK_WALL) {
                 rows[y][x] = 0;
             }
             if ((terrainCode & ScreepsConstants.TERRAIN_MASK_SWAMP) && rows[y][x] == 2) {
@@ -57,12 +72,12 @@ function makePathfindingGrid(id, opts, endNodesKey) {
         }
     }
 
-    register.objectsByRoomKeys[id].forEach((key) => {
+    register.objectsByRoomKeys[id].forEach((key: any) => {
         const object = register.objectsByRoom[id][key];
 
         if (_.contains(obstacleTypes, object.type) ||
-        !opts.ignoreDestructibleStructures && object.type == 'rampart' && !object.isPublic && object.user != runtimeData.user._id ||
-        !opts.ignoreDestructibleStructures && object.type == 'constructionSite' && object.user == runtimeData.user._id && _.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, object.structureType)) {
+            !opts.ignoreDestructibleStructures && object.type == 'rampart' && !object.isPublic && object.user != runtimeData.user._id ||
+            !opts.ignoreDestructibleStructures && object.type == 'constructionSite' && object.user == runtimeData.user._id && _.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, object.structureType)) {
 
             rows[object.y][object.x] = 0;
         }
@@ -73,51 +88,51 @@ function makePathfindingGrid(id, opts, endNodesKey) {
     });
 
 
-    if(opts.ignore) {
-        if(!_.isArray(opts.ignore)) {
+    if (opts.ignore) {
+        if (!_.isArray(opts.ignore)) {
             throw new Error('option `ignore` is not an array');
         }
-        _.forEach(opts.ignore, (i, key) => {
-            if(!i) {
+        _.forEach(opts.ignore, (i: any, key: any) => {
+            if (!i) {
                 return;
             }
-            if(i.pos) {
+            if (i.pos) {
                 rows[i.pos.y][i.pos.x] = rows[i.pos.y][i.pos.x] > 2 ? 2 : rows[i.pos.y][i.pos.x];
             }
-            if(_.isObject(i) && !_.isUndefined(i.x) && !(i instanceof globals.RoomPosition)) {
+            if (_.isObject(i) && !_.isUndefined(i.x) && !(i instanceof globals.RoomPosition)) {
                 opts.ignore[key] = new globals.RoomPosition(i.x, i.y, id);
             }
-            if(!_.isUndefined(i.x)) {
+            if (!_.isUndefined(i.x)) {
                 rows[i.y][i.x] = rows[i.y][i.x] > 2 ? 2 : rows[i.y][i.x];
             }
         });
     }
 
-    if(opts.avoid) {
-        if(!_.isArray(opts.avoid)) {
+    if (opts.avoid) {
+        if (!_.isArray(opts.avoid)) {
             throw new Error('option `avoid` is not an array');
         }
-        _.forEach(opts.avoid, (i, key) => {
-            if(!i) {
+        _.forEach(opts.avoid, (i: any, key: any) => {
+            if (!i) {
                 return;
             }
-            if(i.pos) {
+            if (i.pos) {
                 rows[i.pos.y][i.pos.x] = 0;
             }
-            if(_.isObject(i) && !_.isUndefined(i.x) && !(i instanceof globals.RoomPosition)) {
+            if (_.isObject(i) && !_.isUndefined(i.x) && !(i instanceof globals.RoomPosition)) {
                 opts.avoid[key] = new globals.RoomPosition(i.x, i.y, id);
             }
-            if(!_.isUndefined(i.x)) {
+            if (!_.isUndefined(i.x)) {
                 rows[i.y][i.x] = 0;
             }
         });
     }
-    if(endNodesKey) {
+    if (endNodesKey) {
         _.forEach(privateStore[id].pfEndNodes[endNodesKey], (i) => {
-            if(!_.isUndefined(i.x)) {
+            if (!_.isUndefined(i.x)) {
                 rows[i.y][i.x] = 999;
             }
-            else if(!_.isUndefined(i.pos)) {
+            else if (!_.isUndefined(i.pos)) {
                 rows[i.pos.y][i.pos.x] = 999;
             }
         });
@@ -126,34 +141,34 @@ function makePathfindingGrid(id, opts, endNodesKey) {
     return new pathfinding.Grid(50, 50, rows);
 }
 
-function getPathfindingGrid(id, opts, endNodesKey) {
+function getPathfindingGrid(id: any, opts: any, endNodesKey?: any) {
 
     let gridName = 'grid';
 
     opts = opts || {};
 
-    if(opts.ignoreCreeps) {
+    if (opts.ignoreCreeps) {
         gridName += '_ignoreCreeps'
     }
-    if(opts.ignoreDestructibleStructures) {
+    if (opts.ignoreDestructibleStructures) {
         gridName += '_ignoreDestructibleStructures'
     }
-    if(_.isNumber(endNodesKey)) {
-        gridName += '_endNodes'+endNodesKey;
+    if (_.isNumber(endNodesKey)) {
+        gridName += '_endNodes' + endNodesKey;
     }
-    if(opts.avoid) {
-        gridName += '_avoid'+privateStore[id].positionsSetCache.key(opts.avoid);
+    if (opts.avoid) {
+        gridName += '_avoid' + privateStore[id].positionsSetCache.key(opts.avoid);
     }
-    if(opts.ignore) {
-        gridName += '_ignore'+privateStore[id].positionsSetCache.key(opts.ignore);
+    if (opts.ignore) {
+        gridName += '_ignore' + privateStore[id].positionsSetCache.key(opts.ignore);
     }
 
-    if(!privateStore[id].pfGrid[gridName]) privateStore[id].pfGrid[gridName] = makePathfindingGrid(id, opts, endNodesKey);
+    if (!privateStore[id].pfGrid[gridName]) privateStore[id].pfGrid[gridName] = makePathfindingGrid(id, opts, endNodesKey);
 
     return privateStore[id].pfGrid[gridName].clone();
 }
 
-function makePathfindingGrid2(id, opts) {
+function makePathfindingGrid2(id: any, opts: any) {
 
     opts = opts || {};
 
@@ -162,21 +177,21 @@ function makePathfindingGrid2(id, opts) {
     let obstacleTypes = _.clone(ScreepsConstants.OBSTACLE_OBJECT_TYPES);
     obstacleTypes.push('portal');
 
-    if(opts.ignoreDestructibleStructures) {
-        obstacleTypes = _.without(obstacleTypes, 'constructedWall','spawn','extension', 'link','storage','observer','tower','powerBank','powerSpawn','lab','terminal');
+    if (opts.ignoreDestructibleStructures) {
+        obstacleTypes = _.without(obstacleTypes, 'constructedWall', 'spawn', 'extension', 'link', 'storage', 'observer', 'tower', 'powerBank', 'powerSpawn', 'lab', 'terminal');
     }
-    if(opts.ignoreCreeps || register.rooms[id].controller && register.rooms[id].controller.safeMode && register.rooms[id].controller.my) {
+    if (opts.ignoreCreeps || register.rooms[id].controller && register.rooms[id].controller.safeMode && register.rooms[id].controller.my) {
         obstacleTypes = _.without(obstacleTypes, 'creep', 'powerCreep');
     }
 
-    if(register.objectsByRoomKeys[id]) {
-        register.objectsByRoomKeys[id].forEach((key) => {
+    if (register.objectsByRoomKeys[id]) {
+        register.objectsByRoomKeys[id].forEach((key: any) => {
             const object = register.objectsByRoom[id][key];
 
             if (_.contains(obstacleTypes, object.type) ||
-            !opts.ignoreCreeps && register.rooms[id].controller && register.rooms[id].controller.safeMode && register.rooms[id].controller.my && (object.type == 'creep' || object.type == 'powerCreep') && object.user == runtimeData.user._id ||
-            !opts.ignoreDestructibleStructures && object.type == 'rampart' && !object.isPublic && object.user != runtimeData.user._id ||
-            !opts.ignoreDestructibleStructures && object.type == 'constructionSite' && object.user == runtimeData.user._id && _.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, object.structureType)) {
+                !opts.ignoreCreeps && register.rooms[id].controller && register.rooms[id].controller.safeMode && register.rooms[id].controller.my && (object.type == 'creep' || object.type == 'powerCreep') && object.user == runtimeData.user._id ||
+                !opts.ignoreDestructibleStructures && object.type == 'rampart' && !object.isPublic && object.user != runtimeData.user._id ||
+                !opts.ignoreDestructibleStructures && object.type == 'constructionSite' && object.user == runtimeData.user._id && _.contains(ScreepsConstants.OBSTACLE_OBJECT_TYPES, object.structureType)) {
 
                 costs.set(object.x, object.y, 0xFF);
             }
@@ -194,9 +209,9 @@ function makePathfindingGrid2(id, opts) {
     return costs;
 }
 
-function getPathfindingGrid2(id, opts) {
+function getPathfindingGrid2(id: any, opts: any) {
 
-    if(!privateStore[id]) {
+    if (!privateStore[id]) {
         return new globals.PathFinder.CostMatrix();
     }
 
@@ -204,47 +219,47 @@ function getPathfindingGrid2(id, opts) {
 
     opts = opts || {};
 
-    if(opts.ignoreCreeps) {
+    if (opts.ignoreCreeps) {
         gridName += '_ignoreCreeps';
     }
-    if(opts.ignoreDestructibleStructures) {
+    if (opts.ignoreDestructibleStructures) {
         gridName += '_ignoreDestructibleStructures';
     }
-    if(opts.ignoreRoads) {
+    if (opts.ignoreRoads) {
         gridName += '_ignoreRoads';
     }
 
-    if(!privateStore[id].pfGrid[gridName]) privateStore[id].pfGrid[gridName] = makePathfindingGrid2(id, opts);
+    if (!privateStore[id].pfGrid[gridName]) privateStore[id].pfGrid[gridName] = makePathfindingGrid2(id, opts);
 
     return privateStore[id].pfGrid[gridName];
 }
 
-function _findPath2(id, fromPos, toPos, opts) {
+function _findPath2(id: any, fromPos: any, toPos: any, opts: any) {
 
     opts = opts || {};
 
-    if(fromPos.isEqualTo(toPos)) {
+    if (fromPos.isEqualTo(toPos)) {
         return opts.serialize ? '' : [];
     }
 
-    if(opts.avoid) {
+    if (opts.avoid) {
         register.deprecated('`avoid` option cannot be used when `PathFinder.use()` is enabled. Use `costCallback` instead.');
         opts.avoid = undefined;
     }
-    if(opts.ignore) {
+    if (opts.ignore) {
         register.deprecated('`ignore` option cannot be used when `PathFinder.use()` is enabled. Use `costCallback` instead.');
         opts.ignore = undefined;
     }
-    if(opts.maxOps === undefined && (opts.maxRooms === undefined || opts.maxRooms > 1) && fromPos.roomName != toPos.roomName) {
+    if (opts.maxOps === undefined && (opts.maxRooms === undefined || opts.maxRooms > 1) && fromPos.roomName != toPos.roomName) {
         opts.maxOps = 20000;
     }
-    const searchOpts = {
-        roomCallback: function(roomName) {
+    const searchOpts: Record<string, any> = {
+        roomCallback: function (roomName: any) {
             let costMatrix = getPathfindingGrid2(roomName, opts);
-            if(typeof opts.costCallback == 'function') {
+            if (typeof opts.costCallback == 'function') {
                 costMatrix = costMatrix.clone();
                 const resultMatrix = opts.costCallback(roomName, costMatrix);
-                if(resultMatrix instanceof globals.PathFinder.CostMatrix) {
+                if (resultMatrix instanceof globals.PathFinder.CostMatrix) {
                     costMatrix = resultMatrix;
                 }
             }
@@ -253,21 +268,21 @@ function _findPath2(id, fromPos, toPos, opts) {
         maxOps: opts.maxOps,
         maxRooms: opts.maxRooms
     };
-    if(!opts.ignoreRoads) {
+    if (!opts.ignoreRoads) {
         searchOpts.plainCost = 2;
         searchOpts.swampCost = 10;
     }
-    if(opts.plainCost) {
+    if (opts.plainCost) {
         searchOpts.plainCost = opts.plainCost;
     }
-    if(opts.swampCost) {
+    if (opts.swampCost) {
         searchOpts.swampCost = opts.swampCost;
     }
 
-    const ret = globals.PathFinder.search(fromPos, {range: Math.max(1,opts.range || 0), pos: toPos}, searchOpts);
+    const ret = globals.PathFinder.search(fromPos, { range: Math.max(1, opts.range || 0), pos: toPos }, searchOpts);
 
-    if(!opts.range &&
-            (ret.path.length && ret.path[ret.path.length-1].isNearTo(toPos) && !ret.path[ret.path.length-1].isEqualTo(toPos) ||
+    if (!opts.range &&
+        (ret.path.length && ret.path[ret.path.length - 1].isNearTo(toPos) && !ret.path[ret.path.length - 1].isEqualTo(toPos) ||
             !ret.path.length && fromPos.isNearTo(toPos))) {
         ret.path.push(toPos);
     }
@@ -275,9 +290,9 @@ function _findPath2(id, fromPos, toPos, opts) {
 
     const resultPath = [];
 
-    for(let i=0; i<ret.path.length; i++) {
+    for (let i = 0; i < ret.path.length; i++) {
         let pos = ret.path[i];
-        if(pos.roomName != id) {
+        if (pos.roomName != id) {
             break;
         }
         let result = {
@@ -293,54 +308,54 @@ function _findPath2(id, fromPos, toPos, opts) {
         resultPath.push(result);
     }
 
-    if(opts.serialize) {
+    if (opts.serialize) {
         return utils.serializePath(resultPath);
     }
 
     return resultPath;
 }
 
-function _findClosestByPath2(fromPos, objects, opts) {
+function _findClosestByPath2(fromPos: any, objects: any, opts: any) {
 
     opts = opts || {};
 
-    if(_.isNumber(objects)) {
-        objects = register.rooms[fromPos.roomName].find(objects, {filter: opts.filter});
+    if (_.isNumber(objects)) {
+        objects = register.rooms[fromPos.roomName].find(objects, { filter: opts.filter });
     }
-    else if(opts.filter) {
+    else if (opts.filter) {
         objects = _.filter(objects, opts.filter);
     }
 
-    if(!objects.length) {
+    if (!objects.length) {
         return null;
     }
 
     const objectOnSquare = _.find(objects, obj => fromPos.isEqualTo(obj));
-    if(objectOnSquare) {
+    if (objectOnSquare) {
         return objectOnSquare;
     }
 
-    const goals = _.map(objects, i => {
-        if(i.pos) {
+    const goals = _.map(objects, (i: any) => {
+        if (i.pos) {
             i = i.pos;
         }
-        return {range: 1, pos: i};
+        return { range: 1, pos: i };
     });
 
-    if(opts.avoid) {
+    if (opts.avoid) {
         register.deprecated('`avoid` option cannot be used when `PathFinder.use()` is enabled. Use `costCallback` instead.');
     }
-    if(opts.ignore) {
+    if (opts.ignore) {
         register.deprecated('`ignore` option cannot be used when `PathFinder.use()` is enabled. Use `costCallback` instead.');
     }
-    const searchOpts = {
-        roomCallback: function(roomName) {
-            if(register.objectsByRoom[roomName]) {
+    const searchOpts: Record<string, any> = {
+        roomCallback: function (roomName: any) {
+            if (register.objectsByRoom[roomName]) {
                 let costMatrix = getPathfindingGrid2(roomName, opts);
-                if(typeof opts.costCallback == 'function') {
+                if (typeof opts.costCallback == 'function') {
                     costMatrix = costMatrix.clone();
                     const resultMatrix = opts.costCallback(roomName, costMatrix);
-                    if(resultMatrix instanceof globals.PathFinder.CostMatrix) {
+                    if (resultMatrix instanceof globals.PathFinder.CostMatrix) {
                         costMatrix = resultMatrix;
                     }
                 }
@@ -350,7 +365,7 @@ function _findClosestByPath2(fromPos, objects, opts) {
         maxOps: opts.maxOps,
         maxRooms: 1
     };
-    if(!opts.ignoreRoads) {
+    if (!opts.ignoreRoads) {
         searchOpts.plainCost = 2;
         searchOpts.swampCost = 10;
     }
@@ -359,12 +374,12 @@ function _findClosestByPath2(fromPos, objects, opts) {
     let result = null;
     let lastPos = fromPos;
 
-    if(ret.path.length) {
-        lastPos = ret.path[ret.path.length-1];
+    if (ret.path.length) {
+        lastPos = ret.path[ret.path.length - 1];
     }
 
-    objects.forEach(obj => {
-        if(lastPos.isNearTo(obj)) {
+    objects.forEach((obj: any) => {
+        if (lastPos.isNearTo(obj)) {
             result = obj;
         }
     });
@@ -372,7 +387,7 @@ function _findClosestByPath2(fromPos, objects, opts) {
     return result;
 }
 
-export function make(_runtimeData, _intents, _register, _globals) {
+export function make(_runtimeData: any, _intents: any, _register: any, _globals: any) {
 
     runtimeData = _runtimeData;
     intents = _intents;
@@ -385,28 +400,28 @@ export function make(_runtimeData, _intents, _register, _globals) {
     privateStore = {};
     createdConstructionSites = 0;
 
-    TerrainConstructor || (()=>{
-        for(const roomName in runtimeData.staticTerrainData) {
+    TerrainConstructor || (() => {
+        for (const roomName in runtimeData.staticTerrainData) {
             const array = runtimeData.staticTerrainData[roomName];
             TerrainConstructor = array.constructor;
             break;
         }
     })();
 
-    TerrainConstructorSet || (()=>{
+    TerrainConstructorSet || (() => {
         TerrainConstructorSet = TerrainConstructor.prototype.set;
     })();
 
-    if(globals.Room) {
+    if (globals.Room) {
         return;
     }
 
-    const data = (id) => {
-        if(!runtimeData.rooms[id]) {
-            throw new Error("Could not find a room with name "+id);
-        }
-        return runtimeData.rooms[id];
-    };
+    // const data = (id: any) => {
+    //     if (!runtimeData.rooms[id]) {
+    //         throw new Error("Could not find a room with name " + id);
+    //     }
+    //     return runtimeData.rooms[id];
+    // };
 
 
     /**
@@ -415,16 +430,16 @@ export function make(_runtimeData, _intents, _register, _globals) {
      * @returns {number}
      * @constructor
      */
-    const Room = register.wrapFn(function(id) {
-        const objectData = data(id);
+    const Room = register.wrapFn(function (this: any, id: any) {
+        // const objectData = data(id);
 
         let gameInfo;
         let gameId = id;
         const match = id.match(/survival_(.*)$/);
-        if(match) {
+        if (match) {
             gameId = match[1];
         }
-        if(runtimeData.games && gameId in runtimeData.games) {
+        if (runtimeData.games && gameId in runtimeData.games) {
             gameInfo = runtimeData.games[gameId];
         }
 
@@ -439,32 +454,32 @@ export function make(_runtimeData, _intents, _register, _globals) {
             pfGrid: {},
             pfFinders: {},
             pfEndNodes: {},
-            pfDijkstraFinder: new pathfinding.DijkstraFinder({diagonalMovement: 1}),
+            pfDijkstraFinder: new pathfinding.DijkstraFinder({ diagonalMovement: 1 }),
             pathCache: {},
             positionsSetCache: {
 
                 cache: {},
 
-                key(array) {
+                key(this: any, array: any) {
 
                     if (!_.isArray(array)) {
                         return 0;
                     }
 
-                    const positionsArray = _.map(array, (i) => {
+                    const positionsArray = _.map(array, (i: any) => {
                         if (i && i.pos) {
                             return i.pos;
                         }
-                        if(_.isObject(i) && !_.isUndefined(i.x) && !(i instanceof globals.RoomPosition)) {
+                        if (_.isObject(i) && !_.isUndefined(i.x) && !(i instanceof globals.RoomPosition)) {
                             return new globals.RoomPosition(i.x, i.y, id);
                         }
                         return i;
                     });
 
-                    let key = _.findKey(this.cache, (objects) => {
+                    let key: any = _.findKey(this.cache, (objects: any) => {
                         return positionsArray.length == objects.length && _.every(positionsArray, (j) => _.any(objects, (object) => {
-                            if(!_.isObject(j) || !j.isEqualTo) {
-                                throw new Error('Invalid position '+j+', check your `opts` property');
+                            if (!_.isObject(j) || !j.isEqualTo) {
+                                throw new Error('Invalid position ' + j + ', check your `opts` property');
                             }
                             return j.isEqualTo(object);
                         }));
@@ -516,22 +531,22 @@ export function make(_runtimeData, _intents, _register, _globals) {
         this.visual = new globals.RoomVisual(id);
     });
 
-    Room.serializePath = register.wrapFn(path => {
+    Room.serializePath = register.wrapFn((path: any) => {
         return utils.serializePath(path);
     });
 
-    Room.deserializePath = register.wrapFn(str => {
+    Room.deserializePath = register.wrapFn((str: any) => {
         return utils.deserializePath(str);
     });
 
-    Room.prototype.toString = register.wrapFn(function() {
+    Room.prototype.toString = register.wrapFn(function (this: any) {
         return `[room ${this.name}]`;
     });
 
-    Room.prototype.toJSON = register.wrapFn(function() {
-        const result = {};
-        for(const i in this) {
-            if(i[0] == '_' || _.contains(['toJSON','toString','controller','storage','terminal'],i)) {
+    Room.prototype.toJSON = register.wrapFn(function (this: any) {
+        const result: Record<string, any> = {};
+        for (const i in this) {
+            if (i[0] == '_' || _.contains(['toJSON', 'toString', 'controller', 'storage', 'terminal'], i)) {
                 continue;
             }
             result[i] = this[i];
@@ -540,90 +555,94 @@ export function make(_runtimeData, _intents, _register, _globals) {
     });
 
     Object.defineProperty(Room.prototype, 'memory', {
-        get: function() {
-            if(_.isUndefined(globals.Memory.rooms) || globals.Memory.rooms === 'undefined') {
+        get: function () {
+            if (_.isUndefined(globals.Memory.rooms) || globals.Memory.rooms === 'undefined') {
                 globals.Memory.rooms = {};
             }
-            if(!_.isObject(globals.Memory.rooms)) {
+            if (!_.isObject(globals.Memory.rooms)) {
                 return undefined;
             }
             return globals.Memory.rooms[this.name] = globals.Memory.rooms[this.name] || {};
         },
 
-        set: function(value) {
-            if(_.isUndefined(globals.Memory.rooms) || globals.Memory.rooms === 'undefined') {
+        set: function (value) {
+            if (_.isUndefined(globals.Memory.rooms) || globals.Memory.rooms === 'undefined') {
                 globals.Memory.rooms = {};
             }
-            if(!_.isObject(globals.Memory.rooms)) {
+            if (!_.isObject(globals.Memory.rooms)) {
                 throw new Error('Could not set room memory');
             }
             globals.Memory.rooms[this.name] = value;
         }
     });
 
-    Room.prototype.getEventLog = register.wrapFn(function(raw) {
-        if(raw) {
+    Room.prototype.getEventLog = register.wrapFn(function (this: any, raw: any) {
+        if (raw) {
             return runtimeData.roomEventLog[this.name] || '[]';
         }
-        let {roomEventLogCache} = register;
-        if(!roomEventLogCache[this.name]) {
+        let { roomEventLogCache } = register;
+        if (!roomEventLogCache[this.name]) {
             roomEventLogCache[this.name] = JSON.parse(runtimeData.roomEventLog[this.name] || '[]');
         }
         return roomEventLogCache[this.name];
     });
 
-    Room.prototype.find = register.wrapFn(function(type, opts) {
+    Room.prototype.find = register.wrapFn(function (this: any, type: any, opts: any) {
         let result = [];
         opts = opts || {};
-        if(register.findCache[type] && register.findCache[type][this.name]) {
+        if (register.findCache[type] && register.findCache[type][this.name]) {
             result = register.findCache[type][this.name];
         }
         else {
             switch (type) {
-                case ScreepsConstants.FIND_EXIT:
+                case FindCode.FIND_EXIT:
                     register.findCache[type] = register.findCache[type] || {};
-                    register.findCache[type][this.name] = this.find(ScreepsConstants.FIND_EXIT_TOP, opts)
-                    .concat(this.find(ScreepsConstants.FIND_EXIT_BOTTOM, opts))
-                    .concat(this.find(ScreepsConstants.FIND_EXIT_RIGHT, opts))
-                    .concat(this.find(ScreepsConstants.FIND_EXIT_LEFT, opts));
+                    register.findCache[type][this.name] = this.find(FindCode.FIND_EXIT_TOP, opts)
+                        .concat(this.find(FindCode.FIND_EXIT_BOTTOM, opts))
+                        .concat(this.find(FindCode.FIND_EXIT_RIGHT, opts))
+                        .concat(this.find(FindCode.FIND_EXIT_LEFT, opts));
                     return _.clone(register.findCache[type][this.name]);
-                case ScreepsConstants.FIND_EXIT_TOP:
-                case ScreepsConstants.FIND_EXIT_RIGHT:
-                case ScreepsConstants.FIND_EXIT_BOTTOM:
-                case ScreepsConstants.FIND_EXIT_LEFT:
+                case FindCode.FIND_EXIT_TOP:
+                case FindCode.FIND_EXIT_RIGHT:
+                case FindCode.FIND_EXIT_BOTTOM:
+                case FindCode.FIND_EXIT_LEFT:
 
                     register.findCache[type] = register.findCache[type] || {};
 
                     const exits = [];
                     for (let i = 0; i < 50; i++) {
-                        let x=0, y=0;
-                        if(type == ScreepsConstants.FIND_EXIT_LEFT || type == ScreepsConstants.FIND_EXIT_RIGHT) {
+                        let x = 0, y = 0;
+                        if (type == FindCode.FIND_EXIT_LEFT || type == FindCode.FIND_EXIT_RIGHT) {
                             y = i;
                         }
-                        else  {
+                        else {
                             x = i;
                         }
-                        if(type == ScreepsConstants.FIND_EXIT_RIGHT) {
+                        if (type == FindCode.FIND_EXIT_RIGHT) {
                             x = 49;
                         }
-                        if(type == ScreepsConstants.FIND_EXIT_BOTTOM) {
+                        if (type == FindCode.FIND_EXIT_BOTTOM) {
                             y = 49;
                         }
-                        exits.push(!(runtimeData.staticTerrainData[this.name][y*50+x] & ScreepsConstants.TERRAIN_MASK_WALL));
+                        exits.push(!(runtimeData.staticTerrainData[this.name][y * 50 + x] & ScreepsConstants.TERRAIN_MASK_WALL));
                     }
 
                     result = _.reduce(exits, (accum, i, key) => {
                         if (i) {
-                            if (type == ScreepsConstants.FIND_EXIT_TOP) {
+                            if (type == FindCode.FIND_EXIT_TOP) {
+                                //@ts-ignore
                                 accum.push(this.getPositionAt(key, 0));
                             }
-                            if (type == ScreepsConstants.FIND_EXIT_BOTTOM) {
+                            if (type == FindCode.FIND_EXIT_BOTTOM) {
+                                //@ts-ignore
                                 accum.push(this.getPositionAt(key, 49));
                             }
-                            if (type == ScreepsConstants.FIND_EXIT_LEFT) {
+                            if (type == FindCode.FIND_EXIT_LEFT) {
+                                //@ts-ignore
                                 accum.push(this.getPositionAt(0, key));
                             }
-                            if (type == ScreepsConstants.FIND_EXIT_RIGHT) {
+                            if (type == FindCode.FIND_EXIT_RIGHT) {
+                                //@ts-ignore
                                 accum.push(this.getPositionAt(49, key));
                             }
                         }
@@ -636,7 +655,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
             }
         }
 
-        if(opts.filter) {
+        if (opts.filter) {
             result = _.filter(result, opts.filter);
         }
         else {
@@ -647,22 +666,22 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
     });
 
-    function _lookSpatialRegister (id, typeName, x,y, outArray, withCoords) {
+    function _lookSpatialRegister(id: any, typeName: any, x: any, y: any, outArray?: any, withCoords?: any) {
 
-        let item;
+        let item: any;
 
-        if(typeName == 'terrain') {
+        if (typeName == 'terrain') {
             let result = 'plain';
-            const terrainCode = runtimeData.staticTerrainData[id][y*50+x];
-            if(terrainCode & ScreepsConstants.TERRAIN_MASK_SWAMP) {
+            const terrainCode = runtimeData.staticTerrainData[id][y * 50 + x];
+            if (terrainCode & ScreepsConstants.TERRAIN_MASK_SWAMP) {
                 result = 'swamp';
             }
-            if(terrainCode & ScreepsConstants.TERRAIN_MASK_WALL) {
+            if (terrainCode & ScreepsConstants.TERRAIN_MASK_WALL) {
                 result = 'wall';
             }
-            if(outArray) {
-                item = {type: 'terrain', terrain: result};
-                if(withCoords) {
+            if (outArray) {
+                item = { type: 'terrain', terrain: result };
+                if (withCoords) {
                     item.x = x;
                     item.y = y;
                 }
@@ -672,17 +691,17 @@ export function make(_runtimeData, _intents, _register, _globals) {
             return [result];
         }
 
-        if(x < 0 || y < 0 || x > 49 || y > 49) {
+        if (x < 0 || y < 0 || x > 49 || y > 49) {
             throw new Error('look coords are out of bounds');
         }
 
         const typeResult = privateStore[id].lookTypeSpatialRegisters[typeName][x * 50 + y];
-        if(typeResult) {
-            if(outArray) {
-                typeResult.forEach((i) => {
-                    item = {type: typeName};
+        if (typeResult) {
+            if (outArray) {
+                typeResult.forEach((i: any) => {
+                    item = { type: typeName };
                     item[typeName] = i;
-                    if(withCoords) {
+                    if (withCoords) {
                         item.x = x;
                         item.y = y;
                     }
@@ -695,35 +714,44 @@ export function make(_runtimeData, _intents, _register, _globals) {
         return [];
     }
 
-    function _lookAreaMixedRegister(id, type, top, left, bottom, right, withType, asArray, result) {
+    function _lookAreaMixedRegister(
+        id: any,
+        type: any,
+        top: any,
+        left: any,
+        bottom: any,
+        right: any,
+        withType: any,
+        asArray: any,
+        result: any) {
         const typeRegister = privateStore[id].lookTypeRegisters[type], keys = typeRegister && Object.keys(typeRegister);
 
-        if(type != 'terrain' && keys.length < (bottom-top+1)*(right-left+1)) {
+        if (type != 'terrain' && keys.length < (bottom - top + 1) * (right - left + 1)) {
 
             // by objects
 
-            const checkInside = (i) => {
+            const checkInside = (i: any) => {
                 return (!i.pos && i.roomName == id || i.pos && i.pos.roomName == id) &&
-                i.pos && i.pos.y >= top && i.pos.y <= bottom && i.pos.x >= left && i.pos.x <= right ||
-                !i.pos && i.y >= top && i.y <= bottom && i.x >= left && i.x <= right;
+                    i.pos && i.pos.y >= top && i.pos.y <= bottom && i.pos.x >= left && i.pos.x <= right ||
+                    !i.pos && i.y >= top && i.y <= bottom && i.x >= left && i.x <= right;
             };
-            let item;
-            keys.forEach((key) => {
+            let item: any;
+            keys.forEach((key: any) => {
                 const obj = typeRegister[key];
-                if(checkInside(obj)) {
-                    if(withType) {
-                        item = {type: type};
+                if (checkInside(obj)) {
+                    if (withType) {
+                        item = { type: type };
                         item[type] = obj;
-                        if(asArray) {
-                            result.push({x: obj.x || obj.pos.x, y: obj.y || obj.pos.y, type, [type]: obj});
+                        if (asArray) {
+                            result.push({ x: obj.x || obj.pos.x, y: obj.y || obj.pos.y, type, [type]: obj });
                         }
                         else {
                             result[obj.y || obj.pos.y][obj.x || obj.pos.x].push(item);
                         }
                     }
                     else {
-                        if(asArray) {
-                            result.push({x: obj.x || obj.pos.x, y: obj.y || obj.pos.y, [type]: obj});
+                        if (asArray) {
+                            result.push({ x: obj.x || obj.pos.x, y: obj.y || obj.pos.y, [type]: obj });
                         }
                         else {
                             result[obj.y || obj.pos.y][obj.x || obj.pos.x] = result[obj.y || obj.pos.y][obj.x || obj.pos.x] || [];
@@ -739,7 +767,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
             for (let y = top; y <= bottom; y++) {
                 for (let x = left; x <= right; x++) {
-                    if(asArray) {
+                    if (asArray) {
                         _lookSpatialRegister(id, type, x, y, result, true);
                     }
                     else {
@@ -755,41 +783,43 @@ export function make(_runtimeData, _intents, _register, _globals) {
         }
     }
 
-    Room.prototype.lookAt = register.wrapFn(function(firstArg, secondArg) {
-        const [x,y] = utils.fetchXYArguments(firstArg, secondArg, globals), result = [];
+    Room.prototype.lookAt = register.wrapFn(function (this: any, firstArg: any, secondArg: any) {
+        const [x, y] = utils.fetchXYArguments(firstArg, secondArg, globals),
+            result: any[] = [];
 
-        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_CREEPS, x,y, result);
-        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_ENERGY, x,y, result);
-        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_RESOURCES, x,y, result);
-        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_SOURCES, x,y, result);
-        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_MINERALS, x,y, result);
-        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_DEPOSITS, x,y, result);
-        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_STRUCTURES, x,y, result);
-        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_FLAGS, x,y, result);
-        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_CONSTRUCTION_SITES, x,y, result);
-        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_TERRAIN, x,y, result);
-        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_NUKES, x,y, result);
-        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_TOMBSTONES, x,y, result);
-        _lookSpatialRegister(this.name, ScreepsConstants.LOOK_POWER_CREEPS, x,y, result);
+        _lookSpatialRegister(this.name, LookEnum.LOOK_CREEPS, x, y, result);
+        _lookSpatialRegister(this.name, LookEnum.LOOK_ENERGY, x, y, result);
+        _lookSpatialRegister(this.name, LookEnum.LOOK_RESOURCES, x, y, result);
+        _lookSpatialRegister(this.name, LookEnum.LOOK_SOURCES, x, y, result);
+        _lookSpatialRegister(this.name, LookEnum.LOOK_MINERALS, x, y, result);
+        _lookSpatialRegister(this.name, LookEnum.LOOK_DEPOSITS, x, y, result);
+        _lookSpatialRegister(this.name, LookEnum.LOOK_STRUCTURES, x, y, result);
+        _lookSpatialRegister(this.name, LookEnum.LOOK_FLAGS, x, y, result);
+        _lookSpatialRegister(this.name, LookEnum.LOOK_CONSTRUCTION_SITES, x, y, result);
+        _lookSpatialRegister(this.name, LookEnum.LOOK_TERRAIN, x, y, result);
+        _lookSpatialRegister(this.name, LookEnum.LOOK_NUKES, x, y, result);
+        _lookSpatialRegister(this.name, LookEnum.LOOK_TOMBSTONES, x, y, result);
+        _lookSpatialRegister(this.name, LookEnum.LOOK_POWER_CREEPS, x, y, result);
 
         return result;
     });
 
-    Room.prototype.lookForAt = register.wrapFn(function(type, firstArg, secondArg) {
-        const [x,y] = utils.fetchXYArguments(firstArg, secondArg, globals);
+    Room.prototype.lookForAt = register.wrapFn(function (this: any, type: any, firstArg: any, secondArg: any) {
+        const [x, y] = utils.fetchXYArguments(firstArg, secondArg, globals);
 
-        if(type != 'terrain' && !(type in privateStore[this.name].lookTypeSpatialRegisters)) {
-            return ScreepsConstants.ERR_INVALID_ARGS;
+        if (type != 'terrain' && !(type in privateStore[this.name].lookTypeSpatialRegisters)) {
+            return ErrorCode.ERR_INVALID_ARGS;
         }
 
-        return _lookSpatialRegister(this.name, type, x,y);
+        return _lookSpatialRegister(this.name, type, x, y);
     });
 
-    Room.prototype.lookAtArea = register.wrapFn(function(top, left, bottom, right, asArray) {
+    Room.prototype.lookAtArea = register.wrapFn(function (
+        this: any, top: any, left: any, bottom: any, right: any, asArray: any) {
 
-        const result = asArray ? [] : {};
+        const result: any = asArray ? [] : {};
 
-        if(!asArray) {
+        if (!asArray) {
             for (let y = top; y <= bottom; y++) {
                 result[y] = {};
                 for (let x = left; x <= right; x++) {
@@ -798,27 +828,28 @@ export function make(_runtimeData, _intents, _register, _globals) {
             }
         }
 
-        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_CREEPS, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_ENERGY, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_RESOURCES, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_SOURCES, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_MINERALS, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_DEPOSITS, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_STRUCTURES, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_FLAGS, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_CONSTRUCTION_SITES, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_TERRAIN, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_NUKES, top, left, bottom, right, true, asArray, result);
-        _lookAreaMixedRegister(this.name, ScreepsConstants.LOOK_TOMBSTONES, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, LookEnum.LOOK_CREEPS, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, LookEnum.LOOK_ENERGY, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, LookEnum.LOOK_RESOURCES, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, LookEnum.LOOK_SOURCES, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, LookEnum.LOOK_MINERALS, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, LookEnum.LOOK_DEPOSITS, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, LookEnum.LOOK_STRUCTURES, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, LookEnum.LOOK_FLAGS, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, LookEnum.LOOK_CONSTRUCTION_SITES, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, LookEnum.LOOK_TERRAIN, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, LookEnum.LOOK_NUKES, top, left, bottom, right, true, asArray, result);
+        _lookAreaMixedRegister(this.name, LookEnum.LOOK_TOMBSTONES, top, left, bottom, right, true, asArray, result);
 
         return result;
     });
 
-    Room.prototype.lookForAtArea = register.wrapFn(function(type, top, left, bottom, right, asArray) {
+    Room.prototype.lookForAtArea = register.wrapFn(function (
+        this: any, type: any, top: any, left: any, bottom: any, right: any, asArray: any) {
 
-        const result = asArray ? [] : {};
+        const result: any = asArray ? [] : {};
 
-        if(!asArray) {
+        if (!asArray) {
             for (let y = top; y <= bottom; y++) {
                 result[y] = {};
             }
@@ -830,12 +861,12 @@ export function make(_runtimeData, _intents, _register, _globals) {
     });
 
 
-    Room.prototype.findPath = register.wrapFn(function(fromPos, toPos, opts) {
-        if(fromPos.roomName != this.name) {
+    Room.prototype.findPath = register.wrapFn(function (this: any, fromPos: any, toPos: any, opts: any) {
+        if (fromPos.roomName != this.name) {
             return opts.serialize ? '' : [];
         }
 
-        if(register._useNewPathFinder) {
+        if (register._useNewPathFinder) {
             return _findPath2(this.name, fromPos, toPos, opts);
         }
 
@@ -846,21 +877,21 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
         opts = _.clone(opts || {});
 
-        if(opts.ignoreCreeps) {
+        if (opts.ignoreCreeps) {
             cacheKeySuffix += '_ignoreCreeps'
         }
-        if(opts.ignoreDestructibleStructures) {
+        if (opts.ignoreDestructibleStructures) {
             cacheKeySuffix += '_ignoreDestructibleStructures'
         }
-        if(opts.avoid) {
-            cacheKeySuffix += '_avoid'+privateStore[this.name].positionsSetCache.key(opts.avoid);
+        if (opts.avoid) {
+            cacheKeySuffix += '_avoid' + privateStore[this.name].positionsSetCache.key(opts.avoid);
         }
-        if(opts.ignore) {
-            cacheKeySuffix += '_ignore'+privateStore[this.name].positionsSetCache.key(opts.ignore);
+        if (opts.ignore) {
+            cacheKeySuffix += '_ignore' + privateStore[this.name].positionsSetCache.key(opts.ignore);
         }
 
-        if(_.isNumber(toPos)) {
-            if(!privateStore[this.name].pfEndNodes[toPos]) {
+        if (_.isNumber(toPos)) {
+            if (!privateStore[this.name].pfEndNodes[toPos]) {
                 return opts.serialize ? '' : [];
             }
 
@@ -869,7 +900,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
             path = privateStore[this.name].pfDijkstraFinder.findPath(fromX, fromY, -999, -999, grid);
         }
         else {
-            if(toPos.roomName != this.name) {
+            if (toPos.roomName != this.name) {
                 return opts.serialize ? '' : [];
             }
 
@@ -877,7 +908,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
             const toY = toPos.y;
             var cacheKey = `${fromX},${fromY},${toX},${toY}${cacheKeySuffix}`;
 
-            if(privateStore[this.name].pathCache[cacheKey]) {
+            if (privateStore[this.name].pathCache[cacheKey]) {
                 return opts.serialize ? utils.serializePath(privateStore[this.name].pathCache[cacheKey]) : _.cloneDeep(privateStore[this.name].pathCache[cacheKey]);
             }
 
@@ -906,11 +937,11 @@ export function make(_runtimeData, _intents, _register, _globals) {
             path = finder.findPath(fromX, fromY, toX, toY, grid);
         }
 
-        path.splice(0,1);
+        path.splice(0, 1);
 
         let curX = fromX, curY = fromY;
 
-        const resultPath = _.map(path, (step) => {
+        const resultPath = _.map(path, (step: any) => {
             const result = {
                 x: step[0],
                 y: step[1],
@@ -924,124 +955,126 @@ export function make(_runtimeData, _intents, _register, _globals) {
             return result;
         });
 
-        if(resultPath.length > 0) {
-            const lastStep = resultPath[resultPath.length-1], cacheKey = `${fromX},${fromY},${lastStep.x},${lastStep.y}${cacheKeySuffix}`;
+        if (resultPath.length > 0) {
+            const lastStep = resultPath[resultPath.length - 1], cacheKey = `${fromX},${fromY},${lastStep.x},${lastStep.y}${cacheKeySuffix}`;
             privateStore[this.name].pathCache[cacheKey] = _.cloneDeep(resultPath);
         }
 
-        if(opts.serialize) {
+        if (opts.serialize) {
             return utils.serializePath(resultPath);
         }
 
         return resultPath;
     });
 
-    Room.prototype.getPositionAt = register.wrapFn(function(x,y) {
-        if(x < 0 || x > 49 || y < 0 || y > 49) {
+    Room.prototype.getPositionAt = register.wrapFn(function (this: any, x: any, y: any) {
+        if (x < 0 || x > 49 || y < 0 || y > 49) {
             return null;
         }
-        return new globals.RoomPosition(x,y,this.name);
+        return new globals.RoomPosition(x, y, this.name);
     });
 
-    Room.prototype.createFlag = register.wrapFn(function(firstArg, secondArg, name, color, secondaryColor) {
-        const [x,y] = utils.fetchXYArguments(firstArg, secondArg, globals);
+    Room.prototype.createFlag = register.wrapFn(function (
+        this: any, firstArg: any, secondArg: any, name: any, color: any, secondaryColor: any) {
+        const [x, y] = utils.fetchXYArguments(firstArg, secondArg, globals);
 
-        if(_.isUndefined(x) || _.isUndefined(y) || x < 0 || x > 49 || y < 0 || y > 49) {
-            return ScreepsConstants.ERR_INVALID_ARGS;
+        if (_.isUndefined(x) || _.isUndefined(y) || x < 0 || x > 49 || y < 0 || y > 49) {
+            return ErrorCode.ERR_INVALID_ARGS;
         }
-        if(_.size(globals.Game.flags) >= ScreepsConstants.FLAGS_LIMIT) {
-            return ScreepsConstants.ERR_FULL;
+        if (_.size(globals.Game.flags) >= ScreepsConstants.FLAGS_LIMIT) {
+            return ErrorCode.ERR_FULL;
         }
-        if(_.isObject(firstArg)) {
+        if (_.isObject(firstArg)) {
             secondaryColor = color;
             color = name;
             name = secondArg;
         }
-        if(!color) {
-            color = ScreepsConstants.COLOR_WHITE;
+        if (!color) {
+            color = ColorCode.COLOR_WHITE;
         }
-        if(!secondaryColor) {
+        if (!secondaryColor) {
             secondaryColor = color;
         }
-        if(!_.contains(ScreepsConstants.COLORS_ALL, color)) {
-            return ScreepsConstants.ERR_INVALID_ARGS;
+        if (!_.contains(ListItems.COLORS_ALL, color)) {
+            return ErrorCode.ERR_INVALID_ARGS;
         }
-        if(!_.contains(ScreepsConstants.COLORS_ALL, secondaryColor)) {
-            return ScreepsConstants.ERR_INVALID_ARGS;
+        if (!_.contains(ListItems.COLORS_ALL, secondaryColor)) {
+            return ErrorCode.ERR_INVALID_ARGS;
         }
-        if(!name) {
+        if (!name) {
             let cnt = 1;
             do {
-                name = 'Flag'+cnt;
+                name = 'Flag' + cnt;
                 cnt++;
             }
-            while(_.any(register.flags, {name}) || createdFlagNames.indexOf(name) != -1);
+            while (_.any(register.flags, { name }) || createdFlagNames.indexOf(name) != -1);
         }
-        if(_.any(register.flags, {name}) || createdFlagNames.indexOf(name) != -1) {
-            return ScreepsConstants.ERR_NAME_EXISTS;
+        if (_.any(register.flags, { name }) || createdFlagNames.indexOf(name) != -1) {
+            return ErrorCode.ERR_NAME_EXISTS;
         }
-        if(name.length > 60) {
-            return ScreepsConstants.ERR_INVALID_ARGS;
+        if (name.length > 60) {
+            return ErrorCode.ERR_INVALID_ARGS;
         }
 
         createdFlagNames.push(name);
 
-        const roomName = ""+this.name;
+        const roomName = "" + this.name;
         globals.Game.flags[name] = new globals.Flag(name, color, secondaryColor, roomName, x, y);
 
-        intents.pushByName('room', 'createFlag', {roomName, x, y, name, color, secondaryColor});
+        intents.pushByName('room', 'createFlag', { roomName, x, y, name, color, secondaryColor });
 
         return name;
     });
 
-    Room.prototype.createConstructionSite = register.wrapFn(function(firstArg, secondArg, structureType, name) {
-        const [x,y] = utils.fetchXYArguments(firstArg, secondArg, globals);
+    Room.prototype.createConstructionSite = register.wrapFn(function (
+        this: any, firstArg: any, secondArg: any, structureType: any, name: any) {
+        const [x, y] = utils.fetchXYArguments(firstArg, secondArg, globals);
 
-        if(_.isUndefined(x) || _.isUndefined(y) || x < 0 || x > 49 || y < 0 || y > 49) {
-            return ScreepsConstants.ERR_INVALID_ARGS;
+        if (_.isUndefined(x) || _.isUndefined(y) || x < 0 || x > 49 || y < 0 || y > 49) {
+            return ErrorCode.ERR_INVALID_ARGS;
         }
-        if(_.isString(secondArg) && _.isUndefined(structureType)) {
+        if (_.isString(secondArg) && _.isUndefined(structureType)) {
             structureType = secondArg;
         }
-        if(!ScreepsConstants.CONSTRUCTION_COST[structureType]) {
-            return ScreepsConstants.ERR_INVALID_ARGS;
+        if (!ScreepsConstants.CONSTRUCTION_COST[structureType]) {
+            return ErrorCode.ERR_INVALID_ARGS;
         }
-        if(structureType == 'spawn' && typeof name == 'string') {
-            if(createdSpawnNames.indexOf(name) != -1) {
-                return ScreepsConstants.ERR_INVALID_ARGS;
+        if (structureType == 'spawn' && typeof name == 'string') {
+            if (createdSpawnNames.indexOf(name) != -1) {
+                return ErrorCode.ERR_INVALID_ARGS;
             }
-            if(_.any(register.spawns, {name}) || _.any(register.constructionSites, {structureType: 'spawn', name})) {
-                return ScreepsConstants.ERR_INVALID_ARGS;
+            if (_.any(register.spawns, { name }) || _.any(register.constructionSites, { structureType: 'spawn', name })) {
+                return ErrorCode.ERR_INVALID_ARGS;
             }
         }
-        if(this.controller && this.controller.level > 0 && !this.controller.my) {
-            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
+        if (this.controller && this.controller.level > 0 && !this.controller.my) {
+            return ErrorCode.ERR_RCL_NOT_ENOUGH;
         }
-        const roomName = ""+this.name;
-        if(!utils.checkControllerAvailability(structureType, register.objectsByRoom[this.name], this.controller)) {
-            return ScreepsConstants.ERR_RCL_NOT_ENOUGH;
+        const roomName = "" + this.name;
+        if (!utils.checkControllerAvailability(structureType, register.objectsByRoom[this.name], this.controller)) {
+            return ErrorCode.ERR_RCL_NOT_ENOUGH;
         }
-        if(!utils.checkConstructionSite(register.objectsByRoom[roomName], structureType, x, y) ||
+        if (!utils.checkConstructionSite(register.objectsByRoom[roomName], structureType, x, y) ||
             !utils.checkConstructionSite(runtimeData.staticTerrainData[roomName], structureType, x, y)) {
-            return ScreepsConstants.ERR_INVALID_TARGET;
+            return ErrorCode.ERR_INVALID_TARGET;
         }
 
-        if(_(runtimeData.userObjects).filter({type: 'constructionSite'}).size() + createdConstructionSites >= ScreepsConstants.MAX_CONSTRUCTION_SITES) {
-            return ScreepsConstants.ERR_FULL;
+        if (_(runtimeData.userObjects).filter({ type: 'constructionSite' }).size() + createdConstructionSites >= ScreepsConstants.MAX_CONSTRUCTION_SITES) {
+            return ErrorCode.ERR_FULL;
         }
 
-        const intent = {roomName, x, y, structureType};
+        const intent: Record<string, any> = { roomName, x, y, structureType };
 
-        if(structureType == 'spawn') {
-            if(typeof name !== 'string') {
+        if (structureType == 'spawn') {
+            if (typeof name !== 'string') {
                 let cnt = 1;
                 do {
                     name = "Spawn" + cnt;
                     cnt++;
                 }
-                while (_.any(register.spawns, {name}) ||
-                _.any(register.constructionSites, {structureType: 'spawn', name}) ||
-                createdSpawnNames.indexOf(name) != -1);
+                while (_.any(register.spawns, { name }) ||
+                _.any(register.constructionSites, { structureType: 'spawn', name }) ||
+                    createdSpawnNames.indexOf(name) != -1);
             }
             createdSpawnNames.push(name);
             intent.name = name;
@@ -1051,23 +1084,23 @@ export function make(_runtimeData, _intents, _register, _globals) {
 
         intents.pushByName('room', 'createConstructionSite', intent);
 
-        return ScreepsConstants.OK;
+        return ErrorCode.OK;
     });
 
-    Room.prototype.getEndNodes = register.wrapFn(function(type, opts) {
+    Room.prototype.getEndNodes = register.wrapFn(function (this: any, type: any, opts: any) {
         let key;
 
         opts = opts || {};
 
-        if(_.isUndefined(type)) {
+        if (_.isUndefined(type)) {
             throw new Error('Find type cannot be undefined');
         }
 
-        if(!opts.filter && _.isNumber(type)) {
+        if (!opts.filter && _.isNumber(type)) {
             key = type;
         }
         else {
-            if(_.isNumber(type)) {
+            if (_.isNumber(type)) {
                 type = this.find(type, opts);
             }
 
@@ -1076,24 +1109,24 @@ export function make(_runtimeData, _intents, _register, _globals) {
             privateStore[this.name].pfEndNodes[key] = privateStore[this.name].positionsSetCache.cache[key];
         }
 
-        if(!privateStore[this.name].pfEndNodes[key]) {
+        if (!privateStore[this.name].pfEndNodes[key]) {
             privateStore[this.name].pfEndNodes[key] = _.clone(type);
             if (_.isNumber(type)) {
                 privateStore[this.name].pfEndNodes[key] = this.find(type, opts);
             }
         }
-        return {key, objects: privateStore[this.name].pfEndNodes[key]};
+        return { key, objects: privateStore[this.name].pfEndNodes[key] };
     });
 
-    Room.prototype.findExitTo = register.wrapFn(function(room) {
+    Room.prototype.findExitTo = register.wrapFn(function (this: any, room: any) {
         return register.map.findExit(this.name, room);
     });
 
-    Room.prototype.getTerrain = register.wrapFn(function() {
+    Room.prototype.getTerrain = register.wrapFn(function (this: any) {
         return new Room.Terrain(this.name);
     });
 
-    Object.defineProperty(globals, 'Room', {enumerable: true, value: Room});
+    Object.defineProperty(globals, 'Room', { enumerable: true, value: Room });
 
     /**
      * RoomVisual
@@ -1101,88 +1134,89 @@ export function make(_runtimeData, _intents, _register, _globals) {
      * @returns {object}
      * @constructor
      */
-    const RoomVisual = register.wrapFn(function(roomName) {
+    const RoomVisual = register.wrapFn(function (this: any, roomName: any) {
         this.roomName = roomName;
     });
 
-    RoomVisual.prototype.circle = register.wrapFn(function(x,y,style) {
-        if(typeof x == 'object') {
+    RoomVisual.prototype.circle = register.wrapFn(function (this: any, x: any, y: any, style: any) {
+        if (typeof x == 'object') {
             style = y;
             y = x.y;
             x = x.x;
         }
-        globals.console.addVisual(this.roomName, {t: 'c', x,y,s:style});
+        globals.console.addVisual(this.roomName, { t: 'c', x, y, s: style });
         return this;
     });
 
-    RoomVisual.prototype.line = register.wrapFn(function(x1,y1,x2,y2,style) {
-        if(typeof x1 == 'object' && typeof y1 == 'object') {
+    RoomVisual.prototype.line = register.wrapFn(function (this: any, x1: any, y1: any, x2: any, y2: any, style: any) {
+        if (typeof x1 == 'object' && typeof y1 == 'object') {
             style = x2;
             x2 = y1.x;
             y2 = y1.y;
             y1 = x1.y;
             x1 = x1.x;
         }
-        globals.console.addVisual(this.roomName, {t: 'l', x1,y1,x2,y2,s:style});
+        globals.console.addVisual(this.roomName, { t: 'l', x1, y1, x2, y2, s: style });
         return this;
     });
 
-    RoomVisual.prototype.rect = register.wrapFn(function(x,y,w,h,style) {
-        if(typeof x == 'object') {
+    RoomVisual.prototype.rect = register.wrapFn(function (this: any, x: any, y: any, w: any, h: any, style: any) {
+        if (typeof x == 'object') {
             style = h;
             h = w;
             w = y;
             y = x.y;
             x = x.x;
         }
-        globals.console.addVisual(this.roomName, {t: 'r', x,y,w,h,s:style});
+        globals.console.addVisual(this.roomName, { t: 'r', x, y, w, h, s: style });
         return this;
     });
 
-    RoomVisual.prototype.poly = register.wrapFn(function(points,style) {
-        if(_.isArray(points) && _.some(points)) {
-            points = points.map(i => i.x !== undefined ? [i.x, i.y] : i);
-            globals.console.addVisual(this.roomName, {t: 'p', points,s:style});
+    RoomVisual.prototype.poly = register.wrapFn(function (this: any, points: any, style: any) {
+        if (_.isArray(points) && _.some(points)) {
+            points = points.map((i: any) => i.x !== undefined ? [i.x, i.y] : i);
+            globals.console.addVisual(this.roomName, { t: 'p', points, s: style });
         }
         return this;
     });
 
-    RoomVisual.prototype.text = register.wrapFn(function(text,x,y,style) {
-        if(typeof x == 'object') {
+    RoomVisual.prototype.text = register.wrapFn(function (this: any, text: any, x: any, y: any, style: any) {
+        if (typeof x == 'object') {
             style = y;
             y = x.y;
             x = x.x;
         }
-        globals.console.addVisual(this.roomName, {t: 't', text,x,y,s:style});
+        globals.console.addVisual(this.roomName, { t: 't', text, x, y, s: style });
         return this;
     });
 
-    RoomVisual.prototype.getSize = register.wrapFn(function() {
+    RoomVisual.prototype.getSize = register.wrapFn(function (this: any) {
         return globals.console.getVisualSize(this.roomName);
     });
 
-    RoomVisual.prototype.clear = register.wrapFn(function() {
+    RoomVisual.prototype.clear = register.wrapFn(function (this: any) {
         globals.console.clearVisual(this.roomName);
         return this;
     });
 
-    Object.defineProperty(globals, 'RoomVisual', {enumerable: true, value: RoomVisual});
+    Object.defineProperty(globals, 'RoomVisual', { enumerable: true, value: RoomVisual });
 
 
-    Room.Terrain = register.wrapFn(function(roomName){ "use strict";
+    Room.Terrain = register.wrapFn(function (this: any, roomName: any) {
+        "use strict";
         roomName = "" + roomName;
 
         const array = (runtimeData.staticTerrainData || {})[roomName];
-        if(!array)
+        if (!array)
             throw new Error(`Could not access room ${roomName}`);
 
-        this.get = register.wrapFn((x, y) => {
+        this.get = register.wrapFn((x: any, y: any) => {
             const value = array[y * 50 + x];
             return (value & ScreepsConstants.TERRAIN_MASK_WALL) || (value & ScreepsConstants.TERRAIN_MASK_SWAMP) || 0;
         });
 
-        this.getRawBuffer = register.wrapFn(destinationArray => {
-            if(!!destinationArray) {
+        this.getRawBuffer = register.wrapFn((destinationArray: any) => {
+            if (!!destinationArray) {
                 TerrainConstructorSet.call(destinationArray, array);
                 return destinationArray;
             }
@@ -1191,11 +1225,11 @@ export function make(_runtimeData, _intents, _register, _globals) {
     });
 }
 
-export function makePos(_register) {
+export function makePos(_register: any) {
 
     register = _register;
 
-    if(globals.RoomPosition) {
+    if (globals.RoomPosition) {
         return;
     }
 
@@ -1208,9 +1242,13 @@ export function makePos(_register) {
      */
     const kMaxWorldSize = 256;
     const kMaxWorldSize2 = kMaxWorldSize >> 1;
-    const roomNames = [];
-    utils.getRoomNameFromXY = (slowFn => {
-        return (xx, yy) => {
+    const roomNames: any[] = [];
+
+    /**
+     * Fix this WTF later.
+     */
+    (utils as any).getRoomNameFromXY = ((slowFn: any): any => {
+        return (xx: any, yy: any) => {
             let id = (xx + kMaxWorldSize2) << 8 | (yy + kMaxWorldSize2);
             let roomName = roomNames[id];
             if (roomName === undefined) {
@@ -1220,9 +1258,10 @@ export function makePos(_register) {
             }
         };
     })(utils.getRoomNameFromXY);
+
     roomNames[0] = 'sim';
 
-    let RoomPosition = register.wrapFn(function RoomPosition(xx, yy, roomName) {
+    let RoomPosition = register.wrapFn(function RoomPosition(this: any, xx: any, yy: any, roomName: any) {
         let xy = roomName === 'sim' ? [-kMaxWorldSize2, -kMaxWorldSize2] : utils.roomNameToXY(roomName);
         xy[0] += kMaxWorldSize2;
         xy[1] += kMaxWorldSize2;
@@ -1296,7 +1335,7 @@ export function makePos(_register) {
         },
     });
 
-    RoomPosition.prototype.toJSON = register.wrapFn(function() {
+    RoomPosition.prototype.toJSON = register.wrapFn(function (this: any) {
         return Object.assign({
             x: this.x,
             y: this.y,
@@ -1304,15 +1343,16 @@ export function makePos(_register) {
         }, this);
     });
 
-    RoomPosition.prototype.toString = register.wrapFn(function() {
+    RoomPosition.prototype.toString = register.wrapFn(function (this: any) {
         return `[room ${this.roomName} pos ${this.x},${this.y}]`;
     });
 
-    RoomPosition.prototype.inRangeTo = register.wrapFn(function(firstArg, secondArg, thirdArg) {
+    RoomPosition.prototype.inRangeTo = register.wrapFn(function (
+        this: any, firstArg: any, secondArg: any, thirdArg: any) {
         let x = firstArg, y = secondArg, range = thirdArg, roomName = this.roomName;
-        if(_.isUndefined(thirdArg)) {
+        if (_.isUndefined(thirdArg)) {
             let pos = firstArg;
-            if(pos.pos) {
+            if (pos.pos) {
                 pos = pos.pos;
             }
             x = pos.x;
@@ -1324,130 +1364,134 @@ export function makePos(_register) {
         return abs(x - this.x) <= range && abs(y - this.y) <= range && roomName == this.roomName;
     });
 
-    RoomPosition.prototype.isNearTo = register.wrapFn(function(firstArg, secondArg) {
-        const [x,y,roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
+    RoomPosition.prototype.isNearTo = register.wrapFn(function (this: any, firstArg: any, secondArg: any) {
+        const [x, y, roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
         return abs(x - this.x) <= 1 && abs(y - this.y) <= 1 && (!roomName || roomName == this.roomName);
     });
 
-    RoomPosition.prototype.getDirectionTo = register.wrapFn(function(firstArg, secondArg) {
-        const [x,y,roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
+    RoomPosition.prototype.getDirectionTo = register.wrapFn(function (this: any, firstArg: any, secondArg: any) {
+        const [x, y, roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
 
-        if(!roomName || roomName == this.roomName) {
+        if (!roomName || roomName == this.roomName) {
             return utils.getDirection(x - this.x, y - this.y);
         }
 
         const [thisRoomX, thisRoomY] = utils.roomNameToXY(this.roomName);
         const [thatRoomX, thatRoomY] = utils.roomNameToXY(roomName);
 
-        return utils.getDirection(thatRoomX*50 + x - thisRoomX*50 - this.x, thatRoomY*50 + y - thisRoomY*50 - this.y);
+        return utils.getDirection(thatRoomX * 50 + x - thisRoomX * 50 - this.x, thatRoomY * 50 + y - thisRoomY * 50 - this.y);
     });
 
-    RoomPosition.prototype.findPathTo = register.wrapFn(function(firstArg, secondArg, opts) {
-        let [x,y,roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
+    RoomPosition.prototype.findPathTo = register.wrapFn(function (this: any, firstArg: any, secondArg: any, opts: any) {
+        let [x, y, roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
         const room = register.rooms[this.roomName];
 
-        if(_.isObject(secondArg)) {
+        if (_.isObject(secondArg)) {
             opts = _.clone(secondArg);
         }
         opts = opts || {};
 
         roomName = roomName || this.roomName;
 
-        if(!room) {
+        if (!room) {
             throw new Error(`Could not access room ${this.roomName}`);
         }
 
-        if(roomName == this.roomName || register._useNewPathFinder) {
-            return room.findPath(this, new globals.RoomPosition(x,y,roomName), opts);
+        if (roomName == this.roomName || register._useNewPathFinder) {
+            return room.findPath(this, new globals.RoomPosition(x, y, roomName), opts);
         }
         else {
             const exitDir = room.findExitTo(roomName);
-            if(exitDir < 0) {
+            if (exitDir < 0) {
                 return [];
             }
             const exit = this.findClosestByPath(exitDir, opts);
-            if(!exit) {
+            if (!exit) {
                 return [];
             }
             return room.findPath(this, exit, opts);
         }
     });
 
-    RoomPosition.prototype.findClosestByPath = register.wrapFn(function(type, opts) {
+    RoomPosition.prototype.findClosestByPath = register.wrapFn(function (this: any, type: any, opts: any) {
         opts = _.clone(opts || {});
 
         const room = register.rooms[this.roomName];
 
-        if(!room) {
+        if (!room) {
             throw new Error(`Could not access room ${this.roomName}`);
         }
 
-        if(_.isUndefined(type)) {
+        if (_.isUndefined(type)) {
             return null;
         }
 
-        if(register._useNewPathFinder) {
+        if (register._useNewPathFinder) {
             return _findClosestByPath2(this, type, opts);
         }
 
         opts.serialize = false;
 
         let result = null;
-        let isNear;
+        let isNear: any;
         const endNodes = room.getEndNodes(type, opts);
 
-        if(!opts.algorithm) {
+        if (!opts.algorithm) {
 
-            let minH, sumH = 0;
+            let minH: any,
+                sumH = 0;
 
-            endNodes.objects.forEach((i) => {
-                let x = i.x, y = i.y, roomName = i.roomName;
-                if(i.pos) {
+            endNodes.objects.forEach((i: any) => {
+                let x = i.x;
+                let y = i.y;
+                // let roomName = i.roomName;
+
+                if (i.pos) {
                     x = i.pos.x;
                     y = i.pos.y;
-                    roomName = i.pos.roomName;
+                    // roomName = i.pos.roomName;
                 }
                 const h = max(abs(this.x - x), abs(this.y - y));
-                if(_.isUndefined(minH) || minH > h) {
+                if (_.isUndefined(minH) || minH > h) {
                     minH = h;
                 }
                 sumH += h;
             });
 
-            opts.algorithm = sumH > minH*10 ? 'dijkstra' : 'astar';
+            opts.algorithm = sumH > minH * 10 ? 'dijkstra' : 'astar';
         }
 
-        if(opts.algorithm == 'dijkstra') {
+        if (opts.algorithm == 'dijkstra') {
 
             isNear = 1;
 
-            endNodes.objects.forEach((i) => {
+            endNodes.objects.forEach((i: any) => {
                 const distance = this.isEqualTo(i) ? -1 :
                     this.isNearTo(i) ? 0 : 1;
-                if(distance < isNear) {
+                if (distance < isNear) {
                     result = i;
                     isNear = distance;
                 }
             });
 
-            if(isNear == 1) {
+            if (isNear == 1) {
                 const path = room.findPath(this, endNodes.key, opts);
-                if(path.length > 0) {
-                    const lastStep = path[path.length-1], lastStepPos = room.getPositionAt(lastStep.x, lastStep.y);
+                if (path.length > 0) {
+                    const lastStep = path[path.length - 1], lastStepPos = room.getPositionAt(lastStep.x, lastStep.y);
                     result = _.find(endNodes.objects, (i) => lastStepPos.isEqualTo(i));
                 }
             }
         }
 
-        if(opts.algorithm == 'astar') {
+        if (opts.algorithm == 'astar') {
 
-            endNodes.objects.forEach((i) => {
+            endNodes.objects.forEach((i: any) => {
                 let path;
 
                 const distance = this.isEqualTo(i) ? -1 :
                     this.isNearTo(i) ? 0 :
                         (path = this.findPathTo(i, opts)) && path.length > 0 &&
-                        room.getPositionAt(path[path.length - 1].x, path[path.length - 1].y).isNearTo(i) ?
+                            room.getPositionAt(path[path.length - 1].x, path[path.length - 1].y).isNearTo(i) ?
                             path.length : undefined;
 
                 if ((_.isUndefined(isNear) || distance <= isNear) && !_.isUndefined(distance)) {
@@ -1460,27 +1504,27 @@ export function makePos(_register) {
         return result;
     });
 
-    RoomPosition.prototype.findInRange = register.wrapFn(function(type, range, opts) {
+    RoomPosition.prototype.findInRange = register.wrapFn(function (this: any, type: any, range: any, opts: any) {
         const room = register.rooms[this.roomName];
 
-        if(!room) {
+        if (!room) {
             throw new Error(`Could not access room ${this.roomName}`);
         }
 
         opts = _.clone(opts || {});
 
         let objects = [];
-        const result = [];
+        const result: any[] = [];
 
-        if(_.isNumber(type)) {
+        if (_.isNumber(type)) {
             objects = room.find(type, opts);
         }
-        if(_.isArray(type)) {
+        if (_.isArray(type)) {
             objects = opts.filter ? _.filter(type, opts.filter) : type;
         }
 
-        objects.forEach((i) => {
-            if(this.inRangeTo(i, range)) {
+        objects.forEach((i: any) => {
+            if (this.inRangeTo(i, range)) {
                 result.push(i);
             }
         });
@@ -1488,30 +1532,30 @@ export function makePos(_register) {
         return result;
     });
 
-    RoomPosition.prototype.findClosestByRange = register.wrapFn(function(type, opts) {
+    RoomPosition.prototype.findClosestByRange = register.wrapFn(function (this: any, type: any, opts: any) {
         const room = register.rooms[this.roomName];
 
-        if(!room) {
+        if (!room) {
             throw new Error(`Could not access room ${this.roomName}`);
         }
 
         opts = _.clone(opts || {});
 
         let objects = [];
-        const result = [];
+        // const result = [];
 
-        if(_.isNumber(type)) {
+        if (_.isNumber(type)) {
             objects = room.find(type, opts);
         }
-        if(_.isArray(type)) {
+        if (_.isArray(type)) {
             objects = opts.filter ? _.filter(type, opts.filter) : type;
         }
 
         let closest = null, minRange = Infinity;
 
-        objects.forEach((i) => {
+        objects.forEach((i: any) => {
             const range = this.getRangeTo(i);
-            if(range < minRange) {
+            if (range < minRange) {
                 minRange = range;
                 closest = i;
             }
@@ -1520,37 +1564,37 @@ export function makePos(_register) {
         return closest;
     });
 
-    RoomPosition.prototype.isEqualTo = register.wrapFn(function(firstArg, secondArg) {
+    RoomPosition.prototype.isEqualTo = register.wrapFn(function (this: any, firstArg: any, secondArg: any) {
         if (firstArg.__packedPos !== undefined) {
             return firstArg.__packedPos === this.__packedPos;
         }
-        const [x,y,roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
+        const [x, y, roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
         return x == this.x && y == this.y && (!roomName || roomName == this.roomName);
     });
 
-    RoomPosition.prototype.getRangeTo = register.wrapFn(function(firstArg, secondArg) {
-        const [x,y,roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
-        if(roomName && roomName != this.roomName) {
+    RoomPosition.prototype.getRangeTo = register.wrapFn(function (this: any, firstArg: any, secondArg: any) {
+        const [x, y, roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
+        if (roomName && roomName != this.roomName) {
             return Infinity;
         }
         return max(abs(this.x - x), abs(this.y - y));
     });
 
-    RoomPosition.prototype.look = register.wrapFn(function() {
+    RoomPosition.prototype.look = register.wrapFn(function (this: any) {
         const room = register.rooms[this.roomName];
-        if(!room) {
+        if (!room) {
             throw new Error(`Could not access room ${this.roomName}`);
         }
         return room.lookAt(this);
     });
 
-    RoomPosition.prototype.lookFor = register.wrapFn(function(type) {
-        if(type == 'terrain') {
-            const terrainCode = runtimeData.staticTerrainData[this.roomName][this.y*50+this.x];
-            if(terrainCode & ScreepsConstants.TERRAIN_MASK_WALL) {
+    RoomPosition.prototype.lookFor = register.wrapFn(function (this: any, type: any) {
+        if (type == 'terrain') {
+            const terrainCode = runtimeData.staticTerrainData[this.roomName][this.y * 50 + this.x];
+            if (terrainCode & ScreepsConstants.TERRAIN_MASK_WALL) {
                 return ['wall'];
             }
-            else if(terrainCode & ScreepsConstants.TERRAIN_MASK_SWAMP) {
+            else if (terrainCode & ScreepsConstants.TERRAIN_MASK_SWAMP) {
                 return ['swamp'];
             }
             else {
@@ -1558,29 +1602,30 @@ export function makePos(_register) {
             }
         }
         const room = register.rooms[this.roomName];
-        if(!room) {
+        if (!room) {
             throw new Error(`Could not access room ${this.roomName}`);
         }
         return room.lookForAt(type, this);
     });
 
-    RoomPosition.prototype.createFlag = register.wrapFn(function(name, color, secondaryColor) {
+    RoomPosition.prototype.createFlag = register.wrapFn(function (
+        this: any, name: any, color: any, secondaryColor: any) {
         const room = register.rooms[this.roomName];
-        if(!room) {
+        if (!room) {
             throw new Error(`Could not access room ${this.roomName}`);
         }
         return room.createFlag(this, name, color, secondaryColor);
     });
 
-    RoomPosition.prototype.createConstructionSite = register.wrapFn(function(structureType, name) {
+    RoomPosition.prototype.createConstructionSite = register.wrapFn(function (this: any, structureType: any, name: any) {
         const room = register.rooms[this.roomName];
-        if(!room) {
+        if (!room) {
             throw new Error(`Could not access room ${this.roomName}`);
         }
         return room.createConstructionSite(this.x, this.y, structureType, name);
     });
 
-    Object.defineProperty(globals, 'RoomPosition', {enumerable: true, value: RoomPosition});
+    Object.defineProperty(globals, 'RoomPosition', { enumerable: true, value: RoomPosition });
 
 
     /**
@@ -1590,11 +1635,11 @@ export function makePos(_register) {
      * @param y
      * @constructor
      */
-    const RoomObject = register.wrapFn(function(x, y, room, effects) {
+    const RoomObject = register.wrapFn(function (this: any, x: any, y: any, room: any, effects: any) {
         this.room = register.rooms[room];
-        this.pos = new globals.RoomPosition(x,y,room);
-        if(effects) {
-            this.effects = _(effects).map(i => ({
+        this.pos = new globals.RoomPosition(x, y, room);
+        if (effects) {
+            this.effects = _(effects).map((i: any) => ({
                 power: i.power,
                 effect: i.effect,
                 level: i.level,
@@ -1603,5 +1648,5 @@ export function makePos(_register) {
         }
     });
 
-    Object.defineProperty(globals, 'RoomObject', {enumerable: true, value: RoomObject});
+    Object.defineProperty(globals, 'RoomObject', { enumerable: true, value: RoomObject });
 }

@@ -1,36 +1,40 @@
-import * as utils from '../utils';
-const driver = utils.getRuntimeDriver();
-
 import _ from 'lodash';
 
-let runtimeData, intents, register, globals;
+import * as utils from '../utils';
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { BodyParts } from '@screeps/common/src/constants/body-parts';
 
-function _storeGetter(o) {
-    if(!o) {
-        o = {store: {}, storeCapacity: this.carryCapacity};
+let runtimeData: any,
+    intents: any,
+    register: any,
+    globals: any;
+
+function _storeGetter(this: any, o: any) {
+    if (!o) {
+        o = { store: {}, storeCapacity: this.carryCapacity };
     }
     return new globals.Store(o);
 }
 
-export function make(_runtimeData, _intents, _register, _globals) {
+export function make(_runtimeData: any, _intents: any, _register: any, _globals: any) {
 
     runtimeData = _runtimeData;
     intents = _intents;
     register = _register;
     globals = _globals;
 
-    if(globals.Tombstone) {
+    if (globals.Tombstone) {
         return;
     }
 
-    const data = (id) => {
-        if(!runtimeData.roomObjects[id]) {
-            throw new Error("Could not find an object with ID "+id);
+    const data = (id: any) => {
+        if (!runtimeData.roomObjects[id]) {
+            throw new Error("Could not find an object with ID " + id);
         }
         return runtimeData.roomObjects[id];
     };
 
-    const Tombstone = register.wrapFn(function(id) {
+    const Tombstone = register.wrapFn(function (this: any, id: any) {
         const _data = data(id);
         globals.RoomObject.call(this, _data.x, _data.y, _data.room, _data.effects);
         this.id = id;
@@ -39,11 +43,11 @@ export function make(_runtimeData, _intents, _register, _globals) {
     Tombstone.prototype = Object.create(globals.RoomObject.prototype);
     Tombstone.prototype.constructor = Tombstone;
     utils.defineGameObjectProperties(Tombstone.prototype, data, {
-        deathTime: (o) => o.deathTime,
+        deathTime: (o: any) => o.deathTime,
         store: _storeGetter,
-        ticksToDecay: (o) => o.decayTime - runtimeData.time,
-        creep: (o) => {
-            if(o.creepId) {
+        ticksToDecay: (o: any) => o.decayTime - runtimeData.time,
+        creep: (o: any) => {
+            if (o.creepId) {
                 let creep = new globals.Creep();
                 globals.RoomObject.call(creep, o.x, o.y, o.room);
                 Object.defineProperties(creep, {
@@ -74,7 +78,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
                     body: {
                         enumerable: true,
                         get() {
-                            return _.map(o.creepBody, type => ({type, hits: 0}))
+                            return _.map(o.creepBody, type => ({ type, hits: 0 }))
                         }
                     },
                     owner: {
@@ -95,16 +99,18 @@ export function make(_runtimeData, _intents, _register, _globals) {
                         enumerable: true,
                         get() {
                             return _.reduce(o.creepBody,
-                                (result, type) => result += type === ScreepsConstants.CARRY ? ScreepsConstants.CARRY_CAPACITY : 0, 0);
+                                (result, type) => result += type === BodyParts.CARRY ?
+                                    ScreepsConstants.CARRY_CAPACITY :
+                                    0, 0);
                         }
                     },
                     carry: {
                         enumerable: true,
-                        get: _storeGetter
+                        get: _storeGetter as any,
                     },
                     store: {
                         enumerable: true,
-                        get: _storeGetter
+                        get: _storeGetter as any,
                     },
                     fatigue: {
                         enumerable: true,
@@ -134,7 +140,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
                 return creep;
             }
 
-            if(o.powerCreepId) {
+            if (o.powerCreepId) {
 
                 let powerCreep = new globals.PowerCreep();
                 globals.RoomObject.call(powerCreep, o.x, o.y, o.room);
@@ -172,7 +178,7 @@ export function make(_runtimeData, _intents, _register, _globals) {
                     body: {
                         enumerable: true,
                         get() {
-                            return _.map(o.creepBody, type => ({type, hits: 0}))
+                            return _.map(o.creepBody, type => ({ type, hits: 0 }))
                         }
                     },
                     owner: {
@@ -197,11 +203,11 @@ export function make(_runtimeData, _intents, _register, _globals) {
                     },
                     carry: {
                         enumerable: true,
-                        get: _storeGetter
+                        get: _storeGetter as any,
                     },
                     store: {
                         enumerable: true,
-                        get: _storeGetter
+                        get: _storeGetter as any,
                     },
                     hits: {
                         enumerable: true,
@@ -233,9 +239,9 @@ export function make(_runtimeData, _intents, _register, _globals) {
         },
     });
 
-    Tombstone.prototype.toString = register.wrapFn(function() {
+    Tombstone.prototype.toString = register.wrapFn(function (this: any) {
         return `[Tombstone #${this.id}]`;
     });
 
-    Object.defineProperty(globals, 'Tombstone', {enumerable: true, value: Tombstone});
+    Object.defineProperty(globals, 'Tombstone', { enumerable: true, value: Tombstone });
 }
