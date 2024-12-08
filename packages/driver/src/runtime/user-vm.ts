@@ -2,7 +2,7 @@ import _ from 'lodash';
 import ivm from 'isolated-vm';
 import fs from 'fs';
 
-import * as common from '@screeps/common';
+import * as common from '@screeps/common/src';
 
 import * as index from '../index';
 

@@ -1,9 +1,10 @@
-import q from 'q';
 import _ from 'lodash';
-import * as common from '@screeps/common';
+
+import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
 
 const config = common.configManager.config;
-const env = common.storage.env;
+const env = StorageInstance.env;
 
 export function saveTick(roomId: any, gameTime: any, data: any) {
     return env.hmset(env.keys.ROOM_HISTORY + roomId, { [gameTime]: data });

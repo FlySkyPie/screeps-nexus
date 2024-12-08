@@ -4,16 +4,18 @@ import _ from 'lodash';
 import os from 'os';
 import zlib from 'zlib';
 import genericPool from 'generic-pool';
-import common from '@screeps/common';
+
+import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
 
 import bulk from './bulk';
 import * as queue from './queue';
 import * as runtimeUserVm from './runtime/user-vm';
 import * as pathFinderFactory from './path-finder';
 
-const db = common.storage.db;
-const env = common.storage.env;
-const pubsub = common.storage.pubsub;
+const db = StorageInstance.db;
+const env = StorageInstance.env;
+const pubsub = StorageInstance.pubsub;
 const _config = Object.assign(common.configManager.config, { engine: new EventEmitter() });
 const roomStatsUpdates: Record<string, any> = {};
 let worldSize: any;
@@ -90,7 +92,7 @@ export function connect(processType: any) {
 
     common.configManager.load();
 
-    return common.storage._connect()
+    return StorageInstance._connect()
         .then(() => {
 
             if (processType == 'runner') {

@@ -1,10 +1,11 @@
 import q from 'q';
 import _ from 'lodash';
-import * as common from '@screeps/common';
+
+import StorageInstance from '@screeps/common/src/storage';
 
 const register: Record<string, any> = {};
-const queue = common.storage.queue;
-const pubsub = common.storage.pubsub;
+const queue = StorageInstance.queue;
+const pubsub = StorageInstance.pubsub;
 
 let terminated = false;
 

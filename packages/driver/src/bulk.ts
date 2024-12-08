@@ -1,7 +1,7 @@
 import q from 'q';
 import _ from 'lodash';
-import common from '@screeps/common';
 
+import StorageInstance from '@screeps/common/src/storage';
 
 function removeHidden(obj: any) {
     for (const i in obj) {
@@ -109,7 +109,7 @@ export default (collectionName: any) => {
             for (const id in updates) {
                 bulk.push({ op: 'update', id, update: { $set: updates[id] } });
             }
-            return common.storage.db[collectionName].bulk(bulk);
+            return StorageInstance.db[collectionName].bulk(bulk);
         }
     };
 };

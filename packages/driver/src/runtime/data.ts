@@ -1,12 +1,13 @@
 import q from 'q';
 import _ from 'lodash';
 
-import * as common from '@screeps/common';
+import * as common from '@screeps/common/src';
+import StorageInstance from '@screeps/common/src/storage';
 
 import * as driver from '../index';
 
-const db = common.storage.db;
-const env = common.storage.env;
+const db = StorageInstance.db;
+const env = StorageInstance.env;
 const config = common.configManager.config;
 
 const accessibleRoomsCache: Record<string, any> = {
