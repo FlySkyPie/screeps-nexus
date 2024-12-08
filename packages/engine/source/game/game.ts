@@ -1,13 +1,30 @@
 import _ from 'lodash';
 
-import * as utils from '../utils';
-
-import * as  map from './map';
-import * as market from './market';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { FindCode } from '@screeps/common/src/constants/find-code';
 import { IntershardResources } from '@screeps/common/src/constants/intershard-resources';
 import { ErrorCode } from '@screeps/common/src/constants/error-code';
+
+import * as utils from '../utils';
+
+import * as  map from './map';
+import * as market from './market';
+
+import * as  rooms from './rooms'
+import * as  creeps from './creeps'
+import * as  structures from './structures'
+import * as  sources from './sources'
+import * as  minerals from './minerals'
+import * as  deposits from './deposits'
+import * as  nukes from './nukes'
+import * as  resources from './resources'
+import * as  flags from './flags'
+import * as  tombstones from './tombstones'
+import * as  construction_sites from './construction-sites'
+import * as  path_finder from './path-finder'
+import * as  power_creeps from './power-creeps'
+import * as  ruins from './ruins'
+import * as  store from './store'
 
 const driver = utils.getRuntimeDriver();
 
@@ -198,22 +215,22 @@ function makeGameObject({
         populateRegister(register.byRoom[i], true);
     }
 
-    require('./rooms').make(runtimeData, intents, register, globals);
-    require('./rooms').makePos(register, globals);
-    require('./creeps').make(runtimeData, intents, register, globals);
-    require('./structures').make(runtimeData, intents, register, globals);
-    require('./sources').make(runtimeData, intents, register, globals);
-    require('./minerals').make(runtimeData, intents, register, globals);
-    require('./deposits').make(runtimeData, intents, register, globals);
-    require('./nukes').make(runtimeData, intents, register, globals);
-    require('./resources').make(runtimeData, intents, register, globals);
-    require('./flags').make(runtimeData, intents, register, globals);
-    require('./tombstones').make(runtimeData, intents, register, globals);
-    require('./construction-sites').make(runtimeData, intents, register, globals);
-    require('./path-finder').make(runtimeData, intents, register, globals);
-    require('./power-creeps').make(runtimeData, intents, register, globals);
-    require('./ruins').make(runtimeData, intents, register, globals);
-    require('./store').make(runtimeData, intents, register, globals);
+    rooms.make(runtimeData, intents, register, globals);
+    rooms.makePos(register, globals);
+    creeps.make(runtimeData, intents, register, globals);
+    structures.make(runtimeData, intents, register, globals);
+    sources.make(runtimeData, intents, register, globals);
+    minerals.make(runtimeData, intents, register, globals);
+    deposits.make(runtimeData, intents, register, globals);
+    nukes.make(runtimeData, intents, register, globals);
+    resources.make(runtimeData, intents, register, globals);
+    flags.make(runtimeData, intents, register, globals);
+    tombstones.make(runtimeData, intents, register, globals);
+    construction_sites.make(runtimeData, intents, register, globals);
+    path_finder.make(runtimeData, intents, register, globals);
+    power_creeps.make(runtimeData, intents, register, globals);
+    ruins.make(runtimeData, intents, register, globals);
+    store.make(runtimeData, intents, register, globals);
 
     for (var i in runtimeData.rooms) {
         register.rooms[i] = new globals.Room(i);
@@ -519,7 +536,7 @@ function makeGameObject({
 
     exports.run = (userId: any) => {
 
-        const mainExports = runCodeCache[userId].globals.require('main');
+        const mainExports = runCodeCache[userId].globals.main;
         if (_.isObject(mainExports) && _.isFunction(mainExports.loop)) {
 
             if (runCodeCache[userId].globals.require.initGlobals) {
@@ -595,4 +612,3 @@ function requireFn(this: any, moduleName: any) {
     }
     return this.globals.require.cache[moduleName];
 }
-

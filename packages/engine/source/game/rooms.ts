@@ -1225,7 +1225,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
     });
 }
 
-export function makePos(_register: any) {
+export function makePos(_register: any, _g?: any) {
 
     register = _register;
 
