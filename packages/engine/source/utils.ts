@@ -363,7 +363,11 @@ export function checkTerrain(terrain: any, x: any, y: any, mask: any) {
     return (code & mask) > 0;
 }
 
-export function checkControllerAvailability(type: any, roomObjects: any, roomController: any, offset: any) {
+export function checkControllerAvailability(
+    type: any,
+    roomObjects: any,
+    roomController: any,
+    offset?: any) {
     let rcl = 0;
 
     if (_.isObject(roomController) && roomController.level && (roomController.user || roomController.owner)) {

@@ -1,22 +1,23 @@
 import _ from 'lodash';
-import * as utils from '../../../utils';
-const driver = utils.getDriver();
 
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+
+import * as utils from '../../../utils';
 import config from '../../../config';
 
 let createdConstructionSiteCounter = 0;
 
-export default (userId, intent, {roomObjects, roomTerrain, bulk, roomController}) => {
+export default (userId: any, intent: any, { roomObjects, roomTerrain, bulk, roomController }: any) => {
 
-    if(intent.x <= 0 || intent.x >= 49 || intent.y <= 0 || intent.y >= 49) {
+    if (intent.x <= 0 || intent.x >= 49 || intent.y <= 0 || intent.y >= 49) {
         return;
     }
 
-    if(!ScreepsConstants.CONSTRUCTION_COST[intent.structureType]) {
+    if (!ScreepsConstants.CONSTRUCTION_COST[intent.structureType]) {
         return;
     }
 
-    if(/^(W|E)/.test(intent.roomName)) {
+    if (/^(W|E)/.test(intent.roomName)) {
 
         if (roomController && (roomController.user && roomController.user != userId || roomController.reservation && roomController.reservation.user != userId)) {
             return;
@@ -27,33 +28,33 @@ export default (userId, intent, {roomObjects, roomTerrain, bulk, roomController}
         }
     }
 
-    if(!utils.checkConstructionSite(roomObjects, intent.structureType, intent.x, intent.y) ||
+    if (!utils.checkConstructionSite(roomObjects, intent.structureType, intent.x, intent.y) ||
         !utils.checkConstructionSite(roomTerrain, intent.structureType, intent.x, intent.y)) {
         return;
     }
 
     let progressTotal = ScreepsConstants.CONSTRUCTION_COST[intent.structureType];
 
-    if(intent.structureType == 'road') {
-        if(_.any(roomObjects, {x: intent.x, y: intent.y, type: 'swamp'}) ||
+    if (intent.structureType == 'road') {
+        if (_.any(roomObjects, { x: intent.x, y: intent.y, type: 'swamp' }) ||
             utils.checkTerrain(roomTerrain, intent.x, intent.y, ScreepsConstants.TERRAIN_MASK_SWAMP)) {
             progressTotal *= ScreepsConstants.CONSTRUCTION_COST_ROAD_SWAMP_RATIO;
         }
-        if(_.any(roomObjects, {x: intent.x, y: intent.y, type: 'wall'}) ||
+        if (_.any(roomObjects, { x: intent.x, y: intent.y, type: 'wall' }) ||
             utils.checkTerrain(roomTerrain, intent.x, intent.y, ScreepsConstants.TERRAIN_MASK_WALL)) {
             progressTotal *= ScreepsConstants.CONSTRUCTION_COST_ROAD_WALL_RATIO;
         }
     }
 
-    if(config.ptr) {
+    if (config.ptr) {
         progressTotal = 1;
     }
 
-    if(intent.roomName == 'sim' && intent.structureType == 'tower') {
+    if (intent.roomName == 'sim' && intent.structureType == 'tower') {
         progressTotal = 100;
     }
 
-    const obj = {
+    const obj: Record<string, any> = {
         structureType: intent.structureType,
         x: intent.x,
         y: intent.y,
@@ -64,12 +65,12 @@ export default (userId, intent, {roomObjects, roomTerrain, bulk, roomController}
         progressTotal
     };
 
-    if(intent.structureType == 'spawn') {
+    if (intent.structureType == 'spawn') {
         obj.name = intent.name;
     }
 
     bulk.insert(obj);
 
-    roomObjects['_createdConstructionSite'+createdConstructionSiteCounter] = obj;
+    roomObjects['_createdConstructionSite' + createdConstructionSiteCounter] = obj;
     createdConstructionSiteCounter++;
 };

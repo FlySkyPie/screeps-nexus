@@ -1,21 +1,18 @@
 import _ from 'lodash';
-import * as utils from '../../../utils';
-const driver = utils.getDriver();
 
+export default (object: any, intent: any, scope: any) => {
 
-export default (object, intent, scope) => {
+    const { roomObjects } = scope;
 
-    const {roomObjects} = scope;
-
-    if(object.type != 'spawn') {
+    if (object.type != 'spawn') {
         return;
     }
 
     const target = roomObjects[intent.id];
-    if(!target || target.type != 'creep' || target.user != object.user || target.spawning) {
+    if (!target || target.type != 'creep' || target.user != object.user || target.spawning) {
         return;
     }
-    if(Math.abs(target.x - object.x) > 1 || Math.abs(target.y - object.y) > 1) {
+    if (Math.abs(target.x - object.x) > 1 || Math.abs(target.y - object.y) > 1) {
         return;
     }
 

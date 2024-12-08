@@ -1,31 +1,38 @@
 import _ from 'lodash';
+
 import * as utils from '../../../utils';
-const driver = utils.getDriver();
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { POWER_INFO } from '@screeps/common/src/tables/power-info';
+import { PWRCode } from '@screeps/common/src/constants/pwr-code';
+import { ListItems } from '@screeps/common/src/tables/list-items';
+import { BodyParts } from '@screeps/common/src/constants/body-parts';
 
+export default (spawn: any, intent: any, scope: any) => {
+    const { roomObjects, bulk, roomController, stats, gameTime } = scope;
 
-export default (spawn, intent, scope) => {
-    const {roomObjects, bulk, roomController, stats, gameTime} = scope;
-
-    if(spawn.spawning) {
+    if (spawn.spawning) {
         return;
     }
-    if(spawn.type != 'spawn')
+    if (spawn.type != 'spawn')
         return;
 
-    if(!utils.checkStructureAgainstController(spawn, roomObjects, roomController)) {
+    if (!utils.checkStructureAgainstController(spawn, roomObjects, roomController)) {
         return;
     }
 
     let directions = intent.directions;
-    if(directions !== undefined) {
-        if(!_.isArray(directions)) {
+    if (directions !== undefined) {
+        if (!_.isArray(directions)) {
             return;
         }
         // convert directions to numbers, eliminate duplicates
-        directions = _.uniq(_.map(directions, e => +e));
-        if(directions.length > 0) {
+        directions = _.uniq(_.map(directions, (e: any) => +e));
+        if (directions.length > 0) {
             // bail if any numbers are out of bounds or non-integers
-            if(!_.all(directions, direction => direction >= 1 && direction <= 8 && direction === (direction | 0))) {
+            if (!_.all(directions, (direction: any) =>
+                direction >= 1 &&
+                direction <= 8 &&
+                direction === (direction | 0))) {
                 return;
             }
         }
@@ -36,7 +43,7 @@ export default (spawn, intent, scope) => {
     const cost = utils.calcCreepCost(intent.body);
     const result = require('./_charge-energy')(spawn, cost, intent.energyStructures, scope);
 
-    if(!result) {
+    if (!result) {
         return;
     }
 
@@ -46,9 +53,9 @@ export default (spawn, intent, scope) => {
 
     let needTime = ScreepsConstants.CREEP_SPAWN_TIME * intent.body.length;
 
-    const effect = _.find(spawn.effects, {power: ScreepsConstants.PWR_OPERATE_SPAWN});
-    if(effect && effect.endTime > gameTime) {
-        needTime = Math.ceil(needTime * ScreepsConstants.POWER_INFO[ScreepsConstants.PWR_OPERATE_SPAWN].effect[effect.level-1]);
+    const effect: any = _.find(spawn.effects, { power: PWRCode.PWR_OPERATE_SPAWN });
+    if (effect && effect.endTime > gameTime) {
+        needTime = Math.ceil(needTime * POWER_INFO[PWRCode.PWR_OPERATE_SPAWN].effect[effect.level - 1]);
     }
 
     bulk.update(spawn, {
@@ -60,22 +67,22 @@ export default (spawn, intent, scope) => {
         }
     });
 
-    const body = [];
+    const body: any[] = [];
     let storeCapacity = 0;
 
-    intent.body.forEach((i) => {
-        if(_.contains(ScreepsConstants.BODYPARTS_ALL, i)) {
+    intent.body.forEach((i: any) => {
+        if (_.contains(ListItems.BODYPARTS_ALL, i)) {
             body.push({
                 type: i,
                 hits: 100
             });
         }
 
-        if(i == ScreepsConstants.CARRY)
+        if (i == BodyParts.CARRY)
             storeCapacity += ScreepsConstants.CARRY_CAPACITY;
     });
 
-    const creep = {
+    const creep: Record<string, any> = {
         name: intent.name,
         x: spawn.x,
         y: spawn.y,
@@ -92,7 +99,7 @@ export default (spawn, intent, scope) => {
         notifyWhenAttacked: true
     };
 
-    if(spawn.tutorial) {
+    if (spawn.tutorial) {
         creep.tutorial = true;
     }
 

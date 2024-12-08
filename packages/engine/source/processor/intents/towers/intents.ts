@@ -1,10 +1,10 @@
 
-export default (object, objectIntents, scope) => {
+export default (object: any, objectIntents: any, scope: any) => {
 
-    if(objectIntents.heal)
+    if (objectIntents.heal)
         require('./heal')(object, objectIntents.heal, scope);
-    else if(objectIntents.repair)
+    else if (objectIntents.repair)
         require('./repair')(object, objectIntents.repair, scope);
-    else if(objectIntents.attack)
+    else if (objectIntents.attack)
         require('./attack')(object, objectIntents.attack, scope);
 };

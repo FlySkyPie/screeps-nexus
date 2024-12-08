@@ -1,15 +1,12 @@
 import _ from 'lodash';
-import * as utils from '../../../utils';
-const driver = utils.getDriver();
 
-
-export default (object, {roomObjects, bulk, gameTime}) => {
+export default (object: any, { roomObjects, bulk, gameTime }: any) => {
     if (!object.decayTime || gameTime >= object.decayTime - 1) {
 
-        if(object.store) {
-            _.forEach(object.store, (amount, resourceType)=>{
+        if (object.store) {
+            _.forEach(object.store, (amount: any, resourceType: any) => {
                 if (amount > 0) {
-                    const existingDrop = _.find(roomObjects, {type: 'energy', x: object.x, y: object.y, resourceType});
+                    const existingDrop: any = _.find(roomObjects, { type: 'energy', x: object.x, y: object.y, resourceType });
                     if (existingDrop) {
                         bulk.update(existingDrop, {
                             [resourceType]: existingDrop[resourceType] + amount

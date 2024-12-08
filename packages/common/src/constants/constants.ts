@@ -282,7 +282,7 @@ export abstract class ScreepsConstants {
     public static readonly TOMBSTONE_DECAY_POWER_CREEP = 500;
 
     public static readonly RUIN_DECAY = 500;
-    public static readonly RUIN_DECAY_STRUCTURES = {
+    public static readonly RUIN_DECAY_STRUCTURES: Record<string, number> = {
         'powerBank': 10
     };
 
