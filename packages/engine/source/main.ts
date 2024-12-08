@@ -2,11 +2,9 @@
 import q from 'q';
 import _ from 'lodash';
 
-import * as utils from './utils';
+import * as driver from '@screeps/driver/src/index';
+
 import global from './processor/global';
-
-
-const driver = utils.getDriver();
 
 let lastAccessibleRoomsUpdate = 0;
 let roomsQueue: any, usersQueue: any;

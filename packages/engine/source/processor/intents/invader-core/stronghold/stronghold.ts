@@ -1,5 +1,6 @@
 import _ from 'lodash';
 
+import * as driver from '@screeps/driver/src/index';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { BodyParts } from '@screeps/common/src/constants/body-parts';
 import { POWER_INFO } from '@screeps/common/src/tables/power-info';
@@ -16,7 +17,6 @@ import creeps from './creeps';
 import fortifier from './fortifier';
 import simpleMelee from './simple-melee';
 
-const driver = utils.getDriver();
 const strongholds = driver.strongholds;
 
 const range = (a: any, b: any) => {

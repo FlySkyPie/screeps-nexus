@@ -1,6 +1,8 @@
 import q from 'q';
 import _ from 'lodash';
 
+import * as driver from '@screeps/driver/src/index';
+
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { POWER_INFO } from '@screeps/common/src/tables/power-info';
 import { PWRCode } from '@screeps/common/src/constants/pwr-code';
@@ -9,8 +11,6 @@ import { Resource } from '@screeps/common/src/constants/resource';
 import { IntershardResources } from '@screeps/common/src/constants/intershard-resources';
 
 import * as  utils from '../../utils';
-
-const driver = utils.getDriver();
 
 export default ({
     orders,

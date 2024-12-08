@@ -147,6 +147,14 @@ export function saveUserMemorySegments(userId: any, segments: any) {
     return q.when();
 }
 
+export function saveUserMemoryInterShardSegment(..._arg: any[]) {
+    // Do nothing
+}
+
+export function clearMarketIntents() {
+    // Do nothing
+}
+
 export function saveUserIntents(userId: any, intents: any) {
     const updates = [];
     for (const room in intents) {

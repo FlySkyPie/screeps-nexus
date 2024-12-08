@@ -16,7 +16,7 @@ process.on('SIGTERM', () => {
     }, 2000);
 });
 
-export function create(name: any) {
+export function create(name: any, _?: any) {
 
     if (name == 'users') {
         name = 'usersIvm';

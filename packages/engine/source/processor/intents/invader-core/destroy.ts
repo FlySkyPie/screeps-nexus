@@ -1,8 +1,9 @@
 import _ from 'lodash';
 
+import * as driver from '@screeps/driver/src/index';
+
 import * as utils from '../../../utils';
 
-const driver = utils.getDriver();
 const strongholds = driver.strongholds;
 
 export default (object: any, scope: any) => {

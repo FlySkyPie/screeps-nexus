@@ -1,5 +1,6 @@
 import _ from 'lodash';
 
+import * as driver from '@screeps/driver/src/index';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { EventCode } from '@screeps/common/src/constants/event-code';
 import { BodyParts } from '@screeps/common/src/constants/body-parts';
@@ -7,11 +8,7 @@ import { Boosts } from '@screeps/common/src/constants/boosts';
 import { PWRCode } from '@screeps/common/src/constants/pwr-code';
 import { POWER_INFO } from '@screeps/common/src/tables/power-info';
 
-import * as utils from '../../../utils';
-
 import config from '../../../config';
-
-const driver = utils.getDriver();
 
 export default (object: any, intent: any, { roomObjects, bulk, bulkUsers, stats, gameTime, eventLog }: any) => {
     if (object.type != 'creep' || object.spawning || !object.store || object.store.energy <= 0) {

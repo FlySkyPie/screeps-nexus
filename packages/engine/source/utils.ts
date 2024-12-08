@@ -11,24 +11,21 @@ import { Reactions } from '@screeps/common/src/constants/reactions';
 import { ReactionTime } from '@screeps/common/src/constants/reaction-time';
 
 let driver: any;
-let offsetsByDirection: any;
 
-function loadDriver() {
-    offsetsByDirection = {
-        [Direction.TOP]: [0, -1],
-        [Direction.TOP_RIGHT]: [1, -1],
-        [Direction.RIGHT]: [1, 0],
-        [Direction.BOTTOM_RIGHT]: [1, 1],
-        [Direction.BOTTOM]: [0, 1],
-        [Direction.BOTTOM_LEFT]: [-1, 1],
-        [Direction.LEFT]: [-1, 0],
-        [Direction.TOP_LEFT]: [-1, -1]
-    };
-}
+const offsetsByDirection: Record<string, any> = {
+    [Direction.TOP]: [0, -1],
+    [Direction.TOP_RIGHT]: [1, -1],
+    [Direction.RIGHT]: [1, 0],
+    [Direction.BOTTOM_RIGHT]: [1, 1],
+    [Direction.BOTTOM]: [0, 1],
+    [Direction.BOTTOM_LEFT]: [-1, 1],
+    [Direction.LEFT]: [-1, 0],
+    [Direction.TOP_LEFT]: [-1, -1]
+};
 
 try {
     driver = _driver;
-    loadDriver();
+    // loadDriver();
 }
 catch (e) { }
 
@@ -37,7 +34,7 @@ export function getDriver() {
     // driver = typeof process != 'undefined' && process.env.DRIVER_MODULE ?
     //     require(process.env.DRIVER_MODULE) :
     //     require('./core/index');
-    loadDriver();
+    // loadDriver();
     return driver;
 }
 

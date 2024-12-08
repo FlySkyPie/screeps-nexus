@@ -3,6 +3,7 @@ import q from 'q';
 import _ from 'lodash';
 
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import * as driver from '@screeps/driver/src/index';
 
 import * as movement from './processor/intents/movement';
 import * as utils from './utils';
@@ -55,10 +56,6 @@ import processor_intents_ruins_tick from './processor/intents/ruins/tick'
 import processor_intents_factories_tick from './processor/intents/factories/tick'
 import processor_intents_nukes_tick from './processor/intents/nukes/tick'
 import processor_intents_storages_tick from './processor/intents/storages/tick'
-
-
-const driver = utils.getDriver();
-
 
 let roomsQueue: any,
     // _usersQueue: any,

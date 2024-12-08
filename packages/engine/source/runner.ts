@@ -1,10 +1,7 @@
 import q from 'q';
 import _ from 'lodash';
 
-import * as  utils from './utils';
-
-const driver = utils.getDriver();
-
+import * as driver from '@screeps/driver/src/index';
 
 function runUser(userId: any) {
 

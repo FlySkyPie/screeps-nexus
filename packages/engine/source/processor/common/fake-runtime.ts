@@ -1,14 +1,12 @@
 import _ from 'lodash';
 
+import * as driver from '@screeps/driver/src/index';
+
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { StructureEnum } from '@screeps/common/src/constants/structure-enum';
 import { LookEnum } from '@screeps/common/src/constants/look-enum';
 
-
 import * as utils from '../../utils';
-
-const driver = utils.getDriver();
-// 
 
 let terrains: Record<string, any> = {};
 

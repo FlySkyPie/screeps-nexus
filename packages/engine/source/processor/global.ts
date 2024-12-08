@@ -1,13 +1,10 @@
 import q from 'q';
 import _ from 'lodash';
 
-import * as  utils from '../utils';
+import * as driver from '@screeps/driver/src/index';
 
 import marketProcessor from './global-intents/market';
 import powerProcessor from './global-intents/power';
-
-const driver = utils.getDriver();
-
 
 export default () => {
 

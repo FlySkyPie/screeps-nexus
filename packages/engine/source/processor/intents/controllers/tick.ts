@@ -1,10 +1,8 @@
 import _ from 'lodash';
 
+import * as driver from '@screeps/driver/src/index';
+
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
-
-import * as utils from '../../../utils';
-
-const driver = utils.getDriver();
 
 export default (object: any, { bulk, bulkUsers, gameTime, roomInfo, users }: any) => {
 
