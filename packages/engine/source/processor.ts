@@ -2,9 +2,60 @@
 import q from 'q';
 import _ from 'lodash';
 
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+
 import * as movement from './processor/intents/movement';
 import * as utils from './utils';
 import * as fakeRuntime from './processor/common/fake-runtime';
+
+import processor_intents_nukes_pretick from './processor/intents/nukes/pretick';
+import processor_intents_creeps_keepers_pretick from './processor/intents/creeps/keepers/pretick';
+import processor_intents_creeps_invaders_pretick from './processor/intents/creeps/invaders/pretick'
+import processor_intents_invader_core_pretick from './processor/intents/invader-core/pretick'
+import processor_intents__calc_spawns from './processor/intents/_calc_spawns'
+import processor_intents_room_intents from './processor/intents/room/intents'
+import processor_intents_creeps_intents from './processor/intents/creeps/intents'
+import processor_intents_power_creeps_intents from './processor/intents/power-creeps/intents'
+import processor_intents_links_intents from './processor/intents/links/intents'
+import processor_intents_towers_intents from './processor/intents/towers/intents'
+import processor_intents_labs_intents from './processor/intents/labs/intents'
+import processor_intents_spawns_intents from './processor/intents/spawns/intents'
+import processor_intents_ramparts_set_public from './processor/intents/ramparts/set-public'
+import processor_intents_terminal_send from './processor/intents/terminal/send'
+import processor_intents_nukers_launch_nuke from './processor/intents/nukers/launch-nuke'
+import processor_intents_power_spawns_intents from './processor/intents/power-spawns/intents'
+import processor_intents_invader_core_intents from './processor/intents/invader-core/intents'
+import processor_intents_factories_produce from './processor/intents/factories/produce'
+import processor_intents_controllers_unclaim from './processor/intents/controllers/unclaim'
+import processor_intents_controllers_activateSafeMode from './processor/intents/controllers/activateSafeMode'
+import processor_intents_invader_core_tick from './processor/intents/invader-core/tick'
+import processor_intents_energy_tick from './processor/intents/energy/tick'
+import processor_intents_sources_tick from './processor/intents/sources/tick'
+import processor_intents_deposits_tick from './processor/intents/deposits/tick'
+import processor_intents_minerals_tick from './processor/intents/minerals/tick'
+import processor_intents_creeps_tick from './processor/intents/creeps/tick'
+import processor_intents_power_creeps_tick from './processor/intents/power-creeps/tick'
+import processor_intents_spawns_tick from './processor/intents/spawns/tick'
+import processor_intents_ramparts_tick from './processor/intents/ramparts/tick'
+import processor_intents_extensions_tick from './processor/intents/extensions/tick'
+import processor_intents_roads_tick from './processor/intents/roads/tick'
+import processor_intents_construction_sites_tick from './processor/intents/construction-sites/tick'
+import processor_intents_keeper_lairs_tick from './processor/intents/keeper-lairs/tick'
+import processor_intents_portals_tick from './processor/intents/portals/tick'
+import processor_intents_constructedWalls_tick from './processor/intents/constructedWalls/tick'
+import processor_intents_links_tick from './processor/intents/links/tick'
+import processor_intents_extractors_tick from './processor/intents/extractors/tick'
+import processor_intents_towers_tick from './processor/intents/towers/tick'
+import processor_intents_controllers_tick from './processor/intents/controllers/tick'
+import processor_intents_labs_tick from './processor/intents/labs/tick'
+import processor_intents_containers_tick from './processor/intents/containers/tick'
+import processor_intents_terminal_tick from './processor/intents/terminal/tick'
+import processor_intents_tombstones_tick from './processor/intents/tombstones/tick'
+import processor_intents_ruins_tick from './processor/intents/ruins/tick'
+import processor_intents_factories_tick from './processor/intents/factories/tick'
+import processor_intents_nukes_tick from './processor/intents/nukes/tick'
+import processor_intents_storages_tick from './processor/intents/storages/tick'
+
 
 const driver = utils.getDriver();
 
@@ -185,11 +236,11 @@ function processRoom(
         driver.pathFinder.make({ RoomPosition: fakeRuntime.RoomPosition });
 
         for (let nuke of roomNukes) {
-            require('./processor/intents/nukes/pretick')(nuke, intents, scope);
+            processor_intents_nukes_pretick(nuke, intents, scope);
         }
 
         for (let keeper of keepers) {
-            const i = require('./processor/intents/creeps/keepers/pretick')(keeper, scope);
+            const i = processor_intents_creeps_keepers_pretick(keeper, scope);
 
             intents.users[keeper.user] = intents.users[keeper.user] || {};
             intents.users[keeper.user].objects = intents.users[keeper.user].objects || {};
@@ -203,7 +254,7 @@ function processRoom(
         }
 
         for (let invader of invaders) {
-            const i = require('./processor/intents/creeps/invaders/pretick')(invader, scope);
+            const i = processor_intents_creeps_invaders_pretick(invader, scope);
 
             intents.users[invader.user] = intents.users[invader.user] || {};
             intents.users[invader.user].objects = intents.users[invader.user].objects || {};
@@ -217,7 +268,7 @@ function processRoom(
         }
 
         if (invaderCore && invaderCore.user) {
-            const i = require('./processor/intents/invader-core/pretick')(invaderCore, scope);
+            const i = processor_intents_invader_core_pretick(invaderCore, scope);
 
             intents.users[invaderCore.user] = intents.users[invaderCore.user] || {};
             intents.users[invaderCore.user].objects = intents.users[invaderCore.user].objects || {};
@@ -230,7 +281,7 @@ function processRoom(
         }
 
         if (roomSpawns.length || roomExtensions.length) {
-            require('./processor/intents/_calc_spawns')(roomSpawns, roomExtensions, scope);
+            processor_intents__calc_spawns(roomSpawns, roomExtensions, scope);
         }
 
         movement.init(roomObjects, roomTerrain);
@@ -249,43 +300,43 @@ function processRoom(
                     const objectIntents = userIntents.objects[objectId], object = roomObjects[objectId];
 
                     if (objectId == 'room') {
-                        require('./processor/intents/room/intents')(userId, objectIntents, scope);
+                        processor_intents_room_intents(userId, objectIntents, scope);
                         continue;
                     }
 
                     if (!object || object._skip || object.user && object.user != userId) continue;
 
                     if (object.type == 'creep')
-                        require('./processor/intents/creeps/intents')(object, objectIntents, scope);
+                        processor_intents_creeps_intents(object, objectIntents, scope);
                     if (object.type == 'powerCreep')
-                        require('./processor/intents/power-creeps/intents')(object, objectIntents, scope);
+                        processor_intents_power_creeps_intents(object, objectIntents, scope);
                     if (object.type == 'link')
-                        require('./processor/intents/links/intents')(object, objectIntents, scope);
+                        processor_intents_links_intents(object, objectIntents, scope);
                     if (object.type == 'tower')
-                        require('./processor/intents/towers/intents')(object, objectIntents, scope);
+                        processor_intents_towers_intents(object, objectIntents, scope);
                     if (object.type == 'lab')
-                        require('./processor/intents/labs/intents')(object, objectIntents, scope);
+                        processor_intents_labs_intents(object, objectIntents, scope);
                     if (object.type == 'spawn')
-                        require('./processor/intents/spawns/intents')(object, objectIntents, scope);
+                        processor_intents_spawns_intents(object, objectIntents, scope);
 
                     if (object.type == 'constructionSite') {
                     }
 
                     if (object.type == 'rampart') {
                         if (objectIntents.setPublic) {
-                            require('./processor/intents/ramparts/set-public')(object, objectIntents.setPublic, scope);
+                            processor_intents_ramparts_set_public(object, objectIntents.setPublic, scope);
                         }
                     }
 
                     if (object.type == 'terminal') {
                         if (objectIntents.send) {
-                            require('./processor/intents/terminal/send')(object, objectIntents.send, scope);
+                            processor_intents_terminal_send(object, objectIntents.send, scope);
                         }
                     }
 
                     if (object.type == 'nuker') {
                         if (objectIntents.launchNuke) {
-                            require('./processor/intents/nukers/launch-nuke')(object, objectIntents.launchNuke, scope);
+                            processor_intents_nukers_launch_nuke(object, objectIntents.launchNuke, scope);
                         }
                     }
 
@@ -296,25 +347,25 @@ function processRoom(
                     }
 
                     if (object.type == 'powerSpawn') {
-                        require('./processor/intents/power-spawns/intents')(object, objectIntents, scope);
+                        processor_intents_power_spawns_intents(object, objectIntents, scope);
                     }
 
                     if (object.type == 'invaderCore') {
-                        require('./processor/intents/invader-core/intents')(object, objectIntents, scope);
+                        processor_intents_invader_core_intents(object, objectIntents, scope);
                     }
 
                     if (object.type == 'factory') {
                         if (objectIntents.produce) {
-                            require('./processor/intents/factories/produce')(object, objectIntents.produce, scope);
+                            processor_intents_factories_produce(object, objectIntents.produce, scope);
                         }
                     }
 
                     if (object.type == 'controller') {
                         if (objectIntents.unclaim) {
-                            require('./processor/intents/controllers/unclaim')(object, objectIntents.unclaim, scope);
+                            processor_intents_controllers_unclaim(object, objectIntents.unclaim, scope);
                         }
                         if (objectIntents.activateSafeMode) {
-                            require('./processor/intents/controllers/activateSafeMode')(object, objectIntents.activateSafeMode, scope);
+                            processor_intents_controllers_activateSafeMode(object, objectIntents.activateSafeMode, scope);
                         }
                     }
 
@@ -354,58 +405,58 @@ function processRoom(
             }
 
             if (object.type == 'invaderCore')
-                require('./processor/intents/invader-core/tick')(object, scope);
+                processor_intents_invader_core_tick(object, scope);
             if (object.type == 'energy')
-                require('./processor/intents/energy/tick')(object, scope);
+                processor_intents_energy_tick(object, scope);
             if (object.type == 'source')
-                require('./processor/intents/sources/tick')(object, scope);
+                processor_intents_sources_tick(object, scope);
             if (object.type == 'deposit')
-                require('./processor/intents/deposits/tick')(object, scope);
+                processor_intents_deposits_tick(object, scope);
             if (object.type == 'mineral')
-                require('./processor/intents/minerals/tick')(object, scope);
+                processor_intents_minerals_tick(object, scope);
             if (object.type == 'creep')
-                require('./processor/intents/creeps/tick')(object, scope);
+                processor_intents_creeps_tick(object, scope);
             if (object.type == 'powerCreep')
-                require('./processor/intents/power-creeps/tick')(object, scope);
+                processor_intents_power_creeps_tick(object, scope);
             if (object.type == 'spawn')
-                require('./processor/intents/spawns/tick')(object, scope);
+                processor_intents_spawns_tick(object, scope);
             if (object.type == 'rampart')
-                require('./processor/intents/ramparts/tick')(object, scope);
+                processor_intents_ramparts_tick(object, scope);
             if (object.type == 'extension')
-                require('./processor/intents/extensions/tick')(object, scope);
+                processor_intents_extensions_tick(object, scope);
             if (object.type == 'road')
-                require('./processor/intents/roads/tick')(object, scope);
+                processor_intents_roads_tick(object, scope);
             if (object.type == 'constructionSite')
-                require('./processor/intents/construction-sites/tick')(object, scope);
+                processor_intents_construction_sites_tick(object, scope);
             if (object.type == 'keeperLair')
-                require('./processor/intents/keeper-lairs/tick')(object, scope);
+                processor_intents_keeper_lairs_tick(object, scope);
             if (object.type == 'portal')
-                require('./processor/intents/portals/tick')(object, scope);
+                processor_intents_portals_tick(object, scope);
             if (object.type == 'constructedWall')
-                require('./processor/intents/constructedWalls/tick')(object, scope);
+                processor_intents_constructedWalls_tick(object, scope);
             if (object.type == 'link')
-                require('./processor/intents/links/tick')(object, scope);
+                processor_intents_links_tick(object, scope);
             if (object.type == 'extractor')
-                require('./processor/intents/extractors/tick')(object, scope);
+                processor_intents_extractors_tick(object, scope);
             if (object.type == 'tower')
-                require('./processor/intents/towers/tick')(object, scope);
+                processor_intents_towers_tick(object, scope);
             if (object.type == 'controller')
-                require('./processor/intents/controllers/tick')(object, scope);
+                processor_intents_controllers_tick(object, scope);
             if (object.type == 'lab')
-                require('./processor/intents/labs/tick')(object, scope);
+                processor_intents_labs_tick(object, scope);
             if (object.type == 'container')
-                require('./processor/intents/containers/tick')(object, scope);
+                processor_intents_containers_tick(object, scope);
             if (object.type == 'terminal')
-                require('./processor/intents/terminal/tick')(object, scope);
+                processor_intents_terminal_tick(object, scope);
             if (object.type == 'tombstone')
-                require('./processor/intents/tombstones/tick')(object, scope);
+                processor_intents_tombstones_tick(object, scope);
             if (object.type == 'ruin')
-                require('./processor/intents/ruins/tick')(object, scope);
+                processor_intents_ruins_tick(object, scope);
             if (object.type == 'factory')
-                require('./processor/intents/factories/tick')(object, scope);
+                processor_intents_factories_tick(object, scope);
 
             if (object.type == 'nuke') {
-                require('./processor/intents/nukes/tick')(object, scope);
+                processor_intents_nukes_tick(object, scope);
             }
 
             if (object.type == 'observer') {
@@ -414,7 +465,7 @@ function processRoom(
             }
 
             if (object.type == 'storage') {
-                require('./processor/intents/storages/tick')(object, scope);
+                processor_intents_storages_tick(object, scope);
             }
 
             if (object.effects) {

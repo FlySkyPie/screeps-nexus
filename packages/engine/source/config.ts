@@ -3,7 +3,7 @@ import _ from 'lodash';
 let result: Record<string, any> = {};
 
 try {
-    result = require('./local-config');
+    // result = require('./local-config');
 }
 catch (e) { }
 

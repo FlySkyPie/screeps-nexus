@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 import q from 'q';
 import _ from 'lodash';
+
 import * as utils from './utils';
+import global from './processor/global';
+
 
 const driver = utils.getDriver();
 
@@ -62,7 +65,7 @@ function loop() {
         .then(() => {
             stage = 'global';
             driver.config.emit('mainLoopStage', stage);
-            return require('./processor/global')();
+            return global();
         })
         .then(() => {
             stage = 'commit2';
