@@ -45,7 +45,7 @@ class Grid {
         let i;
         let j;
         const nodes = new Array(height);
-        let row;
+        // let row;
 
         for (i = 0; i < height; ++i) {
             nodes[i] = new Array(width);
@@ -223,7 +223,7 @@ class Grid {
         const thisNodes = this.nodes;
         const newGrid = new Grid(width, height);
         const newNodes = new Array(height);
-        let row;
+        // let row;
 
         for (i = 0; i < height; ++i) {
             newNodes[i] = new Array(width);

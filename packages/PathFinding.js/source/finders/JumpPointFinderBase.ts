@@ -91,13 +91,13 @@ class JumpPointFinderBase {
         const y = node.y;
         let jx;
         let jy;
-        let dx;
-        let dy;
+        // let dx;
+        // let dy;
         let d;
         let ng;
         let jumpNode;
         const abs = Math.abs;
-        const max = Math.max;
+        // const max = Math.max;
 
         neighbors = this._findNeighbors(node);
         for (i = 0, l = neighbors.length; i < l; ++i) {

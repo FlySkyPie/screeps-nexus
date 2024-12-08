@@ -85,8 +85,8 @@ class JPFMoveDiagonallyIfAtMostOneObstacle extends JumpPointFinderBase {
             const grid = this.grid;
             let px;
             let py;
-            let nx;
-            let ny;
+            // let nx;
+            // let ny;
             let dx;
             let dy;
             const neighbors: [number, number][] = [];

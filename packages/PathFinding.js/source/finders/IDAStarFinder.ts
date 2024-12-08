@@ -1,4 +1,3 @@
-import * as Util from '../core/Util';
 import Heuristic from '../core/Heuristic';
 import Node from '../core/Node';
 import DiagonalMovement from '../core/DiagonalMovement';
