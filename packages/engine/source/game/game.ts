@@ -1,12 +1,17 @@
 import _ from 'lodash';
+
 import * as utils from '../utils';
+
+import * as  map from './map';
+import * as market from './market';
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { FindCode } from '@screeps/common/src/constants/find-code';
+import { IntershardResources } from '@screeps/common/src/constants/intershard-resources';
+import { ErrorCode } from '@screeps/common/src/constants/error-code';
+
 const driver = utils.getRuntimeDriver();
 
-import map from './map';
-import market from './market';
-import customPrototypes from './custom-prototypes';
-
-function populateRegister(reg, spatial) {
+function populateRegister(reg: any, spatial?: any) {
     _.extend(reg, {
         creeps: {},
         structures: {},
@@ -33,22 +38,22 @@ function populateRegister(reg, spatial) {
     }
 }
 
-const findCacheFn = {
-    [ScreepsConstants.FIND_CREEPS]: (i) => !i.spawning,
-    [ScreepsConstants.FIND_MY_CREEPS]: (i) => !i.spawning && i.my,
-    [ScreepsConstants.FIND_HOSTILE_CREEPS]: (i) => !i.spawning && !i.my,
-    [ScreepsConstants.FIND_MY_POWER_CREEPS]: (i) => i.my,
-    [ScreepsConstants.FIND_HOSTILE_POWER_CREEPS]: (i) => !i.my,
-    [ScreepsConstants.FIND_MY_SPAWNS]: (i) => i.my === true,
-    [ScreepsConstants.FIND_HOSTILE_SPAWNS]: (i) => i.my === false,
-    [ScreepsConstants.FIND_SOURCES_ACTIVE]: (i) => i.energy > 0,
-    [ScreepsConstants.FIND_MY_STRUCTURES]: (i) => i.my === true,
-    [ScreepsConstants.FIND_HOSTILE_STRUCTURES]: (i) => i.my === false && i.owner,
-    [ScreepsConstants.FIND_MY_CONSTRUCTION_SITES]: (i) => i.my,
-    [ScreepsConstants.FIND_HOSTILE_CONSTRUCTION_SITES]: (i) => i.my === false
+const findCacheFn: Record<string, any> = {
+    [FindCode.FIND_CREEPS]: (i: any) => !i.spawning,
+    [FindCode.FIND_MY_CREEPS]: (i: any) => !i.spawning && i.my,
+    [FindCode.FIND_HOSTILE_CREEPS]: (i: any) => !i.spawning && !i.my,
+    [FindCode.FIND_MY_POWER_CREEPS]: (i: any) => i.my,
+    [FindCode.FIND_HOSTILE_POWER_CREEPS]: (i: any) => !i.my,
+    [FindCode.FIND_MY_SPAWNS]: (i: any) => i.my === true,
+    [FindCode.FIND_HOSTILE_SPAWNS]: (i: any) => i.my === false,
+    [FindCode.FIND_SOURCES_ACTIVE]: (i: any) => i.energy > 0,
+    [FindCode.FIND_MY_STRUCTURES]: (i: any) => i.my === true,
+    [FindCode.FIND_HOSTILE_STRUCTURES]: (i: any) => i.my === false && i.owner,
+    [FindCode.FIND_MY_CONSTRUCTION_SITES]: (i: any) => i.my,
+    [FindCode.FIND_HOSTILE_CONSTRUCTION_SITES]: (i: any) => i.my === false
 };
 
-function addObjectToFindCache(register, type, objectInstance, objectRaw) {
+function addObjectToFindCache(register: any, type: any, objectInstance: any, objectRaw: any) {
     if (!findCacheFn[type] || findCacheFn[type](objectInstance)) {
         register.findCache[type] = register.findCache[type] || {};
         register.findCache[type][objectRaw.room] = register.findCache[type][objectRaw.room] || [];
@@ -56,7 +61,7 @@ function addObjectToFindCache(register, type, objectInstance, objectRaw) {
     }
 }
 
-function addObjectToRegister(register, type, objectInstance, objectRaw) {
+function addObjectToRegister(register: any, type: any, objectInstance: any, objectRaw: any) {
     register[type][objectInstance.id] = objectInstance;
     register.byRoom[objectRaw.room][type][objectInstance.id] = objectInstance;
     let index = objectRaw.x * 50 + objectRaw.y;
@@ -68,9 +73,17 @@ function addObjectToRegister(register, type, objectInstance, objectRaw) {
     }
 }
 
-function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, sandboxedFunctionWrapper, getHeapStatistics, cpuHalt }) {
+function makeGameObject({
+    runtimeData,
+    intents,
+    // memory,
+    getUsedCpu,
+    globals,
+    sandboxedFunctionWrapper,
+    getHeapStatistics,
+    cpuHalt }: any) {
 
-    const customObjectsInfo = {};
+    const customObjectsInfo: Record<string, any> = {};
 
     // if(driver.customObjectPrototypes) {
     //     driver.customObjectPrototypes.forEach(i => {
@@ -84,26 +97,26 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
     //     });
     // }
 
-    const register = {
+    const register: Record<string, any> = {
         _useNewPathFinder: true,
         _objects: {},
         byRoom: {},
         findCache: {},
         rooms: {},
         roomEventLogCache: {},
-        wrapFn: sandboxedFunctionWrapper || (fn => { return fn })
+        wrapFn: sandboxedFunctionWrapper || ((fn: any) => { return fn })
     };
 
-    const deprecatedShown = [];
+    const deprecatedShown: any[] = [];
 
-    register.deprecated = (msg) => {
+    register.deprecated = (msg: any) => {
         if (!_.contains(deprecatedShown, msg)) {
             deprecatedShown.push(msg);
             globals.console.log(msg);
         }
     };
 
-    register.assertTargetObject = (obj) => {
+    register.assertTargetObject = (obj: any) => {
         if (obj && _.isPlainObject(obj) && _.isString(obj.id) && obj.id.length == 24) {
             throw new Error("It seems you're trying to use a serialized game object stored in Memory which is not allowed. Please use `Game.getObjectById` to retrieve a live object reference instead.");
         }
@@ -115,7 +128,7 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
 
     const gplLevel = Math.floor(Math.pow((runtimeData.user.power || 0) / ScreepsConstants.POWER_LEVEL_MULTIPLY, 1 / ScreepsConstants.POWER_LEVEL_POW)), gplBaseProgress = Math.pow(gplLevel, ScreepsConstants.POWER_LEVEL_POW) * ScreepsConstants.POWER_LEVEL_MULTIPLY;
 
-    const game = {
+    const game: Record<string, any> = {
         creeps: {},
         powerCreeps: {},
         spawns: {},
@@ -153,24 +166,24 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
         },
         market: {},
         resources: {
-            [ScreepsConstants.SUBSCRIPTION_TOKEN]: runtimeData.user.subscriptionTokens || 0
+            [IntershardResources.SUBSCRIPTION_TOKEN]: runtimeData.user.subscriptionTokens || 0
         },
-        getObjectById(id) {
+        getObjectById(id: any) {
             return register._objects[id] || null;
         },
-        notify(message, groupInterval) {
+        notify(message: any, groupInterval: any) {
             if (intents.push('notify', { message, groupInterval }, 20)) {
-                return ScreepsConstants.OK;
+                return ErrorCode.OK;
             }
             else {
-                return ScreepsConstants.ERR_FULL;
+                return ErrorCode.ERR_FULL;
             }
         }
     };
 
     register.objectsByRoom = {};
     register.objectsByRoomKeys = {};
-    _.forEach(runtimeData.roomObjects, (i, key) => {
+    _.forEach(runtimeData.roomObjects, (i: any, key: any) => {
         if (i.temp) {
             return;
         }
@@ -213,7 +226,7 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
 
     game.rooms = _.clone(register.rooms);
 
-    const structureTypes = {
+    const structureTypes: Record<string, any> = {
         rampart: globals.StructureRampart,
         road: globals.StructureRoad,
         extension: globals.StructureExtension,
@@ -237,7 +250,7 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
         invaderCore: globals.StructureInvaderCore
     };
 
-    const c = {};
+    const c: Record<string, any> = {};
 
     for (var i in runtimeData.userPowerCreeps) {
         register.powerCreeps[i] = new globals.PowerCreep(i);
@@ -266,9 +279,9 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
                 }
             }
 
-            addObjectToFindCache(register, ScreepsConstants.FIND_CREEPS, register.creeps[i], object);
-            addObjectToFindCache(register, ScreepsConstants.FIND_MY_CREEPS, register.creeps[i], object);
-            addObjectToFindCache(register, ScreepsConstants.FIND_HOSTILE_CREEPS, register.creeps[i], object);
+            addObjectToFindCache(register, FindCode.FIND_CREEPS, register.creeps[i], object);
+            addObjectToFindCache(register, FindCode.FIND_MY_CREEPS, register.creeps[i], object);
+            addObjectToFindCache(register, FindCode.FIND_HOSTILE_CREEPS, register.creeps[i], object);
         }
         if (object.type == 'powerCreep') {
             if (register.powerCreeps[i]) {
@@ -278,9 +291,9 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
                 register._objects[i] = new globals.PowerCreep(i);
             }
             addObjectToRegister(register, 'powerCreeps', register._objects[i], object);
-            addObjectToFindCache(register, ScreepsConstants.FIND_POWER_CREEPS, register.powerCreeps[i], object);
-            addObjectToFindCache(register, ScreepsConstants.FIND_MY_POWER_CREEPS, register.powerCreeps[i], object);
-            addObjectToFindCache(register, ScreepsConstants.FIND_HOSTILE_POWER_CREEPS, register.powerCreeps[i], object);
+            addObjectToFindCache(register, FindCode.FIND_POWER_CREEPS, register.powerCreeps[i], object);
+            addObjectToFindCache(register, FindCode.FIND_MY_POWER_CREEPS, register.powerCreeps[i], object);
+            addObjectToFindCache(register, FindCode.FIND_HOSTILE_POWER_CREEPS, register.powerCreeps[i], object);
         }
         if (structureTypes[object.type]) {
             register._objects[i] = new structureTypes[object.type](i);
@@ -293,9 +306,9 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
                 addObjectToRegister(register, 'ownedStructures', register._objects[i], object);
             }
 
-            addObjectToFindCache(register, ScreepsConstants.FIND_STRUCTURES, register.structures[i], object);
-            addObjectToFindCache(register, ScreepsConstants.FIND_MY_STRUCTURES, register.structures[i], object);
-            addObjectToFindCache(register, ScreepsConstants.FIND_HOSTILE_STRUCTURES, register.structures[i], object);
+            addObjectToFindCache(register, FindCode.FIND_STRUCTURES, register.structures[i], object);
+            addObjectToFindCache(register, FindCode.FIND_MY_STRUCTURES, register.structures[i], object);
+            addObjectToFindCache(register, FindCode.FIND_HOSTILE_STRUCTURES, register.structures[i], object);
 
             if (object.type == 'spawn') {
                 addObjectToRegister(register, 'spawns', register._objects[i], object);
@@ -304,8 +317,8 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
                     game.spawns[register.spawns[i].name] = register.spawns[i];
                 }
 
-                addObjectToFindCache(register, ScreepsConstants.FIND_MY_SPAWNS, register.spawns[i], object);
-                addObjectToFindCache(register, ScreepsConstants.FIND_HOSTILE_SPAWNS, register.spawns[i], object);
+                addObjectToFindCache(register, FindCode.FIND_MY_SPAWNS, register.spawns[i], object);
+                addObjectToFindCache(register, FindCode.FIND_HOSTILE_SPAWNS, register.spawns[i], object);
             }
 
         }
@@ -316,38 +329,38 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
         if (object.type == 'source') {
             register._objects[i] = new globals.Source(i);
             addObjectToRegister(register, 'sources', register._objects[i], object);
-            addObjectToFindCache(register, ScreepsConstants.FIND_SOURCES, register.sources[i], object);
-            addObjectToFindCache(register, ScreepsConstants.FIND_SOURCES_ACTIVE, register.sources[i], object);
+            addObjectToFindCache(register, FindCode.FIND_SOURCES, register.sources[i], object);
+            addObjectToFindCache(register, FindCode.FIND_SOURCES_ACTIVE, register.sources[i], object);
         }
         if (object.type == 'mineral') {
             register._objects[i] = new globals.Mineral(i);
             addObjectToRegister(register, 'minerals', register._objects[i], object);
-            addObjectToFindCache(register, ScreepsConstants.FIND_MINERALS, register.minerals[i], object);
+            addObjectToFindCache(register, FindCode.FIND_MINERALS, register.minerals[i], object);
         }
         if (object.type == 'deposit') {
             register._objects[i] = new globals.Deposit(i);
             addObjectToRegister(register, 'deposits', register._objects[i], object)
-            addObjectToFindCache(register, ScreepsConstants.FIND_DEPOSITS, register.deposits[i], object)
+            addObjectToFindCache(register, FindCode.FIND_DEPOSITS, register.deposits[i], object)
         }
         if (object.type == 'energy') {
             register._objects[i] = new globals.Energy(i);
             addObjectToRegister(register, 'energy', register._objects[i], object);
-            addObjectToFindCache(register, ScreepsConstants.FIND_DROPPED_RESOURCES, register.energy[i], object);
+            addObjectToFindCache(register, FindCode.FIND_DROPPED_RESOURCES, register.energy[i], object);
         }
         if (object.type == 'nuke') {
             register._objects[i] = new globals.Nuke(i);
             addObjectToRegister(register, 'nukes', register._objects[i], object);
-            addObjectToFindCache(register, ScreepsConstants.FIND_NUKES, register._objects[i], object);
+            addObjectToFindCache(register, FindCode.FIND_NUKES, register._objects[i], object);
         }
         if (object.type == 'tombstone') {
             register._objects[i] = new globals.Tombstone(i);
             addObjectToRegister(register, 'tombstones', register._objects[i], object);
-            addObjectToFindCache(register, ScreepsConstants.FIND_TOMBSTONES, register._objects[i], object);
+            addObjectToFindCache(register, FindCode.FIND_TOMBSTONES, register._objects[i], object);
         }
         if (object.type == 'ruin') {
             register._objects[i] = new globals.Ruin(i);
             addObjectToRegister(register, 'ruins', register._objects[i], object);
-            addObjectToFindCache(register, ScreepsConstants.FIND_RUINS, register._objects[i], object)
+            addObjectToFindCache(register, FindCode.FIND_RUINS, register._objects[i], object)
         }
 
         if (object.type == 'constructionSite') {
@@ -362,9 +375,9 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
 
             addObjectToRegister(register, 'constructionSites', register._objects[i], object);
             if (runtimeData.rooms[object.room]) {
-                addObjectToFindCache(register, ScreepsConstants.FIND_CONSTRUCTION_SITES, register.constructionSites[i], object);
-                addObjectToFindCache(register, ScreepsConstants.FIND_MY_CONSTRUCTION_SITES, register.constructionSites[i], object);
-                addObjectToFindCache(register, ScreepsConstants.FIND_HOSTILE_CONSTRUCTION_SITES, register.constructionSites[i], object);
+                addObjectToFindCache(register, FindCode.FIND_CONSTRUCTION_SITES, register.constructionSites[i], object);
+                addObjectToFindCache(register, FindCode.FIND_MY_CONSTRUCTION_SITES, register.constructionSites[i], object);
+                addObjectToFindCache(register, FindCode.FIND_HOSTILE_CONSTRUCTION_SITES, register.constructionSites[i], object);
             }
         }
 
@@ -377,10 +390,10 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
 
     }
 
-    runtimeData.flags.forEach(flagRoomData => {
+    runtimeData.flags.forEach((flagRoomData: any) => {
 
         const data = flagRoomData.data.split("|");
-        data.forEach(flagData => {
+        data.forEach((flagData: any) => {
             if (!flagData) {
                 return;
             }
@@ -403,10 +416,10 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
 
             game.flags[info[0]] = flag;
 
-            if (!findCacheFn[ScreepsConstants.FIND_FLAGS] || findCacheFn[ScreepsConstants.FIND_FLAGS](flag)) {
-                register.findCache[ScreepsConstants.FIND_FLAGS] = register.findCache[ScreepsConstants.FIND_FLAGS] || {};
-                register.findCache[ScreepsConstants.FIND_FLAGS][flagRoomData.room] = register.findCache[ScreepsConstants.FIND_FLAGS][flagRoomData.room] || [];
-                register.findCache[ScreepsConstants.FIND_FLAGS][flagRoomData.room].push(flag);
+            if (!findCacheFn[FindCode.FIND_FLAGS] || findCacheFn[FindCode.FIND_FLAGS](flag)) {
+                register.findCache[FindCode.FIND_FLAGS] = register.findCache[FindCode.FIND_FLAGS] || {};
+                register.findCache[FindCode.FIND_FLAGS][flagRoomData.room] = register.findCache[FindCode.FIND_FLAGS][flagRoomData.room] || [];
+                register.findCache[FindCode.FIND_FLAGS][flagRoomData.room].push(flag);
             }
         })
     });
@@ -415,29 +428,29 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
 
     game.market = register.market = market.make(runtimeData, intents, register);
 
-    _.extend(globals, JSON.parse(JSON.stringify(C)));
+    // _.extend(globals, JSON.parse(JSON.stringify(C)));
 
     return game;
 }
 
 (() => {
 
-    const runCodeCache = {};
+    const runCodeCache: Record<string, any> = {};
 
     exports.init = (
-        _globals,
-        _codeModules,
-        _runtimeData,
-        _intents,
-        _memory,
-        _fakeConsole,
-        _consoleCommands,
-        _timeout,
-        _getUsedCpu,
-        _scriptCachedData,
-        _sandboxedFunctionWrapper,
-        _getHeapStatistics,
-        _cpuHalt
+        _globals: any,
+        _codeModules: any,
+        _runtimeData: any,
+        _intents: any,
+        _memory: any,
+        _fakeConsole: any,
+        _consoleCommands: any,
+        _timeout: any,
+        _getUsedCpu: any,
+        _scriptCachedData: any,
+        _sandboxedFunctionWrapper: any,
+        _getHeapStatistics: any,
+        _cpuHalt: any,
     ) => {
 
         const userId = _runtimeData.user._id;
@@ -504,7 +517,7 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
         return runCodeCache[userId];
     };
 
-    exports.run = userId => {
+    exports.run = (userId: any) => {
 
         const mainExports = runCodeCache[userId].globals.require('main');
         if (_.isObject(mainExports) && _.isFunction(mainExports.loop)) {
@@ -538,7 +551,7 @@ function makeGameObject({ runtimeData, intents, memory, getUsedCpu, globals, san
     };
 })();
 
-function requireFn(moduleName) {
+function requireFn(this: any, moduleName: any) {
 
     moduleName = moduleName.replace(/^\.\//, '');
 
@@ -554,7 +567,7 @@ function requireFn(moduleName) {
         else {
             this.globals.require.cache[moduleName] = -1;
 
-            const moduleObject = {
+            const moduleObject: Record<string, any> = {
                 exports: {},
                 user: this.runtimeData.user._id,
                 timestamp: this.runtimeData.userCodeTimestamp,
