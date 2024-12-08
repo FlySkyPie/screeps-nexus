@@ -1,5 +1,7 @@
 import _ from 'lodash';
 
+import * as __driver from '@screeps/driver/src/index';
+
 import * as _driver from '@screeps/vm-runtime/src/runtime-driver';
 import { Direction } from '@screeps/common/src/constants/direction';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
@@ -31,9 +33,10 @@ try {
 catch (e) { }
 
 export function getDriver() {
-    driver = typeof process != 'undefined' && process.env.DRIVER_MODULE ?
-        require(process.env.DRIVER_MODULE) :
-        require('./core/index');
+    driver = __driver;
+    // driver = typeof process != 'undefined' && process.env.DRIVER_MODULE ?
+    //     require(process.env.DRIVER_MODULE) :
+    //     require('./core/index');
     loadDriver();
     return driver;
 }

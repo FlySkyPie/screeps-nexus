@@ -1,19 +1,23 @@
-import path from 'node:path';
 import _ from 'lodash';
-import bulk from 'bulk-require';
 
 import _diePowerCreep from './power/_diePowerCreep';
+import spawnPowerCreep from './power/spawnPowerCreep';
+import suicidePowerCreep from './power/suicidePowerCreep';
+import deletePowerCreep from './power/deletePowerCreep';
+import upgradePowerCreep from './power/upgradePowerCreep';
+import createPowerCreep from './power/createPowerCreep';
+import renamePowerCreep from './power/renamePowerCreep';
 
-const intentTypes = [
-    'spawnPowerCreep',
-    'suicidePowerCreep',
-    'deletePowerCreep',
-    'upgradePowerCreep',
-    'createPowerCreep',
-    'renamePowerCreep'
-];
+const modules: Record<string, any> = {
+    spawnPowerCreep,
+    suicidePowerCreep,
+    deletePowerCreep,
+    upgradePowerCreep,
+    createPowerCreep,
+    renamePowerCreep,
+}
 
-const modules = bulk(path.resolve(__dirname, 'power'), ['*.js']);
+const intentTypes = Array.from(Object.keys(modules));
 
 export default (scope: any) => {
 
