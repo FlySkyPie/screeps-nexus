@@ -3,9 +3,8 @@
  */
 import Heap from 'heap';
 
-import Util from '../core/Util';
+import * as Util from '../core/Util';
 import Heuristic from '../core/Heuristic';
-import DiagonalMovement from '../core/DiagonalMovement';
 
 /**
  * Base class for the Jump Point Search algorithm
@@ -14,16 +13,16 @@ import DiagonalMovement from '../core/DiagonalMovement';
  *     (defaults to manhattan).
  */
 class JumpPointFinderBase {
-	public heuristic: any;
-	public trackJumpRecursion: any;
-	public openList: any;
-	public startNode: any;
-	public endNode: any;
-	public grid: any;
-	public _findNeighbors: any;
-	public _jump: any;
+    public heuristic: any;
+    public trackJumpRecursion: any;
+    public openList: any;
+    public startNode: any;
+    public endNode: any;
+    public grid: any;
+    public _findNeighbors: any;
+    public _jump: any;
 
-    constructor(opt) {
+    constructor(opt: any) {
         opt = opt || {};
         this.heuristic = opt.heuristic || Heuristic.manhattan;
         this.trackJumpRecursion = opt.trackJumpRecursion || false;
@@ -34,10 +33,10 @@ class JumpPointFinderBase {
      * @return {Array.<[number, number]>} The path, including both start and
      *     end positions.
      */
-    findPath(startX, startY, endX, endY, grid) {
-        const openList = this.openList = new Heap((nodeA, nodeB) => {
-                return nodeA.f - nodeB.f;
-            });
+    findPath(startX: any, startY: any, endX: any, endY: any, grid: any): [number, number][] {
+        const openList = this.openList = new Heap<any>((nodeA, nodeB) => {
+            return nodeA.f - nodeB.f;
+        });
 
         const startNode = this.startNode = grid.getNodeAt(startX, startY);
         const endNode = this.endNode = grid.getNodeAt(endX, endY);
@@ -61,7 +60,7 @@ class JumpPointFinderBase {
             node.closed = true;
 
             if (node === endNode) {
-                return Util.expandPath(Util.backtrace(endNode));
+                return Util.expandPath(Util.backtrace(endNode)) as any;
             }
 
             this._identifySuccessors(node);
@@ -77,7 +76,7 @@ class JumpPointFinderBase {
      * list.
      * @protected
      */
-    _identifySuccessors(node) {
+    _identifySuccessors(node: any) {
         const grid = this.grid;
         const heuristic = this.heuristic;
         const openList = this.openList;
@@ -101,7 +100,7 @@ class JumpPointFinderBase {
         const max = Math.max;
 
         neighbors = this._findNeighbors(node);
-        for(i = 0, l = neighbors.length; i < l; ++i) {
+        for (i = 0, l = neighbors.length; i < l; ++i) {
             neighbor = neighbors[i];
             jumpPoint = this._jump(neighbor[0], neighbor[1], x, y);
             if (jumpPoint) {

@@ -10,9 +10,9 @@ import AStarFinder from './AStarFinder';
  * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
  */
 class DijkstraFinder extends AStarFinder {
-    constructor(opt) {
+    constructor(opt: any) {
         super(opt);
-        this.heuristic = (dx, dy) => {
+        this.heuristic = (_dx: any, _dy: any) => {
             return 0;
         };
     }

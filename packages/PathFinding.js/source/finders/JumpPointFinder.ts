@@ -16,7 +16,7 @@ import JPFMoveDiagonallyIfAtMostOneObstacle from './JPFMoveDiagonallyIfAtMostOne
  * @param {DiagonalMovement} opt.diagonalMovement Condition under which diagonal
  *      movement will be allowed.
  */
-function JumpPointFinder(opt) {
+function JumpPointFinder(opt:any) {
     opt = opt || {};
     if (opt.diagonalMovement === DiagonalMovement.Never) {
         return new JPFNeverMoveDiagonally(opt);

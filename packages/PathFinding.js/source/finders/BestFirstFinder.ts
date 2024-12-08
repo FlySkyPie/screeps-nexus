@@ -12,11 +12,11 @@ import AStarFinder from './AStarFinder';
  *     (defaults to manhattan).
  */
 class BestFirstFinder extends AStarFinder {
-    constructor(opt) {
+    constructor(opt: any) {
         super(opt);
 
         const orig = this.heuristic;
-        this.heuristic = (dx, dy) => {
+        this.heuristic = (dx: any, dy: any) => {
             return orig(dx, dy) * 1000000;
         };
     }

@@ -19,6 +19,7 @@
     "heap": "0.2.5"
   },
   "devDependencies": {
+    "@types/heap": "^0.2.5",
     "colors": "^1.0.3",
     "del": "^0.1.3",
     "gulp": "^3.8.10",

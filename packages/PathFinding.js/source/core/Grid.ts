@@ -10,11 +10,11 @@ import DiagonalMovement from './DiagonalMovement';
  *     representing the walkable status of the nodes(0 or false for walkable).
  *     If the matrix is not supplied, all the nodes will be walkable.  */
 class Grid {
-	public width: any;
-	public height: any;
-	public nodes: any;
+    public width: any;
+    public height: any;
+    public nodes: any;
 
-    constructor(width, height, matrix?) {
+    constructor(width: any, height: any, matrix?: any) {
         /**
          * The number of columns of the grid.
          * @type number
@@ -41,7 +41,7 @@ class Grid {
      *     the walkable status of the nodes.
      * @see Grid
      */
-    _buildNodes(width, height, matrix) {
+    _buildNodes(width: number, height: number, matrix: (number | boolean)[][]) {
         let i;
         let j;
         const nodes = new Array(height);
@@ -76,7 +76,7 @@ class Grid {
         return nodes;
     }
 
-    getNodeAt(x, y) {
+    getNodeAt(x: any, y: any) {
         return this.nodes[y][x];
     }
 
@@ -87,7 +87,7 @@ class Grid {
      * @param {number} y - The y coordinate of the node.
      * @return {boolean} - The walkability of the node.
      */
-    isWalkableAt(x, y) {
+    isWalkableAt(x: any, y: any) {
         return this.isInside(x, y) && this.nodes[y][x].walkable;
     }
 
@@ -100,7 +100,7 @@ class Grid {
      * @param {number} y
      * @return {boolean}
      */
-    isInside(x, y) {
+    isInside(x: any, y: any) {
         return (x >= 0 && x < this.width) && (y >= 0 && y < this.height);
     }
 
@@ -111,7 +111,7 @@ class Grid {
      * @param {number} y - The y coordinate of the node.
      * @param {boolean} walkable - Whether the position is walkable.
      */
-    setWalkableAt(x, y, walkable) {
+    setWalkableAt(x: any, y: any, walkable: any) {
         this.nodes[y][x].walkable = walkable;
     }
 
@@ -133,7 +133,7 @@ class Grid {
      * @param {Node} node
      * @param {DiagonalMovement} diagonalMovement
      */
-    getNeighbors(node, diagonalMovement) {
+    getNeighbors(node: any, diagonalMovement: any) {
         const x = node.x;
         const y = node.y;
         const neighbors = [];

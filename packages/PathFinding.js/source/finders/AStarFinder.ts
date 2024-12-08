@@ -1,5 +1,6 @@
 import Heap from 'heap';
-import Util from '../core/Util';
+
+import * as Util from '../core/Util';
 import Heuristic from '../core/Heuristic';
 import DiagonalMovement from '../core/DiagonalMovement';
 
@@ -17,13 +18,13 @@ import DiagonalMovement from '../core/DiagonalMovement';
  *     in order to speed up the search.
  */
 class AStarFinder {
-	public allowDiagonal: any;
-	public dontCrossCorners: any;
-	public heuristic: any;
-	public weight: any;
-	public diagonalMovement: any;
+    public allowDiagonal: any;
+    public dontCrossCorners: any;
+    public heuristic: any;
+    public weight: any;
+    public diagonalMovement: any;
 
-    constructor(opt) {
+    constructor(opt: any) {
         opt = opt || {};
         this.allowDiagonal = opt.allowDiagonal;
         this.dontCrossCorners = opt.dontCrossCorners;
@@ -57,10 +58,10 @@ class AStarFinder {
      * @return {Array.<[number, number]>} The path, including both start and
      *     end positions.
      */
-    findPath(startX, startY, endX, endY, grid) {
-        const openList = new Heap((nodeA, nodeB) => {
-                return nodeA.f - nodeB.f;
-            });
+    findPath(startX: any, startY: any, endX: any, endY: any, grid: any): [number, number][] {
+        const openList = new Heap<any>((nodeA, nodeB) => {
+            return nodeA.f - nodeB.f;
+        });
 
         const startNode = grid.getNodeAt(startX, startY);
         const endNode = grid.getNodeAt(endX, endY);

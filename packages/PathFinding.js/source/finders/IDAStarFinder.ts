@@ -1,4 +1,4 @@
-import Util from '../core/Util';
+import * as Util from '../core/Util';
 import Heuristic from '../core/Heuristic';
 import Node from '../core/Node';
 import DiagonalMovement from '../core/DiagonalMovement';
@@ -30,15 +30,15 @@ import DiagonalMovement from '../core/DiagonalMovement';
  */
 
 class IDAStarFinder {
-	public allowDiagonal: any;
-	public dontCrossCorners: any;
-	public diagonalMovement: any;
-	public heuristic: any;
-	public weight: any;
-	public trackRecursion: any;
-	public timeLimit: any;
+    public allowDiagonal: any;
+    public dontCrossCorners: any;
+    public diagonalMovement: any;
+    public heuristic: any;
+    public weight: any;
+    public trackRecursion: any;
+    public timeLimit: any;
 
-    constructor(opt) {
+    constructor(opt: any) {
         opt = opt || {};
         this.allowDiagonal = opt.allowDiagonal;
         this.dontCrossCorners = opt.dontCrossCorners;
@@ -76,7 +76,7 @@ class IDAStarFinder {
      * @return {Array.<[number, number]>} The path, including both start and
      *     end positions.
      */
-    findPath(startX, startY, endX, endY, grid) {
+    findPath(startX: any, startY: any, endX: any, endY: any, grid: any): [number, number][] {
         // Used for statistics:
         let nodesVisited = 0;
 
@@ -84,12 +84,12 @@ class IDAStarFinder {
         const startTime = new Date().getTime();
 
         // Heuristic helper:
-        const h = (a, b) => {
+        const h = (a: any, b: any) => {
             return this.heuristic(Math.abs(b.x - a.x), Math.abs(b.y - a.y));
         };
 
         // Step cost from a to b:
-        const cost = (a, b) => {
+        const cost = (a: any, b: any) => {
             return (a.x === b.x || a.y === b.y) ? 1 : Math.SQRT2;
         };
 
@@ -105,11 +105,11 @@ class IDAStarFinder {
          * @return {Object} either a number with the new optimal cut-off depth,
          * or a valid node instance, in which case a path was found.
          */
-        const search = (node, g, cutoff, route, depth) => {
+        const search = (node: any, g: any, cutoff: any, route: any, depth: any): any => {
             nodesVisited++;
 
             // Enforce timelimit:
-            if(this.timeLimit > 0 && new Date().getTime() - startTime > this.timeLimit * 1000) {
+            if (this.timeLimit > 0 && new Date().getTime() - startTime > this.timeLimit * 1000) {
                 // Enforced as "path-not-found".
                 return Infinity;
             }
@@ -117,11 +117,11 @@ class IDAStarFinder {
             const f = g + h(node, end) * this.weight;
 
             // We've searched too deep for this iteration.
-            if(f > cutoff) {
+            if (f > cutoff) {
                 return f;
             }
 
-            if(node == end) {
+            if (node == end) {
                 route[depth] = [node.x, node.y];
                 return node;
             }
@@ -136,23 +136,23 @@ class IDAStarFinder {
             //    return h(a, end) - h(b, end);
             //});
 
-            
+
             /*jshint -W084 *///Disable warning: Expected a conditional expression and instead saw an assignment
-            for(k = 0, min = Infinity; neighbour = neighbours[k]; ++k) {
-            /*jshint +W084 *///Enable warning: Expected a conditional expression and instead saw an assignment
-                if(this.trackRecursion) {
+            for (k = 0, min = Infinity; neighbour = neighbours[k]; ++k) {
+                /*jshint +W084 *///Enable warning: Expected a conditional expression and instead saw an assignment
+                if (this.trackRecursion) {
                     // Retain a copy for visualisation. Due to recursion, this
                     // node may be part of other paths too.
                     neighbour.retainCount = neighbour.retainCount + 1 || 1;
 
-                    if(neighbour.tested !== true) {
+                    if (neighbour.tested !== true) {
                         neighbour.tested = true;
                     }
                 }
 
                 t = search(neighbour, g + cost(node, neighbour), cutoff, route, depth + 1);
 
-                if(t instanceof Node) {
+                if (t instanceof Node) {
                     route[depth] = [node.x, node.y];
 
                     // For a typical A* linked list, this would work:
@@ -161,11 +161,11 @@ class IDAStarFinder {
                 }
 
                 // Decrement count, then determine whether it's actually closed.
-                if(this.trackRecursion && (--neighbour.retainCount) === 0) {
+                if (this.trackRecursion && (--neighbour.retainCount) === 0) {
                     neighbour.tested = false;
                 }
 
-                if(t < min) {
+                if (t < min) {
                     min = t;
                 }
             }
@@ -176,16 +176,16 @@ class IDAStarFinder {
 
         // Node instance lookups:
         const start = grid.getNodeAt(startX, startY);
-        var end   = grid.getNodeAt(endX, endY);
+        var end = grid.getNodeAt(endX, endY);
 
         // Initial search depth, given the typical heuristic contraints,
         // there should be no cheaper route possible.
         let cutOff = h(start, end);
 
-        let j, route, t;
+        let j, route: any, t;
 
         // With an overflow protection.
-        for(j = 0; true; ++j) {
+        for (j = 0; true; ++j) {
             //console.log("Iteration: " + j + ", search cut-off value: " + cutOff + ", nodes visited thus far: " + nodesVisited + ".");
 
             route = [];
@@ -194,13 +194,13 @@ class IDAStarFinder {
             t = search(start, 0, cutOff, route, 0);
 
             // Route not possible, or not found in time limit.
-            if(t === Infinity) {
+            if (t === Infinity) {
                 return [];
             }
 
             // If t is a node, it's also the end node. Route is now
             // populated with a valid path to the end node.
-            if(t instanceof Node) {
+            if (t instanceof Node) {
                 //console.log("Finished at iteration: " + j + ", search cut-off value: " + cutOff + ", nodes visited: " + nodesVisited + ".");
                 return route;
             }

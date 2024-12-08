@@ -4,7 +4,7 @@
  * @param {Node} node End node
  * @return {Array.<Array.<number>>} the path
  */
-function backtrace(node) {
+function backtrace(node: any): any {
     const path = [[node.x, node.y]];
     while (node.parent) {
         node = node.parent;
@@ -12,7 +12,7 @@ function backtrace(node) {
     }
     return path.reverse();
 }
-export {backtrace};
+export { backtrace };
 
 /**
  * Backtrace from start and end node, and return the path.
@@ -20,18 +20,18 @@ export {backtrace};
  * @param {Node}
  * @param {Node}
  */
-function biBacktrace(nodeA, nodeB) {
+function biBacktrace(nodeA: any, nodeB: any) {
     const pathA = backtrace(nodeA), pathB = backtrace(nodeB);
     return pathA.concat(pathB.reverse());
 }
-export {biBacktrace};
+export { biBacktrace };
 
 /**
  * Compute the length of the path.
  * @param {Array.<Array.<number>>} path The path
  * @return {number} The length of the path
  */
-function pathLength(path) {
+function pathLength(path: number[][]) {
     let i, sum = 0, a, b, dx, dy;
     for (i = 1; i < path.length; ++i) {
         a = path[i - 1];
@@ -42,7 +42,7 @@ function pathLength(path) {
     }
     return sum;
 }
-export {pathLength};
+export { pathLength };
 
 
 /**
@@ -55,7 +55,7 @@ export {pathLength};
  * @param {number} y1 End y coordinate
  * @return {Array.<Array.<number>>} The coordinates on the line
  */
-function interpolate(x0, y0, x1, y1) {
+function interpolate(x0: number, y0: number, x1: number, y1: number): number[][] {
     const abs = Math.abs;
     const line = [];
     let sx;
@@ -79,7 +79,7 @@ function interpolate(x0, y0, x1, y1) {
         if (x0 === x1 && y0 === y1) {
             break;
         }
-        
+
         e2 = 2 * err;
         if (e2 > -dy) {
             err = err - dy;
@@ -93,7 +93,7 @@ function interpolate(x0, y0, x1, y1) {
 
     return line;
 }
-export {interpolate};
+export { interpolate };
 
 
 /**
@@ -102,8 +102,8 @@ export {interpolate};
  * @param {Array.<Array.<number>>} path The path
  * @return {Array.<Array.<number>>} expanded path
  */
-function expandPath(path) {
-    const expanded = [];
+function expandPath(path: number[][]): number[][] {
+    const expanded: number[][] = [];
     const len = path.length;
     let coord0;
     let coord1;
@@ -130,7 +130,7 @@ function expandPath(path) {
 
     return expanded;
 }
-export {expandPath};
+export { expandPath };
 
 
 /**
@@ -139,30 +139,30 @@ export {expandPath};
  * @param {PF.Grid} grid
  * @param {Array.<Array.<number>>} path The path
  */
-function smoothenPath(grid, path) {
+function smoothenPath(grid: any, path: number[][]) {
     const len = path.length;
 
     const // path start x
-    x0 = path[0][0];
+        x0 = path[0][0];
 
     const // path start y
-    y0 = path[0][1];
+        y0 = path[0][1];
 
     const // path end x
-    x1 = path[len - 1][0];
+        x1 = path[len - 1][0];
 
     const // path end y
-    y1 = path[len - 1][1];
+        y1 = path[len - 1][1];
 
     let sx;
 
     let // current start coordinate
-    sy;
+        sy;
 
     let ex;
 
     let // current end coordinate
-    ey;
+        ey;
 
     let newPath;
     let i;
@@ -192,7 +192,7 @@ function smoothenPath(grid, path) {
             }
         }
         if (blocked) {
-            lastValidCoord = path[i - 1];
+            let lastValidCoord = path[i - 1];
             newPath.push(lastValidCoord);
             sx = lastValidCoord[0];
             sy = lastValidCoord[1];
@@ -202,7 +202,7 @@ function smoothenPath(grid, path) {
 
     return newPath;
 }
-export {smoothenPath};
+export { smoothenPath };
 
 
 /**
@@ -211,31 +211,31 @@ export {smoothenPath};
  * @param {Array.<Array.<number>>} path The path
  * @return {Array.<Array.<number>>} The compressed path
  */
-function compressPath(path) {
+function compressPath(path: number[][]): number[][] {
     // nothing to compress
-    if(path.length < 3) {
+    if (path.length < 3) {
         return path;
     }
 
     const compressed = [];
 
     const // start x
-    sx = path[0][0];
+        sx = path[0][0];
 
     const // start y
-    sy = path[0][1];
+        sy = path[0][1];
 
     let // second point x
-    px = path[1][0];
+        px = path[1][0];
 
     let // second point y
-    py = path[1][1];
+        py = path[1][1];
 
     let // direction between the two points
-    dx = px - sx;
+        dx = px - sx;
 
     let // direction between the two points
-    dy = py - sy;
+        dy = py - sy;
 
     let lx;
     let ly;
@@ -245,14 +245,14 @@ function compressPath(path) {
     let i;
 
     // normalize the direction
-    sq = Math.sqrt(dx*dx + dy*dy);
+    sq = Math.sqrt(dx * dx + dy * dy);
     dx /= sq;
     dy /= sq;
 
     // start the new path
-    compressed.push([sx,sy]);
+    compressed.push([sx, sy]);
 
-    for(i = 2; i < path.length; i++) {
+    for (i = 2; i < path.length; i++) {
 
         // store the last point
         lx = px;
@@ -271,19 +271,19 @@ function compressPath(path) {
         dy = py - ly;
 
         // normalize
-        sq = Math.sqrt(dx*dx + dy*dy);
+        sq = Math.sqrt(dx * dx + dy * dy);
         dx /= sq;
         dy /= sq;
 
         // if the direction has changed, store the point
-        if ( dx !== ldx || dy !== ldy ) {
-            compressed.push([lx,ly]);
+        if (dx !== ldx || dy !== ldy) {
+            compressed.push([lx, ly]);
         }
     }
 
     // store the last point
-    compressed.push([px,py]);
+    compressed.push([px, py]);
 
     return compressed;
 }
-export {compressPath};
+export { compressPath };

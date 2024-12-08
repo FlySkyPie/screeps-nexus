@@ -1,5 +1,6 @@
 import Heap from 'heap';
-import Util from '../core/Util';
+
+import * as Util from '../core/Util';
 import Heuristic from '../core/Heuristic';
 import DiagonalMovement from '../core/DiagonalMovement';
 
@@ -17,13 +18,13 @@ import DiagonalMovement from '../core/DiagonalMovement';
  *     in order to speed up the search.
  */
 class BiAStarFinder {
-	public allowDiagonal: any;
-	public dontCrossCorners: any;
-	public diagonalMovement: any;
-	public heuristic: any;
-	public weight: any;
+    public allowDiagonal: any;
+    public dontCrossCorners: any;
+    public diagonalMovement: any;
+    public heuristic: any;
+    public weight: any;
 
-    constructor(opt) {
+    constructor(opt: any) {
         opt = opt || {};
         this.allowDiagonal = opt.allowDiagonal;
         this.dontCrossCorners = opt.dontCrossCorners;
@@ -57,10 +58,10 @@ class BiAStarFinder {
      * @return {Array.<[number, number]>} The path, including both start and
      *     end positions.
      */
-    findPath(startX, startY, endX, endY, grid) {
-        const cmp = (nodeA, nodeB) => {
-                return nodeA.f - nodeB.f;
-            };
+    findPath(startX: any, startY: any, endX: any, endY: any, grid: any): [number, number][] {
+        const cmp = (nodeA: any, nodeB: any) => {
+            return nodeA.f - nodeB.f;
+        };
 
         const startOpenList = new Heap(cmp);
         const endOpenList = new Heap(cmp);

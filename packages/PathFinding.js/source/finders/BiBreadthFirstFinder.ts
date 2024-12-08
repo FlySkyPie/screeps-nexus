@@ -1,4 +1,4 @@
-import Util from '../core/Util';
+import * as Util from '../core/Util';
 import DiagonalMovement from '../core/DiagonalMovement';
 
 /**
@@ -10,11 +10,11 @@ import DiagonalMovement from '../core/DiagonalMovement';
  * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
  */
 class BiBreadthFirstFinder {
-	public allowDiagonal: any;
-	public dontCrossCorners: any;
-	public diagonalMovement: any;
+    public allowDiagonal: any;
+    public dontCrossCorners: any;
+    public diagonalMovement: any;
 
-    constructor(opt) {
+    constructor(opt: any) {
         opt = opt || {};
         this.allowDiagonal = opt.allowDiagonal;
         this.dontCrossCorners = opt.dontCrossCorners;
@@ -38,7 +38,7 @@ class BiBreadthFirstFinder {
      * @return {Array.<[number, number]>} The path, including both start and
      *     end positions.
      */
-    findPath(startX, startY, endX, endY, grid) {
+    findPath(startX: any, startY: any, endX: any, endY: any, grid: any): [number, number][] {
         const startNode = grid.getNodeAt(startX, startY);
         const endNode = grid.getNodeAt(endX, endY);
         const startOpenList = [];
