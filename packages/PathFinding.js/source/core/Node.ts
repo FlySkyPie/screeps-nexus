@@ -11,7 +11,8 @@ class Node {
     constructor(
         public x: number,
         public y: number,
-        public walkable = true
+        public walkable = true,
+        _weight = true,
     ) { }
 }
 
