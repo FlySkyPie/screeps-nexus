@@ -1,3 +1,4 @@
+import path from 'node:path';
 import fs from 'node:fs';
 import v8 from 'node:v8';
 import _ from 'lodash';
@@ -7,9 +8,7 @@ import * as common from '@screeps/common/src';
 
 import * as index from '../index';
 
-const nativeModPath = '../../native/build/Release/native.node';
-// const native = require(nativeModPath);
-const nativeMod = new ivm.NativeModule(require.resolve(nativeModPath));
+const nativeMod = new ivm.NativeModule(path.resolve(__dirname, "./native.node"));
 const config = common.configManager.config;
 let vms: Record<string, any> = {};
 let snapshot: any;

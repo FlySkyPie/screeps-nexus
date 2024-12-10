@@ -5,7 +5,6 @@ import ivm from 'isolated-vm';
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 
-// import native from '../../native/build/Release/native.node';
 import * as driver from '../index';
 import * as pathfinderFactory from '../path-finder';
 
