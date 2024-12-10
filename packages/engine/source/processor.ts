@@ -6,7 +6,6 @@ import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import * as driver from '@screeps/driver/src/index';
 
 import * as movement from './processor/intents/movement';
-import * as utils from './utils';
 import * as fakeRuntime from './processor/common/fake-runtime';
 
 import processor_intents_nukes_pretick from './processor/intents/nukes/pretick';

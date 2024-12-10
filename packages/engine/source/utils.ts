@@ -1,16 +1,13 @@
 import _ from 'lodash';
 
-import * as __driver from '@screeps/driver/src/index';
+import * as driver from '@screeps/driver/src/index';
 
-import * as _driver from '@screeps/vm-runtime/src/runtime-driver';
 import { Direction } from '@screeps/common/src/constants/direction';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { ListItems } from '@screeps/common/src/tables/list-items';
 import { Boosts } from '@screeps/common/src/constants/boosts';
 import { Reactions } from '@screeps/common/src/constants/reactions';
 import { ReactionTime } from '@screeps/common/src/constants/reaction-time';
-
-let driver: any;
 
 const offsetsByDirection: Record<string, any> = {
     [Direction.TOP]: [0, -1],
@@ -22,30 +19,6 @@ const offsetsByDirection: Record<string, any> = {
     [Direction.LEFT]: [-1, 0],
     [Direction.TOP_LEFT]: [-1, -1]
 };
-
-try {
-    driver = _driver;
-    // loadDriver();
-}
-catch (e) { }
-
-export function getDriver() {
-    driver = __driver;
-    // driver = typeof process != 'undefined' && process.env.DRIVER_MODULE ?
-    //     require(process.env.DRIVER_MODULE) :
-    //     require('./core/index');
-    // loadDriver();
-    return driver;
-}
-
-export function getRuntimeDriver() {
-    try {
-        return _driver;
-    }
-    catch (e) {
-        return getDriver();
-    }
-}
 
 export function fetchXYArguments(firstArg: any, secondArg: any, globals: any) {
     let x, y, roomName;
@@ -161,7 +134,7 @@ export function checkConstructionSite(objects: any, structureType: any, x: any, 
     if (_.isString(objects) || objects instanceof Uint8Array) {
         if (borderTiles) {
             for (var i in borderTiles) {
-                if (!exports.checkTerrain(objects, borderTiles[i][0], borderTiles[i][1], ScreepsConstants.TERRAIN_MASK_WALL)) {
+                if (!checkTerrain(objects, borderTiles[i][0], borderTiles[i][1], ScreepsConstants.TERRAIN_MASK_WALL)) {
                     return false;
                 }
             }
@@ -169,7 +142,7 @@ export function checkConstructionSite(objects: any, structureType: any, x: any, 
         if (structureType == 'extractor') {
             return true;
         }
-        if (structureType != 'road' && exports.checkTerrain(objects, x, y, ScreepsConstants.TERRAIN_MASK_WALL)) {
+        if (structureType != 'road' && checkTerrain(objects, x, y, ScreepsConstants.TERRAIN_MASK_WALL)) {
             return false;
         }
         return true;
@@ -966,7 +939,6 @@ export function storeIntents(_userId: any, userIntents: any, userRuntimeData: an
 }
 
 export function sendAttackingNotification(target: any, roomController: any) {
-    const driver = exports.getDriver();
     let labelText;
     if (target.type == 'creep') {
         labelText = 'creep ' + target.name;
@@ -1180,8 +1152,8 @@ export function dist(a: any, b: any) {
 }
 
 export function calcRoomsDistance(room1: any, room2: any, continuous: any) {
-    const [x1, y1] = exports.roomNameToXY(room1);
-    const [x2, y2] = exports.roomNameToXY(room2);
+    const [x1, y1] = roomNameToXY(room1);
+    const [x2, y2] = roomNameToXY(room2);
     let dx = Math.abs(x2 - x1);
     let dy = Math.abs(y2 - y1);
     if (continuous) {
