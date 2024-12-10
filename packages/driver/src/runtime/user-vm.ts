@@ -1,6 +1,7 @@
+import fs from 'node:fs';
+import v8 from 'node:v8';
 import _ from 'lodash';
 import ivm from 'isolated-vm';
-import fs from 'fs';
 
 import * as common from '@screeps/common/src';
 
@@ -36,7 +37,7 @@ export async function create({ userId, staticTerrainData, staticTerrainDataSize,
             let context = await isolate.createContext({ inspector });
             if (!snapshot) {
                 await (await isolate.compileScript(
-                    fs.readFileSync(require.resolve('../../build/runtime.bundle.js'), 'utf8')))
+                    fs.readFileSync(require.resolve('@screeps/vm-runtime/dist/index.js'), 'utf8')))
                     .run(context);
             }
             let [nativeModInstance, initScript, cleanupScript] = await Promise.all([
@@ -147,13 +148,12 @@ export function getMetrics() {
 }
 
 export function init() {
-
-    try {
-        snapshot = new ivm.ExternalCopy(fs.readFileSync(require.resolve('../../build/runtime.snapshot.bin')).buffer);
-    }
-    catch (e) {
-        console.log('File `build/runtime.shapshot.bin` not found, using `build/runtime.bundle.js` instead')
-    }
+    // try {
+    //     snapshot = new ivm.ExternalCopy(fs.readFileSync(require.resolve('../../build/runtime.snapshot.bin')).buffer);
+    // }
+    // catch (e) {
+    //     console.log('File `build/runtime.shapshot.bin` not found, using `build/runtime.bundle.js` instead')
+    // }
 
     setInterval(() => {
         for (let userId in vms) {
@@ -166,7 +166,7 @@ export function init() {
     if (config.engine.reportMemoryUsageInterval) {
         setInterval(() => {
             console.log('---');
-            let heap = require('v8').getHeapStatistics();
+            let heap = v8.getHeapStatistics();
             console.log(`# Main heap: ${heap.total_heap_size}`);
             console.log(`# ExternalCopy.totalExternalSize: ${ivm.ExternalCopy.totalExternalSize}`);
 

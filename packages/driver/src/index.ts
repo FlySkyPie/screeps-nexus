@@ -12,6 +12,8 @@ import bulk from './bulk';
 import * as queue from './queue';
 import * as runtimeUserVm from './runtime/user-vm';
 import * as pathFinderFactory from './path-finder';
+import makeRuntime from './runtime/make';
+import * as history from './history';
 
 const db = StorageInstance.db;
 const env = StorageInstance.env;
@@ -533,10 +535,12 @@ export function saveRoomEventLog(roomId: any, eventLog: any) {
     return env.hset(env.keys.ROOM_EVENT_LOG, roomId, JSON.stringify(eventLog));
 }
 
-export var makeRuntime = require('./runtime/make');
-export var history = require('./history');
+export { makeRuntime, history };
+
 export { queue };
+
 export var constants = _config.common.constants;
+
 export var strongholds = common.configManager.config.common.strongholds;
 
 process.on('disconnect', () => process.exit());
