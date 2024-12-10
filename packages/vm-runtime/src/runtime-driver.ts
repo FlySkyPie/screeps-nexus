@@ -20,11 +20,11 @@ export function getWorldSize() {
 }
 
 export function evalCode(
-    _module: any,
+    _module: Record<string, any>,
     globals: any,
-    returnValue: any,
-    timeout: any,
-    _scriptCachedData: any) {
+    returnValue: boolean,
+    timeout?: any,
+    _scriptCachedData?: any) {
 
     const options: Record<string, any> = { filename: _module.name };
 
@@ -61,7 +61,7 @@ export function evalCode(
 
                 var code = '(function __module(module,exports){ ' + _module.code + "\n})(__module, __module.exports)";
 
-                const script = global._isolate.compileScriptSync(code, options);
+                const script :any= global._isolate.compileScriptSync(code, options);
 
                 // if(scriptCachedData) {
                 //     if(script.cachedDataProduced) {

@@ -9,6 +9,7 @@
         "build": "ncc build src/runtime.ts -o dist -s"
     },
     "dependencies": {
+        "@screeps/common": "workspace:*",
         "@screeps/driver": "workspace:*",
         "@screeps/engine": "workspace:*",
         "@screeps/pathfinding": "workspace:*",

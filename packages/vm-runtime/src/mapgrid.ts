@@ -1,4 +1,4 @@
-import * as pathfinding from '@screeps/pathfinding';
+import pathfinding from '@screeps/pathfinding/source/PathFinding';
 
 import * as driver from './runtime-driver';
 
@@ -75,9 +75,7 @@ class WorldMapGrid {
      * @return {Object.<string, Object.<string, number>>} The number of exits in
      *     each direction for every room, if any.
      */
-    _buildGridData(
-        accessibleRooms: string[],
-        staticTerrainData: Record<string, number[]>): Record<string, Record<string, number>> {
+    _buildGridData(accessibleRooms: any, staticTerrainData: any) {
         if (!accessibleRooms) return {};
         const dirs: Record<string, any> = {
             t: {
@@ -105,7 +103,7 @@ class WorldMapGrid {
                 dy: 1,
             },
         };
-        let gridData: Record<string, Record<string, number>> = {};
+        let gridData: Record<string, any> = {};
         for (let roomName of accessibleRooms) {
             let [x, y] = roomNameToXY(roomName);
             let terrain = staticTerrainData[roomName];
@@ -140,7 +138,7 @@ class WorldMapGrid {
      *     the walkable status of the nodes.
      * @see Grid
      */
-    _buildNodes(width: number, height: number, accessibleRooms: (number | boolean)[][]) {
+    _buildNodes(width: any, height: any, accessibleRooms: any) {
         let i;
         let j;
         const nodes: Record<string, any> = {};
@@ -174,7 +172,7 @@ class WorldMapGrid {
      * @param {number} y - The y coordinate of the node.
      * @return {boolean} - The walkability of the node.
      */
-    isWalkableAt(x: number, y: number): boolean {
+    isWalkableAt(x: any, y: any) {
         return this.isInside(x, y) && this.nodes[y][x].weight > 0;
     }
 
@@ -187,9 +185,8 @@ class WorldMapGrid {
      * @param {number} y
      * @return {boolean}
      */
-    isInside(x: number, y: number): boolean {
-        return (x >= -this.width / 2 && x < this.width / 2) &&
-            (y >= -this.height / 2 && y < this.height / 2);
+    isInside(x: any, y: any) {
+        return (x >= -this.width / 2 && x < this.width / 2) && (y >= -this.height / 2 && y < this.height / 2);
     }
 
     /**
@@ -199,7 +196,7 @@ class WorldMapGrid {
      * @param {number} y - The y coordinate of the node.
      * @param {boolean} walkable - Whether the position is walkable.
      */
-    setWalkableAt(_x: number, _y: number, _walkable: boolean) {
+    setWalkableAt(_x: any, _y: any, _walkable: any) {
 
     }
 
@@ -224,7 +221,7 @@ class WorldMapGrid {
     getNeighbors(node: any, _diagonalMovement: any) {
         const x = node.x;
         const y = node.y;
-        const neighbors = [];
+        const neighbors: any[] = [];
         const nodes = this.nodes;
 
 
@@ -258,7 +255,7 @@ class WorldMapGrid {
      * Get a clone of this grid.
      * @return {WorldMapGrid} Cloned grid.
      */
-    clone(): WorldMapGrid {
+    clone() {
         let i;
         let j;
         const width = this.width;
@@ -271,11 +268,7 @@ class WorldMapGrid {
         for (i = -height / 2; i < height / 2; ++i) {
             newNodes[i] = {};
             for (j = -width / 2; j < width / 2; ++j) {
-                newNodes[i][j] = new pathfinding.Node(
-                    j,
-                    i,
-                    thisNodes[i][j].walkable,
-                    thisNodes[i][j].weight);
+                newNodes[i][j] = new pathfinding.Node(j, i, thisNodes[i][j].walkable, thisNodes[i][j].weight);
             }
         }
 

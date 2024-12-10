@@ -1,39 +1,3 @@
-declare module "@screeps/pathfinding" {
-    /**
-     * @deprecated
-     */
-    const foo: any;
-
-    export = foo;
-}
-
-declare module "@screeps/engine/src/game/game" {
-    /**
-     * @deprecated
-     */
-    const foo: any;
-
-    export = foo;
-}
-
-declare module "@screeps/engine/src/game/console" {
-    /**
-     * @deprecated
-     */
-    const foo: any;
-
-    export = foo;
-}
-
-declare module "@screeps/engine/src/utils" {
-    /**
-     * @deprecated
-     */
-    const foo: any;
-
-    export = foo;
-}
-
 declare var _init: (() => void) | undefined;
 
 declare var _isolate: any;

@@ -1,17 +1,12 @@
 import _ from 'lodash';
-import * as game from '@screeps/engine/src/game/game';
-import * as fakeConsole from '@screeps/engine/src/game/console';
-import * as utils from '@screeps/engine/src/utils';
 
+import * as fakeConsole from '@screeps/engine/source/game/console';
+import * as utils from '@screeps/engine/source/utils';
+
+import * as game from './game';
 import WorldMapGrid from './mapgrid';
 
 global._init = (() => {
-    // const _ = require('lodash');
-    // const game = require('@screeps/engine/src/game/game');
-    // const fakeConsole = require('@screeps/engine/src/game/console');
-    // const utils = require('@screeps/engine/src/utils');
-    // const WorldMapGrid = require('./mapgrid');
-
     const isolate: any = _isolate;
     // const context: any = _context;
     const ivm: any = _ivm;
