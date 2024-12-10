@@ -2,6 +2,8 @@
 
 import _ from 'lodash';
 
+import type { INativeMod } from './interfaces/native-mod';
+
 let globals: any;
 
 //
@@ -21,8 +23,7 @@ function parseRoomName(roomName: any) {
     return { xx: rx, yy: ry };
 }
 
-export function init(mod: any, rooms: any) {
-
+export function init(mod: INativeMod, rooms: any) {
     let terrainData: any[] = [];
     rooms.forEach((room: any) => {
         let pack = new Uint8Array(50 * 50 / 4);
@@ -46,7 +47,7 @@ export function init(mod: any, rooms: any) {
     mod.loadTerrain(terrainData);
 }
 
-export function create(mod: any) {
+export function create(mod: INativeMod) {
     //
     // Converts return value of `parseRoomName` back into a normal room name
     function generateRoomName(xx: any, yy: any) {
