@@ -8,6 +8,7 @@ import genericPool from 'generic-pool';
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 
+import './native';
 import bulk from './bulk';
 import * as queue from './queue';
 import * as runtimeUserVm from './runtime/user-vm';

@@ -5,13 +5,12 @@ import ivm from 'isolated-vm';
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 
+import { native } from '../native';
 import * as driver from '../index';
 import * as pathfinderFactory from '../path-finder';
 
 import * as runtimeData from './data';
 import * as runtimeUserVm from './user-vm';
-
-const native = require('../../native/build/Release/native.node');
 
 const db = StorageInstance.db;
 const env = StorageInstance.env;
