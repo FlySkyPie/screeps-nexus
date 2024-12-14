@@ -55,6 +55,7 @@ import processor_intents_ruins_tick from './processor/intents/ruins/tick'
 import processor_intents_factories_tick from './processor/intents/factories/tick'
 import processor_intents_nukes_tick from './processor/intents/nukes/tick'
 import processor_intents_storages_tick from './processor/intents/storages/tick'
+import { logger } from './logger';
 
 let roomsQueue: any,
     // _usersQueue: any,
@@ -624,7 +625,7 @@ driver.connect('processor')
                         roomInfo: result[4],
                         flags: result[5]
                     })
-                        .catch((error) => console.log('Error processing room ' + roomId + ':', _.isObject(error) ? (error.stack || error) : error))
+                        .catch((error) => logger.info('Error processing room ' + roomId + ':', _.isObject(error) ? (error.stack || error) : error))
                         .then(() => {
                             return driver.clearRoomIntents(roomId);
                         })

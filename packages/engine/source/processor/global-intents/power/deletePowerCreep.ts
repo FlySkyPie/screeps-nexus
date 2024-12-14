@@ -2,6 +2,8 @@ import _ from 'lodash';
 
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
+import { logger } from '../../../logger';
+
 export default (intent: any, user: any, { userPowerCreeps, bulkUsersPowerCreeps }: any) => {
 
     const powerCreep = _.find(userPowerCreeps, (i: any) => i.user == user._id && i._id == intent.id);
@@ -14,7 +16,7 @@ export default (intent: any, user: any, { userPowerCreeps, bulkUsersPowerCreeps 
         bulkUsersPowerCreeps.update(powerCreep._id, { deleteTime: null });
     }
     else {
-        console.log(user.powerExperimentationTime);
+        logger.info(user.powerExperimentationTime);
         if (user.powerExperimentationTime > Date.now()) {
             bulkUsersPowerCreeps.remove(powerCreep._id);
             return;

@@ -31,3 +31,12 @@ kubernetes
 
 packages/backend/dist
 packages/backend/node_modules
+packages/common/node_modules
+packages/driver/native/build
+packages/driver/node_modules
+packages/engine/node_modules
+packages/engine/dist
+packages/storage/dist
+packages/storage/node_modules
+packages/vm-runtime/node_modules
+packages/vm-runtime/dist

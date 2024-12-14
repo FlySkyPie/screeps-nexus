@@ -2,6 +2,8 @@ import _ from 'lodash';
 
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
+import { logger } from '../../../logger';
+
 export default (object: any, { roomObjects, bulk }: any) => {
 
     if (!object || object.type != 'energy') return;
@@ -12,7 +14,7 @@ export default (object: any, { roomObjects, bulk }: any) => {
 
     if (object[resourceType] <= 0 || !object[resourceType]) {
         if (_.isNaN(object[resourceType])) {
-            console.log("Energy NaN: dropped");
+            logger.info("Energy NaN: dropped");
         }
         bulk.remove(object._id);
         delete roomObjects[object._id];

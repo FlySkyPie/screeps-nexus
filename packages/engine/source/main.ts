@@ -5,6 +5,7 @@ import _ from 'lodash';
 import * as driver from '@screeps/driver/src/index';
 
 import global from './processor/global';
+import { logger } from './logger';
 
 let lastAccessibleRoomsUpdate = 0;
 let roomsQueue: any, usersQueue: any;
@@ -76,7 +77,7 @@ function loop() {
             return driver.incrementGameTime()
         })
         .then((gameTime: any) => {
-            console.log('Game time set to', gameTime);
+            logger.debug(`Game time set to ${gameTime}`);
             if (+gameTime > lastAccessibleRoomsUpdate + 20) {
                 driver.updateAccessibleRoomsList();
                 lastAccessibleRoomsUpdate = +gameTime;

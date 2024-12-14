@@ -11,6 +11,7 @@ import { Resource } from '@screeps/common/src/constants/resource';
 import { IntershardResources } from '@screeps/common/src/constants/intershard-resources';
 
 import * as  utils from '../../utils';
+import { logger } from '../../logger';
 
 export default ({
     orders,
@@ -280,7 +281,7 @@ export default ({
                     if (ordersById[intent.orderId] && ordersById[intent.orderId].user == iUserIntents.user) {
                         ordersById[intent.orderId].remainingAmount = 0;
                         ordersById[intent.orderId]._cancelled = true;
-                        //console.log('Order cancelled ',JSON.stringify(ordersById[intent.orderId]));
+                        //logger.info('Order cancelled ',JSON.stringify(ordersById[intent.orderId]));
                     }
                 });
             }
@@ -529,7 +530,7 @@ export default ({
 
             if (order.user && (nowTimestamp - order.createdTimestamp > ScreepsConstants.MARKET_ORDER_LIFE_TIME)) {
                 const remainingFee = order.remainingAmount * order.price * ScreepsConstants.MARKET_FEE;
-                console.log(`${order.id} remaining fee: ${remainingFee}`);
+                logger.info(`${order.id} remaining fee: ${remainingFee}`);
                 if (remainingFee > 0) {
                     const user = usersById[order.user];
                     bulkUsers.inc(user, 'money', remainingFee);

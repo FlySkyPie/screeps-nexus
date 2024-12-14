@@ -45,7 +45,7 @@ export default (dir: any) => {
             return;
         }
 
-        ncp(path.resolve(__dirname, '../init_dist'), dir, (err) => {
+        ncp(path.resolve(__dirname, '../../init_dist'), dir, (err) => {
             if (err) {
                 console.error("Error while creating world data:", err);
             }

@@ -5,7 +5,7 @@ import ini from 'ini';
 import fs from 'fs';
 import { readFile, writeFile, mkdir, stat, rename, } from 'fs/promises';
 
-import common from '@screeps/common';
+import * as common from '@screeps/common/src/index';
 
 const DEFAULTS = {
     modfile: 'mods.json',

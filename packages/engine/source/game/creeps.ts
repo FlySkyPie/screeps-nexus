@@ -1,6 +1,5 @@
 import _ from 'lodash';
 
-import * as utils from './../utils';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { ErrorCode } from '@screeps/common/src/constants/error-code';
 import { BodyParts } from '@screeps/common/src/constants/body-parts';
@@ -8,6 +7,10 @@ import { ListItems } from '@screeps/common/src/tables/list-items';
 import { Resource } from '@screeps/common/src/constants/resource';
 import { PWRCode } from '@screeps/common/src/constants/pwr-code';
 import { StructureEnum } from '@screeps/common/src/constants/structure-enum';
+
+import * as utils from './../utils';
+
+import { logger } from '../logger';
 
 let runtimeData: any,
     intents: any,
@@ -266,7 +269,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
                         _move.path = opts.serializeMemory ? utils.serializePath(path) : path;
                     }
                     catch (e) {
-                        console.log('$ERR', this.pos, x, y, roomName, JSON.stringify(path), '-----', JSON.stringify(oldMove));
+                        logger.info('$ERR', this.pos, x, y, roomName, JSON.stringify(path), '-----', JSON.stringify(oldMove));
                         throw e;
                     }
                 }

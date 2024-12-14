@@ -12,7 +12,7 @@ const config = common.configManager.config;
 
 Object.assign(config.cli, {
     greeting: 'Screeps server {build} running on port 21025.\r\nThis CLI interface contains a virtual JavaScript machine which you can use to invoke internal server commands. Any valid JavaScript code is allowed. Type "help()" to learn more about commands.\r\n',
-    connectionListener(socket: any) {
+    connectionListener(socket: net.Socket) {
 
         const connectionDesc = `${socket.remoteAddress}:${socket.remotePort}`;
 
