@@ -58,7 +58,7 @@ _config.engine.on('playerSandbox', (sandbox: any) => {
     });`);
 });
 
-export var customObjectPrototypes = [];
+export var customObjectPrototypes: any[] = [];
 
 Object.defineProperty(_config.engine, 'registerCustomObjectPrototype', {
     value: function (objectType: any, name: any, opts: any) {
@@ -68,7 +68,7 @@ Object.defineProperty(_config.engine, 'registerCustomObjectPrototype', {
         if (!name) {
             throw new Error('No prototype name provided!');
         }
-        exports.customObjectPrototypes.push({ objectType, name, opts });
+        customObjectPrototypes.push({ objectType, name, opts });
     }
 });
 
@@ -233,7 +233,7 @@ export function getRoomObjects(roomId: any) {
     return db['rooms.objects'].find({ room: roomId })
         .then((objects: any) => {
             let users: Record<string, any> = {};
-            result.objects = exports.mapById(objects, (obj: any) => {
+            result.objects = mapById(objects, (obj: any) => {
                 if (obj.user) {
                     users[obj.user] = true;
                 }
@@ -247,7 +247,7 @@ export function getRoomObjects(roomId: any) {
             }
         })
         .then((users: any) => {
-            result.users = exports.mapById(users);
+            result.users = mapById(users);
             return result;
         });
 }
@@ -258,7 +258,7 @@ export function getRoomFlags(roomId: any) {
 
 export function getRoomTerrain(roomId: any) {
     return db['rooms.terrain'].find({ room: roomId })
-        .then((result: any) => exports.mapById(result));
+        .then((result: any) => mapById(result));
 }
 
 export function bulkObjectsWrite() {
@@ -411,7 +411,7 @@ export function getInterRoom() {
         db['rooms.objects'].find({ $and: [{ type: { $in: ['creep', 'powerCreep'] } }, { interRoom: { $ne: null } }] }),
         db.rooms.find({ status: 'normal' })
             .then((rooms: any) =>
-                exports.mapById(_.filter(rooms, (i: any) =>
+                mapById(_.filter(rooms, (i: any) =>
                     !i.openTime || i.openTime < Date.now()))),
         db['rooms.objects'].find({ type: { $in: ['terminal', 'powerSpawn', 'powerCreep'] } }),
         q.all([

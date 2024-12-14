@@ -248,8 +248,8 @@ export function createTerrainColorsMap(terrain: any, zoomIn: any) {
 
 export function writeTerrainToPng(terrain: any, filename: any, zoomIn: any) {
 
-    const colors = exports.createTerrainColorsMap(terrain, zoomIn);
-    return exports.writePng(colors, 50 * (zoomIn ? 3 : 1), 50 * (zoomIn ? 3 : 1), filename);
+    const colors = createTerrainColorsMap(terrain, zoomIn);
+    return writePng(colors, 50 * (zoomIn ? 3 : 1), 50 * (zoomIn ? 3 : 1), filename);
 }
 
 export function loadBot(name: any) {
@@ -270,7 +270,7 @@ export function loadBot(name: any) {
         }
         modules[m[1]] = fs.readFileSync(path.resolve(dir, file), { encoding: 'utf8' });
     });
-    return exports.translateModulesToDb(modules);
+    return translateModulesToDb(modules);
 }
 
 export function reloadBotUsers(name: any) {
@@ -280,7 +280,7 @@ export function reloadBotUsers(name: any) {
             if (!users.length) {
                 return 'No bot players found';
             }
-            const modules = exports.loadBot(name);
+            const modules = loadBot(name);
             const timestamp = Date.now();
 
             return db['users.code'].insert(users.map((i: any) => ({

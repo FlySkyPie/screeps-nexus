@@ -147,7 +147,7 @@ class StorageInstance {
             console.error('Storage connection lost', err);
             resetDefer.resolve('reset');
             StorageInstance._connected = false;
-            setTimeout(exports._connect, 1000);
+            setTimeout(StorageInstance._connect, 1000);
         });
         socket.on('end', () => {
             console.error('Storage connection lost');

@@ -576,8 +576,8 @@ export var generateRoom = utils.withHelp([
                     objects.length ? db['rooms.objects'].insert(objects) : q.when()
                 ]);
             })
-            .then(() => exports.updateRoomImageAssets(roomName))
-            .then(() => exports.updateTerrainData())
+            .then(() => updateRoomImageAssets(roomName))
+            .then(() => updateTerrainData())
             .then(() => 'OK');
     }
 ]);
@@ -617,7 +617,7 @@ export var removeRoom = utils.withHelp([
                     db['market.stats'].removeWhere({ room: roomName }),
                     env.del(env.keys.MAP_VIEW + roomName)
                 ])
-                    .then(() => exports.updateTerrainData())
+                    .then(() => updateTerrainData())
                     .then(() => {
                         fs.unlinkSync(path.resolve(process.env.ASSET_DIR ?? "", 'map', roomName + '.png'));
                     })

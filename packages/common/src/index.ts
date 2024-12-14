@@ -189,7 +189,7 @@ export function getRoomNameFromXY(x: any, y: any) {
 export function calcWorldSize(rooms: any) {
     let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
     rooms.forEach((room: any) => {
-        const [x, y] = exports.roomNameToXY(room._id);
+        const [x, y] = roomNameToXY(room._id);
         if (x < minX) minX = x;
         if (y < minY) minY = y;
         if (x > maxX) maxX = x;
