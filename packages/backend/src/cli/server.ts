@@ -4,7 +4,7 @@ import readline from 'readline';
 
 import * as common from '@screeps/common/src';
 
-import { SCREEPS_VERSION } from '../constanst';
+import { ProjectConfig } from '../constansts/project-config';
 
 import * as  cliSandbox from './sandbox';
 
@@ -33,7 +33,7 @@ Object.assign(config.cli, {
 
         let buildString = '';
         try {
-            buildString = `v${SCREEPS_VERSION} `;
+            buildString = `v${ProjectConfig.SCREEPS_VERSION} `;
         }
         catch (e) { }
 
@@ -51,10 +51,10 @@ Object.assign(config.cli, {
 
 function startServer() {
 
-    if (!process.env.CLI_PORT) {
+    if (!ProjectConfig.CLI_PORT) {
         throw new Error('CLI_PORT environment variable is not set!');
     }
-    if (!process.env.CLI_HOST) {
+    if (!ProjectConfig.CLI_HOST) {
         throw new Error('CLI_HOST environment variable is not set!');
     }
 
@@ -62,9 +62,9 @@ function startServer() {
 
     const server = net.createServer(config.cli.connectionListener);
 
-    server.on('listening', () => console.log(`CLI listening on ${process.env.CLI_HOST}:${process.env.CLI_PORT}`));
+    server.on('listening', () => console.log(`CLI listening on ${ProjectConfig.CLI_HOST}:${ProjectConfig.CLI_PORT}`));
 
-    server.listen(parseInt(process.env.CLI_PORT), process.env.CLI_HOST);
+    server.listen(parseInt(ProjectConfig.CLI_PORT), ProjectConfig.CLI_HOST);
 
     return server;
 }

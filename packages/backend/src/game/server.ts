@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 
-import { SCREEPS_VERSION } from '../constanst';
+import { ProjectConfig } from '../constansts/project-config';
 
 import socketServer from './socket/server';
 import * as auth from './api/auth';
@@ -19,7 +19,7 @@ const db = StorageInstance.db;
 
 const PROTOCOL = 14;
 
-let useNativeAuth: any;
+let useNativeAuth: boolean = false;
 
 Object.assign(config.backend, {
     welcomeText: `<h4>Welcome to your own Screeps private server!</h4>This text can be changed by adding a mod to your server, see <code>mods.json</code> file in your server folder.`,
@@ -55,7 +55,7 @@ config.backend.router.get('/version', jsonResponse((_request: any) => {
                 serverData: getServerData()
             };
             try {
-                result.packageVersion = SCREEPS_VERSION;
+                result.packageVersion = ProjectConfig.SCREEPS_VERSION;
             }
             catch (e) {
             }
@@ -75,19 +75,14 @@ const startServer = async () => {
     config.backend.router.use('/game', gameRouter.default);
     config.backend.router.use('/leaderboard', leaderboardRouter.default);
 
-    if (!process.env.GAME_PORT) {
+    if (!ProjectConfig.GAME_PORT) {
         throw new Error('GAME_PORT environment variable is not set!');
     }
-    if (!process.env.GAME_HOST) {
+    if (!ProjectConfig.GAME_HOST) {
         throw new Error('GAME_HOST environment variable is not set!');
     }
-    if (!process.env.ASSET_DIR) {
+    if (!ProjectConfig.ASSET_DIR) {
         throw new Error('ASSET_DIR environment variable is not set!');
-    }
-
-    if (process.env.STEAM_KEY) {
-        console.log("STEAM_KEY environment variable found, disabling native authentication");
-        useNativeAuth = false;
     }
 
     return (q.when()).then(() => {
@@ -98,24 +93,24 @@ const startServer = async () => {
 
         config.backend.emit('expressPreConfig', app);
 
-        app.use('/assets', express.static(process.env.ASSET_DIR ?? ""));
+        app.use('/assets', express.static(ProjectConfig.ASSET_DIR ?? ""));
 
         let buildString = '';
         try {
-            buildString = ` v${SCREEPS_VERSION} `;
+            buildString = ` v${ProjectConfig.SCREEPS_VERSION} `;
         }
         catch (e) { }
 
         app.get('/', (_request, response) => {
             response.send(`<html><body>
-                            Screeps server ${buildString} is running on ${process.env.GAME_HOST}:${process.env.GAME_PORT}.
+                            Screeps server ${buildString} is running on ${ProjectConfig.GAME_HOST}:${ProjectConfig.GAME_PORT}.
                             Use your <a href="http://store.steampowered.com/app/464350">Steam game client</a> to connect.
                             </body></html>`);
         });
 
-        if (process.env.SERVER_PASSWORD) {
+        if (ProjectConfig.SERVER_PASSWORD) {
             app.use((request, response, next) => {
-                if (request.get('X-Server-Password') == process.env.SERVER_PASSWORD) {
+                if (request.get('X-Server-Password') == ProjectConfig.SERVER_PASSWORD) {
                     next();
                     return;
                 }
@@ -158,12 +153,12 @@ const startServer = async () => {
         socketServer(server, PROTOCOL);
 
         server.on('listening', () => {
-            console.log(`Game server listening on ${process.env.GAME_HOST}:${process.env.GAME_PORT}`);
-            if (process.env.SERVER_PASSWORD) {
-                console.log(`Server password is ${process.env.SERVER_PASSWORD}`);
+            console.log(`Game server listening on ${ProjectConfig.GAME_HOST}:${ProjectConfig.GAME_PORT}`);
+            if (ProjectConfig.SERVER_PASSWORD) {
+                console.log(`Server password is ${ProjectConfig.SERVER_PASSWORD}`);
             }
         });
-        server.listen(parseInt(process.env.GAME_PORT ?? ""), process.env.GAME_HOST);
+        server.listen(parseInt(ProjectConfig.GAME_PORT ?? ""), ProjectConfig.GAME_HOST);
 
     });
 }

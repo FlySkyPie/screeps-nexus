@@ -9,6 +9,7 @@ import StorageInstance from '@screeps/common/src/storage';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
 import * as  utils from '../utils';
+import { ProjectConfig } from '../constansts/project-config';
 
 const db = StorageInstance.db;
 const env = StorageInstance.env;
@@ -619,7 +620,7 @@ export var removeRoom = utils.withHelp([
                 ])
                     .then(() => updateTerrainData())
                     .then(() => {
-                        fs.unlinkSync(path.resolve(process.env.ASSET_DIR ?? "", 'map', roomName + '.png'));
+                        fs.unlinkSync(path.resolve(ProjectConfig.ASSET_DIR ?? "", 'map', roomName + '.png'));
                     })
                     .then(() => 'OK'));
     }
@@ -631,7 +632,7 @@ export var updateRoomImageAssets = utils.withHelp([
 
         return db['rooms.terrain'].findOne({ room: roomName })
             .then((terrainItem: any) => utils.writeTerrainToPng(terrainItem.terrain,
-                path.resolve(process.env.ASSET_DIR ?? "", 'map', roomName + '.png'), true))
+                path.resolve(ProjectConfig.ASSET_DIR ?? "", 'map', roomName + '.png'), true))
             .then(() => {
                 let [x, y] = utils.roomNameToXY(roomName);
                 x = Math.floor(x / 4) * 4;
@@ -670,7 +671,7 @@ export var updateRoomImageAssets = utils.withHelp([
                         }
 
                         return utils.writePng(mergedColors, 200, 200,
-                            path.resolve(process.env.ASSET_DIR ?? "", 'map/zoom2', firstRoomName + '.png'));
+                            path.resolve(ProjectConfig.ASSET_DIR ?? "", 'map/zoom2', firstRoomName + '.png'));
                     });
             });
     }]);
