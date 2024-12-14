@@ -2,13 +2,13 @@ import net from 'node:net';
 import _ from 'lodash';
 
 import * as common from '@screeps/common/src/index';
+import { RpcServer } from '@screeps/common/src/rpc';
 
-import * as databaseMethods from './db';
 import * as pubsub from './pubsub';
-import * as queueMethods from './queue';
+import databaseMethods from './db';
+import queueMethods from './queue';
 import { StorageConstants } from './constants';
 
-const { RpcServer } = common.rpc;
 const { config } = common.configManager;
 
 Object.assign(config.storage, {
@@ -55,8 +55,8 @@ export function start() {
         });
 
         server.listen(
-            parseInt(StorageConstants.STORAGE_PORT ?? ""),
-            StorageConstants.STORAGE_HOST);
+            StorageConstants.STORAGE_PORT as any,
+            StorageConstants.STORAGE_HOST || 'localhost');
     })
         .catch((error: any) => console.error(error));
 };
