@@ -65,3 +65,18 @@ services:
       - storage
     volumes:
       - ./mods.json:/server/mods.json
+
+  processor:
+    build:
+      context: .
+      dockerfile: ./build/Dockerfile
+      target: processor
+    environment:
+      - STORAGE_PORT=5555
+      - STORAGE_HOST=storage
+      - MODFILE=/server/mods.json
+    restart: always
+    depends_on:
+      - storage
+    volumes:
+      - ./mods.json:/server/mods.json
