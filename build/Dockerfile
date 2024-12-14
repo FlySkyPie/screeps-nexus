@@ -31,6 +31,7 @@ RUN pnpm --stream -r build:driver-native
 
 RUN pnpm --stream -r build:vm-context
 RUN pnpm --stream -r build:main
+RUN pnpm --stream -r build:runner
 # RUN pnpm --stream -r build
 
 FROM node:18.20.4-bookworm AS storage
@@ -67,4 +68,19 @@ RUN apt-get update && \
 COPY --from=builder /screeps/packages/engine/dist/main ./
 
 ENTRYPOINT [ "node", "index.js" ]
-# ENTRYPOINT ["tail", "-f", "/dev/null"]
+
+
+FROM node:18.20.4-bookworm AS runner
+
+WORKDIR /server
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
+RUN apt-get update && \
+    apt-get -y install libstdc++6
+
+COPY --from=builder /screeps/packages/engine/dist/runner ./
+
+ENTRYPOINT [ "node", "index.js" ]

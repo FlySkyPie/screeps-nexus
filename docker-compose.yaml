@@ -49,3 +49,19 @@ services:
       - storage
     volumes:
       - ./mods.json:/server/mods.json
+
+  runner:
+    build:
+      context: .
+      dockerfile: ./build/Dockerfile
+      target: runner
+    environment:
+      - STORAGE_PORT=5555
+      - STORAGE_HOST=storage
+      - MODFILE=/server/mods.json
+      - RUNNER_THREADS=4
+    restart: always
+    depends_on:
+      - storage
+    volumes:
+      - ./mods.json:/server/mods.json
