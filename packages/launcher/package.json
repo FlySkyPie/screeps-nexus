@@ -13,8 +13,6 @@
     "url": "https://github.com/screeps/launcher.git"
   },
   "scripts": {
-    "ui": "electron electron/main.js",
-    "electron-rebuild": "electron-rebuild",
     "build": " ncc build src/screeps.ts -o dist -s"
   },
   "dependencies": {
@@ -39,8 +37,6 @@
     "@types/node": "^22.10.1",
     "@types/prompt": "^1.0.0",
     "@types/q": "^1.0.0",
-    "@vercel/ncc": "^0.38.3",
-    "electron": "^2.0.0-beta.7",
-    "electron-rebuild": "^1.7.3"
+    "@vercel/ncc": "^0.38.3"
   }
 }

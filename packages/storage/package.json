@@ -2,9 +2,6 @@
   "name": "@screeps/storage",
   "version": "5.0.0",
   "main": "dist/index.js",
-  "bin": {
-    "screeps-storage": "dist/index.js"
-  },
   "license": "ISC",
   "author": "Artem Chivchalov <contact@screeps.com>",
   "repository": {
