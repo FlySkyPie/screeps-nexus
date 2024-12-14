@@ -13,7 +13,7 @@ export { configManager, storage, rpc };
 // export var storage = require('./storage');
 // export var rpc = require('./rpc');
 
-export function findPort(port: any) {
+export function findPort(port: any): any {
     const defer = q.defer();
     const server = net.createServer(socket => socket.end());
     server.listen(port, () => {

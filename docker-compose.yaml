@@ -1,0 +1,13 @@
+services:
+  storage:
+    build:
+      context: .
+      dockerfile: ./build/Dockerfile
+      target: storage
+    environment:
+      - STORAGE_PORT=5555
+      - MODFILE=/server/mods.json
+      - DB_PATH=/server/db.json
+    volumes:
+      - ./mods.json:/server/mods.json
+      - ./db.json:/server/db.json

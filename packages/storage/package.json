@@ -12,7 +12,8 @@
     "url": "https://github.com/screeps/storage.git"
   },
   "scripts": {
-    "build": " ncc build src/bin.ts -o dist -s"
+    "build": " ncc build src/bin.ts -o dist -s",
+    "build:storage": " ncc build src/bin.ts -o dist -s"
   },
   "dependencies": {
     "@screeps/common": "workspace:*",

@@ -32,7 +32,8 @@ export function load() {
     }
 
     try {
-        const modsJson = require(modsJsonFilename);
+        const modStr = fs.readFileSync(modsJsonFilename, { encoding: 'utf8' });
+        const modsJson = JSON.parse(modStr);
         console.log(`Loading mods from "${modsJsonFilename}"`);
         if (!modsJson.mods) {
             return;
