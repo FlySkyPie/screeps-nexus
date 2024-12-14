@@ -2,7 +2,6 @@
   "name": "@screeps/common",
   "version": "2.15.5",
   "description": "",
-  "main": "index.js",
   "author": "Artem Chivchalov <contact@screeps.com>",
   "license": "ISC",
   "repository": {

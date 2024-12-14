@@ -12,7 +12,6 @@ services:
     volumes:
       - ./mods.json:/server/mods.json
       - ./db.json:/server/db.json
-
   backend:
     build:
       context: .
@@ -21,7 +20,7 @@ services:
     environment:
       - GAME_PORT=21025
       - GAME_HOST=0.0.0.0
-      - CLI_PORT=21026,
+      - CLI_PORT=21026
       - CLI_HOST=localhost
       - STORAGE_PORT=5555
       - STORAGE_HOST=storage
@@ -32,9 +31,11 @@ services:
     restart: always
     depends_on:
       - storage
+    ports:
+      - 21025:21025
+      - 21026:21026
     volumes:
       - ./mods.json:/server/mods.json
-
   main:
     build:
       context: .
@@ -49,7 +50,6 @@ services:
       - storage
     volumes:
       - ./mods.json:/server/mods.json
-
   runner:
     build:
       context: .
@@ -65,7 +65,6 @@ services:
       - storage
     volumes:
       - ./mods.json:/server/mods.json
-
   processor:
     build:
       context: .
