@@ -6,7 +6,8 @@
     "author": "Artem Chivchalov <contact@screeps.com>",
     "license": "ISC",
     "scripts": {
-        "build": "ncc build src/runtime.ts -o dist -s"
+        "build": "ncc build src/runtime.ts -o dist -s",
+        "build:vm-context": "ncc build src/runtime.ts -o dist -s"
     },
     "dependencies": {
         "@screeps/common": "workspace:*",

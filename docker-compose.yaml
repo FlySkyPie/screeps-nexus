@@ -30,5 +30,22 @@ services:
       - SERVER_PASSWORD=
       - STEAM_KEY=
     restart: always
+    depends_on:
+      - storage
+    volumes:
+      - ./mods.json:/server/mods.json
+
+  main:
+    build:
+      context: .
+      dockerfile: ./build/Dockerfile
+      target: main
+    environment:
+      - STORAGE_PORT=5555
+      - STORAGE_HOST=storage
+      - MODFILE=/server/mods.json
+    restart: always
+    depends_on:
+      - storage
     volumes:
       - ./mods.json:/server/mods.json
