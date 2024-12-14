@@ -29,3 +29,11 @@ pnpm exec screeps-launcher start
 ```shell
 pnpx tsx packages/launcher/src/screeps.ts start
 ```
+
+
+## Docker
+
+```shell
+pnpm exec screeps-launcher init
+docker compose up --build
+```

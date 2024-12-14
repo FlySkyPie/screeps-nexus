@@ -12,7 +12,6 @@ COPY pnpm-workspace.yaml .
 COPY packages/backend/package.json ./packages/backend/package.json
 COPY packages/common/package.json ./packages/common/package.json
 COPY packages/driver/package.json ./packages/driver/package.json
-COPY packages/greenworks/package.json ./packages/greenworks/package.json
 COPY packages/launcher/package.json ./packages/launcher/package.json
 COPY packages/PathFinding.js/package.json ./packages/PathFinding.js/package.json
 COPY packages/storage/package.json ./packages/storage/package.json
