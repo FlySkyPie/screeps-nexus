@@ -5,6 +5,9 @@ RUN corepack enable
 
 WORKDIR /screeps
 
+RUN apt-get update && \
+    apt-get -y install libstdc++6
+
 COPY package.json .
 COPY pnpm-lock.yaml .
 COPY pnpm-workspace.yaml .
@@ -24,8 +27,6 @@ COPY packages packages
 RUN pnpm --stream -r build:storage
 RUN pnpm --stream -r build:backend
 
-RUN apt-get update && \
-    apt-get -y install libstdc++6
 ARG CXXFLAGS='-include /usr/include/c++/12/limits'
 RUN pnpm --stream -r build:driver-native
 
