@@ -6,8 +6,29 @@ services:
       target: storage
     environment:
       - STORAGE_PORT=5555
+      - STORAGE_HOST=0.0.0.0
       - MODFILE=/server/mods.json
       - DB_PATH=/server/db.json
     volumes:
       - ./mods.json:/server/mods.json
       - ./db.json:/server/db.json
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./build/Dockerfile
+      target: backend
+    environment:
+      - GAME_PORT=21025
+      - GAME_HOST=0.0.0.0
+      - CLI_PORT=21026,
+      - CLI_HOST=localhost
+      - STORAGE_PORT=5555
+      - STORAGE_HOST=storage
+      - MODFILE=/server/mods.json
+      - ASSET_DIR=assets
+      - SERVER_PASSWORD=
+      - STEAM_KEY=
+    restart: always
+    volumes:
+      - ./mods.json:/server/mods.json

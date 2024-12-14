@@ -2,11 +2,9 @@ import http from 'node:http';
 import q from 'q';
 import _ from 'lodash';
 import express from 'express';
-import steamApi from 'steam-webapi';
 import jsonResponse from 'q-json-response';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
-import greenworks from 'greenworks';
 
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
@@ -18,8 +16,6 @@ import * as auth from './api/auth';
 
 const config = common.configManager.config;
 const db = StorageInstance.db;
-
-steamApi.key = process.env.STEAM_KEY;
 
 const PROTOCOL = 14;
 
@@ -67,24 +63,6 @@ config.backend.router.get('/version', jsonResponse((_request: any) => {
         });
 }));
 
-function connectToSteam(defer?: any) {
-    if (!defer) {
-        defer = q.defer();
-    }
-
-    console.log(`Connecting to Steam Web API`);
-
-    steamApi.ready((err: any) => {
-        if (err) {
-            setTimeout(() => connectToSteam(defer), 1000);
-            console.log('Steam Web API connection error', err);
-        }
-
-        defer.resolve();
-    });
-    return defer.promise;
-}
-
 const startServer = async () => {
     const userRouter = await import('./api/user');
     const registerRouter = await import('./api/register');
@@ -111,24 +89,8 @@ const startServer = async () => {
         console.log("STEAM_KEY environment variable found, disabling native authentication");
         useNativeAuth = false;
     }
-    else {
-        console.log("STEAM_KEY environment variable is not found, trying to connect to local Steam client");
-        try {
-            // greenworks = import('greenworks');
-        }
-        catch (e) {
-            throw new Error('Cannot find greenworks library, please either install it in the /greenworks folder or provide STEAM_KEY environment variable');
-        }
-        if (!greenworks.isSteamRunning()) {
-            throw new Error('Steam client is not running');
-        }
-        if (!greenworks.initAPI()) {
-            throw new Error('greenworks.initAPI() failure');
-        }
-        useNativeAuth = true;
-    }
 
-    return (useNativeAuth ? q.when() : connectToSteam()).then(() => {
+    return (q.when()).then(() => {
 
         console.log(`Starting game server (protocol version ${PROTOCOL})`);
 

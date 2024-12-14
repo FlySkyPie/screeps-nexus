@@ -13,6 +13,7 @@
     "url": "https://github.com/screeps/backend-local.git"
   },
   "scripts": {
+    "build:backend": " ncc build src/bin.ts -o dist -s",
     "build": " ncc build src/bin.ts -o dist -s"
   },
   "dependencies": {

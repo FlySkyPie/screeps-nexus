@@ -23,6 +23,7 @@ RUN pnpm install --frozen-lockfile
 COPY packages packages
 
 RUN pnpm --stream -r build:storage
+RUN pnpm --stream -r build:backend
 # RUN pnpm --stream -r build
 
 FROM node:18.20.4-bookworm AS storage
@@ -31,4 +32,22 @@ WORKDIR /server
 
 COPY --from=builder /screeps/packages/storage/dist ./
 
-ENTRYPOINT [ "node","index.js" ]
+ENTRYPOINT [ "node", "index.js" ]
+
+FROM node:18.20.4-bookworm AS backend
+
+WORKDIR /server
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
+RUN pnpm install -g pm2
+
+# RUN apt-get update && \
+#     apt-get -y install libstdc++6
+
+COPY --from=builder /screeps/packages/backend/dist ./
+
+# ENTRYPOINT [ "pm2", "start", "index.js" ]
+ENTRYPOINT [ "node", "index.js" ]
