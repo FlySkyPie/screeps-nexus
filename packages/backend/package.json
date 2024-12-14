@@ -2,7 +2,7 @@
   "name": "@screeps/backend",
   "version": "3.0.2",
   "description": "",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "bin": {
     "screeps-backend": "dist/index.js"
   },
