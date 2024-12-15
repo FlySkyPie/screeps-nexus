@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import _ from 'lodash';
 import commander from 'commander';
 import readline from 'readline';
@@ -50,7 +49,7 @@ commander
     .description('Connect to the CLI interface of the main process.')
     .option('-p, --port <port>', 'Default is 21026', 21026)
     .option('-h, --host <host>', 'Default is localhost', 'localhost')
-    .action(function () {
+    .action((command) => {
 
         const rl = readline.createInterface(({
             input: process.stdin,
@@ -58,7 +57,7 @@ commander
             prompt: '> '
         }));
 
-        lib.cli(commander.host, commander.port, rl);
+        lib.cli(command.host, command.port, rl);
     });
 
 commander.command('*').action(() => {

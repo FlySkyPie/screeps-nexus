@@ -30,6 +30,10 @@ pnpm exec screeps-launcher start
 pnpx tsx packages/launcher/src/screeps.ts start
 ```
 
+```shell
+# Connect to backend with CLI
+pnpx tsx packages/launcher/src/screeps.ts cli
+```
 
 ## Docker
 
