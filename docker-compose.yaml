@@ -9,6 +9,8 @@ services:
       - STORAGE_HOST=0.0.0.0
       - MODFILE=/server/mods.json
       - DB_PATH=/server/db.json
+    ports:
+      - 5555:5555
     volumes:
       - ./mods.json:/server/mods.json
       - ./db.json:/server/db.json

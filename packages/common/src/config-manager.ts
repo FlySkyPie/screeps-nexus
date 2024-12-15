@@ -21,7 +21,9 @@ const config: any = {
 
 export function load() {
     if (!ProjectConfig.MODFILE) {
-        throw new Error('MODFILE environment variable is not set!');
+        // throw new Error('MODFILE environment variable is not set!');
+        console.warn('MODFILE environment variable is not set!');
+        return;
     }
     const modsJsonFilename = path.resolve(process.cwd(), ProjectConfig.MODFILE);
     try {
