@@ -5,6 +5,7 @@ import { EventEmitter } from 'node:events';
 
 import * as strongholds from './strongholds';
 import * as system from './system';
+import { ProjectConfig } from './constants/project-config';
 
 const config: any = {
     common: {
@@ -19,10 +20,10 @@ const config: any = {
 };
 
 export function load() {
-    if (!process.env.MODFILE) {
+    if (!ProjectConfig.MODFILE) {
         throw new Error('MODFILE environment variable is not set!');
     }
-    const modsJsonFilename = path.resolve(process.cwd(), process.env.MODFILE);
+    const modsJsonFilename = path.resolve(process.cwd(), ProjectConfig.MODFILE);
     try {
         fs.statSync(modsJsonFilename);
     }

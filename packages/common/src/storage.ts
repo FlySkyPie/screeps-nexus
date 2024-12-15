@@ -3,6 +3,7 @@ import net from 'net';
 
 import { config } from './config-manager';
 import { RpcClient } from './rpc';
+import { ProjectConfig } from './constants/project-config';
 
 config.common.dbCollections = [
     'leaderboard.power',
@@ -71,14 +72,14 @@ class StorageInstance {
             return q.when();
         }
 
-        if (!process.env.STORAGE_PORT) {
+        if (!ProjectConfig.STORAGE_PORT) {
             throw new Error('STORAGE_PORT environment variable is not set!');
         }
 
         /**
-         * `process.env.STORAGE_PORT` chould be `storage.sock`.
+         * `ProjectConfig.STORAGE_PORT` chould be `storage.sock`.
          */
-        const socket = net.connect((process.env.STORAGE_PORT) as any, process.env.STORAGE_HOST);
+        const socket = net.connect((ProjectConfig.STORAGE_PORT) as any, ProjectConfig.STORAGE_HOST);
         const rpcClient = new RpcClient(socket);
 
         const defer = q.defer();
