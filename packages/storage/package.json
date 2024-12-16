@@ -9,6 +9,7 @@
     "url": "https://github.com/screeps/storage.git"
   },
   "scripts": {
+    "dev": "nodemon",
     "build": " ncc build src/bin.ts -o dist -s",
     "build:storage": " ncc build src/bin.ts -o dist -s"
   },
@@ -23,6 +24,9 @@
     "@types/node": "^16.0.0",
     "@types/lodash": "^3.0.0",
     "@types/q": "^1.0.0",
-    "@vercel/ncc": "^0.38.3"
+    "@vercel/ncc": "^0.38.3",
+    "nodemon": "^3.1.9",
+    "dotenv": "^16.4.7",
+    "tsx": "^4.19.2"
   }
 }

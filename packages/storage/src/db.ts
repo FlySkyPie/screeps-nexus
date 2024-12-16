@@ -13,7 +13,7 @@ const config = common.configManager.config;
 /**
  * @type Loki
  */
-let db: any;
+let db: loki;
 
 Object.assign(config.storage, {
     dbOptions: { autosave: true, autosaveInterval: 10000 },
@@ -368,7 +368,7 @@ function recursReplaceNeNull(val: any) {
 
 function dbRequest(collectionName: any, method: any, argsArray: any, cb: any) {
     try {
-        const collection = getOrAddCollection(collectionName);
+        const collection: any = getOrAddCollection(collectionName);
         if (method == 'insert') {
             if (_.isArray(argsArray[0])) {
                 argsArray[0].forEach(genId);
