@@ -364,327 +364,345 @@ function recursReplaceNeNull(val: any) {
     }
 }
 
-export default {
+///
 
-    dbRequest(collectionName: any, method: any, argsArray: any, cb: any) {
-        try {
-            const collection = getOrAddCollection(collectionName);
-            if (method == 'insert') {
-                if (_.isArray(argsArray[0])) {
-                    argsArray[0].forEach(genId);
-                }
-                else {
-                    genId(argsArray[0]);
-                }
-            }
-
-            if (method == 'find' || method == 'findOne' || method == 'count' || method == 'removeWhere') {
-                recursReplaceNeNull(argsArray[0]);
-            }
-
-            const result = collection[method].apply(collection, argsArray);
-            cb(null, result);
-        }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
-        }
-    },
-
-    dbUpdate(collectionName: any, query: any, update: any, params: any, cb: any) {
-        try {
-            recursReplaceNeNull(query);
-            const collection = getOrAddCollection(collectionName);
-            let result = [];
-            if (Object.keys(query).length == 1 && query._id && _.isString(query._id)) {
-                const found = collection.by('_id', query._id);
-                if (found) {
-                    result = [found];
-                }
+function dbRequest(collectionName: any, method: any, argsArray: any, cb: any) {
+    try {
+        const collection = getOrAddCollection(collectionName);
+        if (method == 'insert') {
+            if (_.isArray(argsArray[0])) {
+                argsArray[0].forEach(genId);
             }
             else {
-                result = collection.find(query);
-            }
-            if (result.length) {
-                result.forEach((doc: any) => {
-                    updateDocument(doc, update);
-                    collection.update(doc);
-                });
-                cb(null, { modified: result.length });
-            }
-            else if (params && params.upsert) {
-                const item = {};
-                if (query.$and) {
-                    query.$and.forEach((i: any) => _.extend(item, i));
-                }
-                else {
-                    _.extend(item, query);
-                }
-                updateDocument(item, update);
-                genId(item);
-                collection.insert(item);
-                cb(null, { inserted: 1 });
-            }
-            else {
-                cb(null, {});
+                genId(argsArray[0]);
             }
         }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
-        }
-    },
 
-    dbBulk(collectionName: any, bulk: any, cb: any) {
-        try {
-            const collection = getOrAddCollection(collectionName);
-            let result;
-            bulk.forEach((i: any) => {
-                switch (i.op) {
-                    case 'update': {
-                        result = collection.by('_id', i.id);
-                        if (result) {
-                            updateDocument(result, i.update);
-                            collection.update(result);
-                        }
-                        break;
-                    }
-                    case 'insert': {
-                        genId(i.data);
-                        collection.insert(i.data);
-                        break;
-                    }
-                    case 'remove': {
-                        result = collection.by('_id', i.id);
-                        if (result) {
-                            collection.remove(result);
-                        }
-                        break;
-                    }
-                }
+        if (method == 'find' || method == 'findOne' || method == 'count' || method == 'removeWhere') {
+            recursReplaceNeNull(argsArray[0]);
+        }
+
+        const result = collection[method].apply(collection, argsArray);
+        cb(null, result);
+    }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+};
+
+function dbUpdate(collectionName: any, query: any, update: any, params: any, cb: any) {
+    try {
+        recursReplaceNeNull(query);
+        const collection = getOrAddCollection(collectionName);
+        let result = [];
+        if (Object.keys(query).length == 1 && query._id && _.isString(query._id)) {
+            const found = collection.by('_id', query._id);
+            if (found) {
+                result = [found];
+            }
+        }
+        else {
+            result = collection.find(query);
+        }
+        if (result.length) {
+            result.forEach((doc: any) => {
+                updateDocument(doc, update);
+                collection.update(doc);
             });
-            cb(null);
+            cb(null, { modified: result.length });
         }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
-        }
-    },
-
-    dbFindEx(collectionName: any, query: any, opts: any, cb: any) {
-        try {
-            recursReplaceNeNull(query);
-            const collection = getOrAddCollection(collectionName);
-            let chain = collection.chain().find(query);
-            if (opts.sort) {
-                for (const field in opts.sort) {
-                    chain = chain.simplesort(field, opts.sort[field] == -1);
-                }
-            }
-            if (opts.offset) {
-                chain = chain.offset(opts.offset);
-            }
-            if (opts.limit) {
-                chain = chain.limit(opts.limit);
-            }
-            cb(null, chain.data());
-        }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
-        }
-    },
-
-    dbEnvGet(name: any, cb: any) {
-        try {
-            const item = db.getCollection('env').get(1) || { data: {} };
-            cb(null, item.data[name]);
-        }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
-        }
-    },
-
-    dbEnvMget(names: any, cb: any) {
-        try {
-            const item = db.getCollection('env').get(1) || { data: {} };
-            const result = names.map((name: any) => item.data[name]);
-            cb(null, result);
-        }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
-        }
-    },
-
-    dbEnvSet(name: any, value: any, cb: any) {
-        try {
-            const env = db.getCollection('env');
-            let values = env.get(1);
-            if (values) {
-                values.data[name] = value;
-                env.update(values);
+        else if (params && params.upsert) {
+            const item = {};
+            if (query.$and) {
+                query.$and.forEach((i: any) => _.extend(item, i));
             }
             else {
-                values = { data: { [name]: value } };
-                env.insert(values);
+                _.extend(item, query);
             }
-            cb && cb(null, value);
+            updateDocument(item, update);
+            genId(item);
+            collection.insert(item);
+            cb(null, { inserted: 1 });
         }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
-        }
-    },
-
-    dbEnvExpire(name: any, seconds: any, cb: any) {
-        try {
-            const env = db.getCollection('env');
-            let expiration = env.get(2);
-            if (expiration) {
-                expiration.data[name] = Date.now() + seconds * 1000;
-                env.update(expiration);
-            }
-            else {
-                expiration = { data: { [name]: Date.now() + seconds * 1000 } };
-                env.insert(expiration);
-            }
-            cb && cb(null);
-        }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
-        }
-    },
-
-    dbEnvSetex(name: any, seconds: any, value: any, cb: any) {
-        try {
-            module.exports.dbEnvSet(name, value);
-            module.exports.dbEnvExpire(name, seconds);
-            cb(null);
-        }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
-        }
-    },
-
-    dbEnvTtl(name: any, cb: any) {
-        try {
-            const env = db.getCollection('env');
-            const expiration = env.get(2);
-            if (!expiration || !expiration.data[name] || expiration.data[name] < Date.now()) {
-                cb(null, -1);
-                return;
-            }
-            cb(null, (expiration.data[name] - Date.now()) / 1000);
-        }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
-        }
-    },
-
-    dbEnvDel(name: any, cb: any) {
-        try {
-            const env = db.getCollection('env');
-            const values = env.get(1);
-            if (values && values.data[name]) {
-                delete values.data[name];
-                cb(null, 1);
-            }
-            else {
-                cb(null, 0);
-            }
-        }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
-        }
-    },
-
-    dbEnvHget(name: any, field: any, cb: any) {
-        try {
-            const env = db.getCollection('env');
-            const values = env.get(1);
-            if (values && values.data && values.data[name]) {
-                cb(null, values.data[name][field]);
-            }
-            else {
-                cb(null);
-            }
-        }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
-        }
-    },
-
-    dbEnvHset(name: any, field: any, value: any, cb: any) {
-        try {
-            const env = db.getCollection('env');
-            let values = env.get(1);
-            if (values) {
-                values.data[name] = values.data[name] || {};
-                values.data[name][field] = value;
-                env.update(values);
-            }
-            else {
-                values = { data: { [name]: { [field]: value } } };
-                env.insert(values);
-            }
-            cb(null, values.data[name][field]);
-        }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
-        }
-    },
-
-    dbEnvHmget(name: any, fields: any, cb: any) {
-        try {
-            const env = db.getCollection('env');
-            const values = env.get(1) || { data: {} };
-            values.data[name] = values.data[name] || {};
-            const result = fields.map((i: any) => values.data[name][i]);
-            cb(null, result);
-        }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
-        }
-    },
-
-    dbEnvHmset(name: any, data: any, cb: any) {
-        try {
-            const env = db.getCollection('env');
-            let values = env.get(1);
-            if (values) {
-                values.data[name] = values.data[name] || {};
-                _.extend(values.data[name], data);
-                env.update(values);
-            }
-            else {
-                values = { data: { [name]: data } };
-                env.insert(values);
-            }
-            cb(null, values.data[name]);
-        }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
-        }
-    },
-
-    dbResetAllData(cb: any) {
-        try {
-            db.loadJSON(JSON.stringify(require('../db.original')));
-            cb(null);
-        }
-        catch (e: any) {
-            cb(e.message);
-            console.error(e);
+        else {
+            cb(null, {});
         }
     }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+}
+
+function dbBulk(collectionName: any, bulk: any, cb: any) {
+    try {
+        const collection = getOrAddCollection(collectionName);
+        let result;
+        bulk.forEach((i: any) => {
+            switch (i.op) {
+                case 'update': {
+                    result = collection.by('_id', i.id);
+                    if (result) {
+                        updateDocument(result, i.update);
+                        collection.update(result);
+                    }
+                    break;
+                }
+                case 'insert': {
+                    genId(i.data);
+                    collection.insert(i.data);
+                    break;
+                }
+                case 'remove': {
+                    result = collection.by('_id', i.id);
+                    if (result) {
+                        collection.remove(result);
+                    }
+                    break;
+                }
+            }
+        });
+        cb(null);
+    }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+}
+
+function dbFindEx(collectionName: any, query: any, opts: any, cb: any) {
+    try {
+        recursReplaceNeNull(query);
+        const collection = getOrAddCollection(collectionName);
+        let chain = collection.chain().find(query);
+        if (opts.sort) {
+            for (const field in opts.sort) {
+                chain = chain.simplesort(field, opts.sort[field] == -1);
+            }
+        }
+        if (opts.offset) {
+            chain = chain.offset(opts.offset);
+        }
+        if (opts.limit) {
+            chain = chain.limit(opts.limit);
+        }
+        cb(null, chain.data());
+    }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+}
+
+function dbEnvGet(name: any, cb: any) {
+    try {
+        const item = db.getCollection('env').get(1) || { data: {} };
+        cb(null, item.data[name]);
+    }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+}
+
+function dbEnvMget(names: any, cb: any) {
+    try {
+        const item = db.getCollection('env').get(1) || { data: {} };
+        const result = names.map((name: any) => item.data[name]);
+        cb(null, result);
+    }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+}
+
+function dbEnvSet(name: any, value: any, cb?: any) {
+    try {
+        const env = db.getCollection('env');
+        let values = env.get(1);
+        if (values) {
+            values.data[name] = value;
+            env.update(values);
+        }
+        else {
+            values = { data: { [name]: value } };
+            env.insert(values);
+        }
+        cb && cb(null, value);
+    }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+}
+
+function dbEnvExpire(name: any, seconds: any, cb?: any) {
+    try {
+        const env = db.getCollection('env');
+        let expiration = env.get(2);
+        if (expiration) {
+            expiration.data[name] = Date.now() + seconds * 1000;
+            env.update(expiration);
+        }
+        else {
+            expiration = { data: { [name]: Date.now() + seconds * 1000 } };
+            env.insert(expiration);
+        }
+        cb && cb(null);
+    }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+}
+
+function dbEnvSetex(name: any, seconds: any, value: any, cb: any) {
+    try {
+        dbEnvSet(name, value);
+        dbEnvExpire(name, seconds);
+        cb(null);
+    }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+}
+
+function dbEnvTtl(name: any, cb: any) {
+    try {
+        const env = db.getCollection('env');
+        const expiration = env.get(2);
+        if (!expiration || !expiration.data[name] || expiration.data[name] < Date.now()) {
+            cb(null, -1);
+            return;
+        }
+        cb(null, (expiration.data[name] - Date.now()) / 1000);
+    }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+}
+
+function dbEnvDel(name: any, cb: any) {
+    try {
+        const env = db.getCollection('env');
+        const values = env.get(1);
+        if (values && values.data[name]) {
+            delete values.data[name];
+            cb(null, 1);
+        }
+        else {
+            cb(null, 0);
+        }
+    }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+}
+
+function dbEnvHget(name: any, field: any, cb: any) {
+    try {
+        const env = db.getCollection('env');
+        const values = env.get(1);
+        if (values && values.data && values.data[name]) {
+            cb(null, values.data[name][field]);
+        }
+        else {
+            cb(null);
+        }
+    }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+}
+
+function dbEnvHset(name: any, field: any, value: any, cb: any) {
+    try {
+        const env = db.getCollection('env');
+        let values = env.get(1);
+        if (values) {
+            values.data[name] = values.data[name] || {};
+            values.data[name][field] = value;
+            env.update(values);
+        }
+        else {
+            values = { data: { [name]: { [field]: value } } };
+            env.insert(values);
+        }
+        cb(null, values.data[name][field]);
+    }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+}
+
+function dbEnvHmget(name: any, fields: any, cb: any) {
+    try {
+        const env = db.getCollection('env');
+        const values = env.get(1) || { data: {} };
+        values.data[name] = values.data[name] || {};
+        const result = fields.map((i: any) => values.data[name][i]);
+        cb(null, result);
+    }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+}
+
+function dbEnvHmset(name: any, data: any, cb: any) {
+    try {
+        const env = db.getCollection('env');
+        let values = env.get(1);
+        if (values) {
+            values.data[name] = values.data[name] || {};
+            _.extend(values.data[name], data);
+            env.update(values);
+        }
+        else {
+            values = { data: { [name]: data } };
+            env.insert(values);
+        }
+        cb(null, values.data[name]);
+    }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+}
+
+function dbResetAllData(cb: any) {
+    try {
+        db.loadJSON(JSON.stringify(require('../db.original')));
+        cb(null);
+    }
+    catch (e: any) {
+        cb(e.message);
+        console.error(e);
+    }
+}
+
+export default {
+    dbRequest,
+    dbUpdate,
+    dbBulk,
+    dbFindEx,
+    dbEnvGet,
+    dbEnvMget,
+    dbEnvSet,
+    dbEnvExpire,
+    dbEnvSetex,
+    dbEnvTtl,
+    dbEnvDel,
+    dbEnvHget,
+    dbEnvHset,
+    dbEnvHmget,
+    dbEnvHmset,
+    dbResetAllData,
 };
