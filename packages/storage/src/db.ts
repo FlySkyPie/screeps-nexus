@@ -6,7 +6,9 @@ import _ from 'lodash';
 import * as common from '@screeps/common/src/index';
 import { Resource } from '@screeps/common/src/constants/resource';
 import { ListItems } from '@screeps/common/src/tables/list-items';
+
 import { StorageConstants } from './constants';
+import { logger } from './logger';
 
 const config = common.configManager.config;
 
@@ -48,7 +50,7 @@ function upgradeDb() {
         return;
     }
     if (!envData.databaseVersion || envData.databaseVersion < 4) {
-        console.log("Upgrading database to version 4");
+        logger.info("Upgrading database to version 4");
 
         const innerRooms = db.getCollection('rooms').find({ _id: { $regex: '^[WE][1-9][NS][1-9]$' } });
         innerRooms.forEach((room: any) => {
@@ -71,7 +73,7 @@ function upgradeDb() {
     }
 
     if (envData.databaseVersion < 5) {
-        console.log("Upgrading database to version 5");
+        logger.info("Upgrading database to version 5");
 
         const energyOnly = function energyOnly(structure: any) {
             structure.store = { energy: structure.energy };
@@ -147,7 +149,7 @@ function upgradeDb() {
         if (powerCreepsCollection) {
             const powerCreeps = powerCreepsCollection.find({});
             powerCreeps.forEach((powerCreep: any) => {
-                console.log(`powerCreep${powerCreep._id}`);
+                logger.info(`powerCreep${powerCreep._id}`);
                 converters.powerCreep(powerCreep);
                 return powerCreepsCollection.update(powerCreep);
             });
@@ -155,7 +157,7 @@ function upgradeDb() {
 
         const roomObjects = db.getCollection("rooms.objects").find({ type: { $in: _.keys(converters) } });
         roomObjects.forEach((object: any) => {
-            console.log(`${object.type}#${object._id}`);
+            logger.info(`${object.type}#${object._id}`);
             converters[object.type](object);
             return db.getCollection("rooms.objects").update(object);
         });
@@ -164,7 +166,7 @@ function upgradeDb() {
         const orders = db.getCollection("market.orders").find({});
         orders.forEach((order: any) => {
             if (!order.createdTimestamp) {
-                console.log(`order#${order._id}`);
+                logger.info(`order#${order._id}`);
                 order.createdTimestamp = nowTimestamp;
                 return db.getCollection("market.orders").update(order);
             }
@@ -174,11 +176,11 @@ function upgradeDb() {
     }
 
     if (envData.databaseVersion < 6) {
-        console.log("Upgrading database to version 6");
+        logger.info("Upgrading database to version 6");
 
         const roomObjects = db.getCollection("rooms.objects").find({ type: 'powerBank' });
         roomObjects.forEach((object: any) => {
-            console.log(`${object.type}#${object._id}`);
+            logger.info(`${object.type}#${object._id}`);
             object.store = { power: object.power };
             delete object.power;
             return db.getCollection("rooms.objects").update(object);
@@ -189,7 +191,7 @@ function upgradeDb() {
     }
 
     if (envData.databaseVersion < 7) {
-        console.log("Upgrading database to version 7");
+        logger.info("Upgrading database to version 7");
 
         const user = db.getCollection("users").findOne({ _id: "2" });
         user.badge = {

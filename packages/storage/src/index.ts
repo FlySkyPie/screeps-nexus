@@ -8,6 +8,7 @@ import * as pubsub from './pubsub';
 import databaseMethods from './db';
 import queueMethods from './queue';
 import { StorageConstants } from './constants';
+import { logger } from './logger';
 
 const { config } = common.configManager;
 
@@ -15,9 +16,9 @@ Object.assign(config.storage, {
     socketListener(socket: any) {
         const connectionDesc = `${socket.remoteAddress}:${socket.remotePort}`;
 
-        console.log(`[${connectionDesc}] Incoming connection`);
+        logger.info(`[${connectionDesc}] Incoming connection`);
 
-        socket.on('error', (error: any) => console.log(`[${connectionDesc}] Connection error: ${error.message}`));
+        socket.on('error', (error: any) => logger.info(`[${connectionDesc}] Connection error: ${error.message}`));
 
         const pubsubConnection = pubsub.create();
 
@@ -25,7 +26,7 @@ Object.assign(config.storage, {
 
         socket.on('close', () => {
             pubsubConnection.close();
-            console.log(`[${connectionDesc}] Connection closed`);
+            logger.info(`[${connectionDesc}] Connection closed`);
         });
     }
 });
@@ -43,12 +44,12 @@ export function start() {
 
     config.storage.loadDb().then(() => {
 
-        console.log(`Starting storage server`);
+        logger.info(`Starting storage server`);
 
         const server = net.createServer(config.storage.socketListener);
 
         server.on('listening', () => {
-            console.log('Storage listening on', StorageConstants.STORAGE_PORT);
+            logger.info('Storage listening on', StorageConstants.STORAGE_PORT);
             if (process.send) {
                 process.send('storageLaunched');
             }
