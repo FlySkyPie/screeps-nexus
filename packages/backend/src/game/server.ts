@@ -10,6 +10,7 @@ import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 
 import { ProjectConfig } from '../constansts/project-config';
+import { logger } from '../logger';
 
 import socketServer from './socket/server';
 import * as auth from './api/auth';
@@ -87,7 +88,7 @@ const startServer = async () => {
 
     return (q.when()).then(() => {
 
-        console.log(`Starting game server (protocol version ${PROTOCOL})`);
+        logger.info(`Starting game server (protocol version ${PROTOCOL})`);
 
         const app = express();
 
@@ -153,9 +154,9 @@ const startServer = async () => {
         socketServer(server, PROTOCOL);
 
         server.on('listening', () => {
-            console.log(`Game server listening on ${ProjectConfig.GAME_HOST}:${ProjectConfig.GAME_PORT}`);
+            logger.info(`Game server listening on ${ProjectConfig.GAME_HOST}:${ProjectConfig.GAME_PORT}`);
             if (ProjectConfig.SERVER_PASSWORD) {
-                console.log(`Server password is ${ProjectConfig.SERVER_PASSWORD}`);
+                logger.info(`Server password is ${ProjectConfig.SERVER_PASSWORD}`);
             }
         });
         server.listen(parseInt(ProjectConfig.GAME_PORT ?? ""), ProjectConfig.GAME_HOST);

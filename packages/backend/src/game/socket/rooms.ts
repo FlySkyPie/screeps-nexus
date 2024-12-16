@@ -4,6 +4,8 @@ import _ from 'lodash';
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 
+import { logger } from '../../logger';
+
 const config = common.configManager.config.backend;
 const db = StorageInstance.db;
 const env = StorageInstance.env;
@@ -210,7 +212,7 @@ export default (listen: any, _emit: any) => {
                             info: { mode: 'world' }
                         });
                     })
-                    .catch(console.error);
+                    .catch(logger.error);
 
                 conn.on('close', () => {
                     if (connectedToRooms[roomName]) {

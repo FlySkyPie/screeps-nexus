@@ -7,6 +7,8 @@ import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 
 import * as authlib from '../../authlib';
+import { logger } from '../../logger';
+
 import system from './system';
 import rooms from './rooms';
 import user from './user';
@@ -105,7 +107,7 @@ export default function installSocketServer(server: any, PROTOCOL: any) {
                         }
                     }
                     catch (e) {
-                        console.error(e);
+                        logger.error(e);
                     }
                 });
             }
@@ -115,7 +117,7 @@ export default function installSocketServer(server: any, PROTOCOL: any) {
                         socketMod.onUnsubscribe && socketMod.onUnsubscribe(m[1], user, conn);
                     }
                     catch (e) {
-                        console.error(e);
+                        logger.error(e);
                     }
                 });
                 unregisterListener(m[1]);
@@ -168,7 +170,7 @@ export default function installSocketServer(server: any, PROTOCOL: any) {
                     fn(data, match);
                 }
                 catch (e) {
-                    console.error(e);
+                    logger.error(e);
                 }
             }
         });

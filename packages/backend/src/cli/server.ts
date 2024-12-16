@@ -5,6 +5,7 @@ import readline from 'readline';
 import * as common from '@screeps/common/src';
 
 import { ProjectConfig } from '../constansts/project-config';
+import { logger } from '../logger';
 
 import * as  cliSandbox from './sandbox';
 
@@ -16,10 +17,10 @@ Object.assign(config.cli, {
 
         const connectionDesc = `${socket.remoteAddress}:${socket.remotePort}`;
 
-        console.log(`[${connectionDesc}] Incoming CLI connection`);
+        logger.info(`[${connectionDesc}] Incoming CLI connection`);
 
-        socket.on('error', (_error: any) => console.log(`[${connectionDesc}] CLI connection reset`));
-        socket.on('end', () => console.log(`[${connectionDesc}] CLI connection closed`));
+        socket.on('error', (_error: any) => logger.info(`[${connectionDesc}] CLI connection reset`));
+        socket.on('end', () => logger.info(`[${connectionDesc}] CLI connection closed`));
 
         const runCliCommand = cliSandbox.create((data: any, isResult: any) => {
             if (data === 'undefined') {
@@ -58,11 +59,11 @@ function startServer() {
         throw new Error('CLI_HOST environment variable is not set!');
     }
 
-    console.log(`Starting CLI server`);
+    logger.info(`Starting CLI server`);
 
     const server = net.createServer(config.cli.connectionListener);
 
-    server.on('listening', () => console.log(`CLI listening on ${ProjectConfig.CLI_HOST}:${ProjectConfig.CLI_PORT}`));
+    server.on('listening', () => logger.info(`CLI listening on ${ProjectConfig.CLI_HOST}:${ProjectConfig.CLI_PORT}`));
 
     server.listen(parseInt(ProjectConfig.CLI_PORT), ProjectConfig.CLI_HOST);
 

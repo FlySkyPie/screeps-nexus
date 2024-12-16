@@ -8,6 +8,7 @@ import jsonResponse from 'q-json-response';
 import StorageInstance from '@screeps/common/src/storage';
 
 import * as utils from '../../utils';
+import { logger } from '../../logger';
 
 import * as auth from './auth';
 import badge from './badge';
@@ -287,7 +288,7 @@ router.get('/memory', auth.tokenAuth, jsonResponse((request: any) => {
                     .then((gzipped: any) => ({ data: 'gz:' + btoa(gzipped) }));
             }
             catch (e: any) {
-                console.log(e.stack);
+                logger.info(e.stack);
                 return { data: 'Incorrect memory path' };
             }
         });

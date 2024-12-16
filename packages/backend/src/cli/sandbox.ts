@@ -5,6 +5,7 @@ import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 
 import type { ISandboxObject } from '../interfaces/sandbox-object';
+import { logger } from '../logger';
 
 import * as map from './map';
 import * as bots from './bots';
@@ -17,7 +18,7 @@ const config = common.configManager.config;
 Object.assign(config.cli, {
     createSandbox(outputCallback: any) {
         if (!/at Object\.create/.test(new Error().stack!.split(/\n/)[2])) {
-            console.error("config.cli.createSandbox is deprecated, please use config.cli.onCliSandbox instead");
+            logger.error("config.cli.createSandbox is deprecated, please use config.cli.onCliSandbox instead");
         }
         const sandbox: ISandboxObject = {
             print() {

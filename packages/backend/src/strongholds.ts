@@ -10,6 +10,7 @@ import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import StorageInstance from '@screeps/common/src/storage';
 
 import * as  utils from './utils';
+import { logger } from './logger';
 
 const db = StorageInstance.db;
 const env = StorageInstance.env;
@@ -336,7 +337,7 @@ async function expandStronghold(invaderCore: any, { gameTime, mapGrid }: any = {
         }) as any;
     }
     catch (e) {
-        console.log('no pos', e);
+        logger.info('no pos', e);
         return false;
     }
 
