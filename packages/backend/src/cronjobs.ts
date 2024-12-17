@@ -3,10 +3,11 @@ import _ from 'lodash';
 
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
+import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
 import * as  utils from './utils';
 import * as strongholds from './strongholds';
-import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { logger } from './logger';
 
 const config = common.configManager.config;
 const db = StorageInstance.db;
@@ -28,7 +29,7 @@ config.cronjobs = {
 export function run() {
     _.forEach(config.cronjobs, (i, key) => {
         if (Date.now() - (i[2] || 0) > i[0] * 1000) {
-            console.log(`Running cronjob '${key}'`);
+            logger.info(`Running cronjob '${key}'`);
             i[2] = Date.now();
             i[1]();
         }
@@ -165,7 +166,7 @@ function sendNotifications() {
                     config.backend.emit('sendUserNotifications', user,
                         userNotifications.map(i => _.pick(i, ['message', 'date', 'count', 'type'])));
                 })
-                    .catch((e: any) => console.log(`Error sending a message to ${user.username}: ${e}`))
+                    .catch((e: any) => logger.info(`Error sending a message to ${user.username}: ${e}`))
                     .then(() => notificationIdsToRemove.length > 0 && q.all([
                         db['users.notifications'].removeWhere({ _id: { $in: notificationIdsToRemove } }),
                         db.users.update({ _id: user._id }, { $set: { lastNotifyDate: Date.now() } })
@@ -406,7 +407,7 @@ function genInvaders() {
                     ])
                         .then(([terrain, invaderCore]) => {
                             if (!invaderCore) {
-                                console.log(`Skip room ${room._id} since there is no invaderCore in sector regex ${sectorRegex}`);
+                                logger.info(`Skip room ${room._id} since there is no invaderCore in sector regex ${sectorRegex}`);
                                 return;
                             }
                             let exits: any = {};
@@ -535,7 +536,7 @@ function calcMarketStats() {
             }
 
             return q.all(promises)
-        }).catch(console.log);
+        }).catch(logger.info);
 }
 
 function calcPowerLevelBase(level: any) {
@@ -606,7 +607,7 @@ function genDeposits() {
                                         .then((data) => {
                                             const [objects, terrain] = data;
                                             if (!terrain) {
-                                                console.log(`${room._id}: no terrain`);
+                                                logger.info(`${room._id}: no terrain`);
                                                 return;
                                             }
 
@@ -633,13 +634,13 @@ function genDeposits() {
                                             }
                                             while ((!isWall || !hasExit || nearObjects) && cnt < 1000);
                                             if (cnt >= 1000) {
-                                                console.log(`cannot find location in ${room._id}`);
+                                                logger.info(`cannot find location in ${room._id}`);
                                                 return;
                                             }
 
                                             if (room.depositType) {
                                                 const obj = { type: 'deposit', depositType: room.depositType, x, y, room: room._id, harvested: 0, decayTime: ScreepsConstants.DEPOSIT_DECAY_TIME + gameTime };
-                                                console.log(`Spawning deposit of ${obj.depositType} in ${room._id}`);
+                                                logger.info(`Spawning deposit of ${obj.depositType} in ${room._id}`);
                                                 return db['rooms.objects'].insert(obj)
                                                     .then(db.rooms.update({ _id: room._id }, { $set: { active: true } }));
                                             }
