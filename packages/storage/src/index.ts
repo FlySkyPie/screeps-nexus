@@ -2,18 +2,18 @@ import net from 'node:net';
 import _ from 'lodash';
 
 import * as common from '@screeps/common/src/index';
-import { RpcServer } from '@screeps/common/src/rpc';
 
 import * as pubsub from './pubsub';
 import databaseMethods from './db';
 import queueMethods from './queue';
 import { StorageConstants } from './constants';
 import { logger } from './logger';
+import { RpcServer } from './rpc';
 
 const { config } = common.configManager;
 
 Object.assign(config.storage, {
-    socketListener(socket: any) {
+    socketListener(socket: net.Socket) {
         const connectionDesc = `${socket.remoteAddress}:${socket.remotePort}`;
 
         logger.info(`[${connectionDesc}] Incoming connection`);
