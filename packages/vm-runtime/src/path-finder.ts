@@ -1,12 +1,12 @@
 import _ from 'lodash';
 
-import * as driver from './runtime-driver';
+import { pathFinder } from './runtime-driver';
 
 // let kObstacle = Infinity;
 
 export function make(_runtimeData: any, _intents: any, register: any, globals: any) {
 
-    driver.pathFinder.make(globals);
+    pathFinder.make(globals);
 
     if (globals.PathFinder) {
         return;
@@ -59,7 +59,7 @@ export function make(_runtimeData: any, _intents: any, register: any, globals: a
                 if (!goal || Array.isArray(goal) && !goal.length) {
                     return { path: [], ops: 0 };
                 }
-                return driver.pathFinder.search(origin, goal, options);
+                return pathFinder.search(origin, goal, options);
             })
         },
 

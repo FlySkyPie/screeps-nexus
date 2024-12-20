@@ -1,6 +1,6 @@
 import pathfinding from '@screeps/pathfinding/source/PathFinding';
 
-import * as driver from './runtime-driver';
+import { getWorldSize } from './runtime-driver';
 
 function roomNameToXY(name: any) {
 
@@ -52,7 +52,7 @@ class WorldMapGrid {
          * The size of the grid.
          * @type number
          */
-        this.width = this.height = driver.getWorldSize();
+        this.width = this.height = getWorldSize();
 
         /**
          * A 2D array of nodes.

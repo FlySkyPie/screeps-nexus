@@ -36,7 +36,8 @@ export async function create({ userId, staticTerrainData, staticTerrainDataSize,
             let context = await isolate.createContext({ inspector });
             if (!snapshot) {
                 const scriptStr = fs.readFileSync('./vm-runtime.js', 'utf8');
-                await (await isolate.compileScript(scriptStr)).run(context);
+                const _script = await isolate.compileScript(scriptStr)
+                await _script.run(context);
             }
             let [nativeModInstance, initScript, cleanupScript] = await Promise.all([
                 nativeMod.create(context),

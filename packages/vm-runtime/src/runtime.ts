@@ -1,10 +1,13 @@
 import _ from 'lodash';
 
-import * as fakeConsole from '@screeps/engine/source/game/console';
-import * as utils from '@screeps/engine/source/utils';
+import {
+    getCommandResults, getMessages, getVisual, makeConsole
+} from '@screeps/engine/source/game/console';
+import { storeIntents } from '@screeps/engine/source/utilities/store-intents';
 
 import * as game from './game';
 import WorldMapGrid from './mapgrid';
+import { init } from './game/init';
 
 global._init = (() => {
     const isolate: any = _isolate;
@@ -194,13 +197,13 @@ global._init = (() => {
         const outMessage: Record<string, any> = {};
 
         // _scope = game.init(
-        game.init(
+        init(
             global,
             data.userCode,
             data,
             intents,
             rawMemory,
-            fakeConsole.makeConsole(data.user._id, (fn: any) => { return fn }),
+            makeConsole(data.user._id, (fn: any) => { return fn }),
             data.consoleCommands,
             data.cpu,
             getUsedCpu,
@@ -251,15 +254,15 @@ global._init = (() => {
 
             outMessage.usedTime = Math.ceil(nowCpuTime() - startTime + intents.cpu);
             outMessage.usedDirtyTime = Math.ceil(nowCpuTime() - startDirtyTime);
-            outMessage.intents = utils.storeIntents(data.user._id, intents.list, data);
+            outMessage.intents = storeIntents(data.user._id, intents.list, data);
             outMessage.intentsCpu = intents.cpu;
             outMessage.memory = data.userMemory;
             outMessage.console = {
-                log: fakeConsole.getMessages(data.user._id),
-                results: fakeConsole.getCommandResults(data.user._id)
+                log: getMessages(data.user._id),
+                results: getCommandResults(data.user._id)
             };
 
-            let visual = fakeConsole.getVisual(data.user._id);
+            let visual = getVisual(data.user._id);
             if (Object.keys(visual).length > 0) {
                 outMessage.visual = visual;
             }

@@ -39,7 +39,7 @@ RUN pnpm --stream -r build:processor
 
 FROM node:18.20.4-bookworm AS storage
 
-WORKDIR /server
+WORKDIR /storage
 
 COPY --from=builder /screeps/packages/storage/dist ./
 
@@ -47,7 +47,7 @@ ENTRYPOINT [ "node", "index.js" ]
 
 FROM node:18.20.4-bookworm AS backend
 
-WORKDIR /server
+WORKDIR /backend
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -59,7 +59,7 @@ ENTRYPOINT [ "node", "index.js" ]
 
 FROM node:18.20.4-bookworm AS main
 
-WORKDIR /server
+WORKDIR /main
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -76,7 +76,7 @@ ENTRYPOINT [ "node", "index.js" ]
 
 FROM node:18.20.4-bookworm AS runner
 
-WORKDIR /server
+WORKDIR /runner
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -92,7 +92,7 @@ ENTRYPOINT [ "node", "index.js" ]
 
 FROM node:18.20.4-bookworm AS processor
 
-WORKDIR /server
+WORKDIR /processor
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"

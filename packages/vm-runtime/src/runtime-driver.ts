@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import * as pathFinderFactory from '@screeps/driver/src/path-finder';
+import { create as createPathFinder } from '@screeps/driver/src/path-finder';
 
 class EvalCodeError extends Error {
     constructor(public readonly message: string) {
@@ -61,7 +61,7 @@ export function evalCode(
 
                 var code = '(function __module(module,exports){ ' + _module.code + "\n})(__module, __module.exports)";
 
-                const script :any= global._isolate.compileScriptSync(code, options);
+                const script: any = global._isolate.compileScriptSync(code, options);
 
                 // if(scriptCachedData) {
                 //     if(script.cachedDataProduced) {
@@ -116,5 +116,4 @@ export function evalCode(
     }
 }
 
-
-export var pathFinder = pathFinderFactory.create((global as any)._nativeMod);
+export var pathFinder = createPathFinder((global as any)._nativeMod);

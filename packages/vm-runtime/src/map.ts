@@ -5,13 +5,11 @@ import { Direction } from '@screeps/common/src/constants/direction';
 import { ErrorCode } from '@screeps/common/src/constants/error-code';
 import { FindCode } from '@screeps/common/src/constants/find-code';
 
-import * as utils from '@screeps/engine/source/utils';
-import * as pathUtils from '@screeps/engine/source/game/path-utils';
+import { calcRoomsDistance, getRoomNameFromXY, roomNameToXY } from '@screeps/engine/source/utils';
+import { Heap, OpenClosed } from '@screeps/engine/source/game/path-utils';
 
-import * as driver from './runtime-driver';
+import { getWorldSize } from './runtime-driver';
 
-const Heap = pathUtils.Heap;
-const OpenClosed = pathUtils.OpenClosed;
 const kRouteGrid = 30;
 
 export function makeMap(runtimeData: any, register: any, globals: any) {
@@ -28,7 +26,7 @@ export function makeMap(runtimeData: any, register: any, globals: any) {
     if (!/^(W|E)\d+(N|S)\d+$/.test(roomName)) {
       return null;
     }
-    const [x, y] = utils.roomNameToXY(roomName);
+    const [x, y] = roomNameToXY(roomName);
     const gridItem = runtimeData.mapGrid.gridData[`${x},${y}`];
     if (!gridItem) {
       return null;
@@ -37,16 +35,16 @@ export function makeMap(runtimeData: any, register: any, globals: any) {
     const exits: Record<string, any> = {};
 
     if (gridItem.t) {
-      exits[Direction.TOP] = utils.getRoomNameFromXY(x, y - 1);
+      exits[Direction.TOP] = getRoomNameFromXY(x, y - 1);
     }
     if (gridItem.b) {
-      exits[Direction.BOTTOM] = utils.getRoomNameFromXY(x, y + 1);
+      exits[Direction.BOTTOM] = getRoomNameFromXY(x, y + 1);
     }
     if (gridItem.l) {
-      exits[Direction.LEFT] = utils.getRoomNameFromXY(x - 1, y);
+      exits[Direction.LEFT] = getRoomNameFromXY(x - 1, y);
     }
     if (gridItem.r) {
-      exits[Direction.RIGHT] = utils.getRoomNameFromXY(x + 1, y);
+      exits[Direction.RIGHT] = getRoomNameFromXY(x + 1, y);
     }
 
     return exits;
@@ -86,8 +84,8 @@ export function makeMap(runtimeData: any, register: any, globals: any) {
         return ErrorCode.ERR_NO_PATH;
       }
 
-      const [fromX, fromY] = utils.roomNameToXY(fromRoom);
-      [toX, toY] = utils.roomNameToXY(toRoom);
+      const [fromX, fromY] = roomNameToXY(fromRoom);
+      [toX, toY] = roomNameToXY(toRoom);
 
       if (fromX == toX && fromY == toY) {
         return [];
@@ -146,7 +144,7 @@ export function makeMap(runtimeData: any, register: any, globals: any) {
             }
             route.push({
               exit: dir,
-              room: utils.getRoomNameFromXY(xx, yy),
+              room: getRoomNameFromXY(xx, yy),
             });
           }
           route.reverse();
@@ -154,14 +152,14 @@ export function makeMap(runtimeData: any, register: any, globals: any) {
         }
 
         // Add neighbors
-        let fromRoomName = utils.getRoomNameFromXY(xx, yy);
+        let fromRoomName = getRoomNameFromXY(xx, yy);
         let exits = describeExits(fromRoomName);
         for (let dir in exits) {
 
           // Calculate costs and check if this node was already visited
           let roomName = exits[dir];
           // let graphKey = fromRoomName + ':' + roomName;
-          let [xx, yy] = utils.roomNameToXY(roomName);
+          let [xx, yy] = roomNameToXY(roomName);
           let neighborIndex = xyToIndex(xx, yy);
           if (neighborIndex === undefined || openClosed.isClosed(neighborIndex)) {
             continue;
@@ -249,11 +247,11 @@ export function makeMap(runtimeData: any, register: any, globals: any) {
     },
 
     getRoomLinearDistance(roomName1: any, roomName2: any, continuous: any) {
-      return utils.calcRoomsDistance(roomName1, roomName2, continuous);
+      return calcRoomsDistance(roomName1, roomName2, continuous);
     },
 
     getWorldSize() {
-      return driver.getWorldSize();
+      return getWorldSize();
     }
   };
 }
