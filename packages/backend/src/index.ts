@@ -33,7 +33,7 @@ export function start() {
 
     setInterval(() => {
         const rejections = (q as any).getUnhandledReasons();
-        rejections.forEach((i: any) => logger.error('Unhandled rejection:', i));
+        rejections.forEach((i: any) => logger.error(`Unhandled rejection: ${i}`));
         (q as any).resetUnhandledRejections();
     }, 1000);
 

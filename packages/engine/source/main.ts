@@ -140,7 +140,7 @@ driver.connect('main')
 if (typeof self == 'undefined') {
     setInterval(() => {
         const rejections = (q as any).getUnhandledReasons();
-        rejections.forEach((i: any) => console.error('Unhandled rejection:', i));
+        rejections.forEach((i: any) => console.error(`Unhandled rejection: ${i}`));
         (q as any).resetUnhandledRejections();
     }, 1000);
 }

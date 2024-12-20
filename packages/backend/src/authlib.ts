@@ -16,12 +16,9 @@ export function genToken(id: any) {
 
 
 export async function checkToken(token: any, noConsume?: any) {
-    logger.info(JSON.stringify({ token }));
-
     const authKey = `auth_${token}`;
 
     const data = await env.get(authKey);
-    logger.info(data);
     if (!data) {
         throw false;
     }
@@ -33,12 +30,9 @@ export async function checkToken(token: any, noConsume?: any) {
             env.expire(authKey, 60);
         }
     }
-
-    console.log(db.users)
-
     const user = await db.users.findOne({ _id: data });
 
-    logger.info(JSON.stringify({ user }));
+    logger.debug(JSON.stringify({ user }));
     if (!user) {
         throw false;
     }

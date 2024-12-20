@@ -69,6 +69,7 @@ RUN apt-get update && \
     apt-get -y install libstdc++6
 
 COPY --from=builder /screeps/packages/engine/dist/main ./
+COPY --from=builder /screeps/packages/vm-runtime/dist/index.js ./vm-runtime.js
 
 ENTRYPOINT [ "node", "index.js" ]
 
@@ -85,6 +86,7 @@ RUN apt-get update && \
     apt-get -y install libstdc++6
 
 COPY --from=builder /screeps/packages/engine/dist/runner ./
+COPY --from=builder /screeps/packages/vm-runtime/dist/index.js ./vm-runtime.js
 
 ENTRYPOINT [ "node", "index.js" ]
 
@@ -100,5 +102,6 @@ RUN apt-get update && \
     apt-get -y install libstdc++6
 
 COPY --from=builder /screeps/packages/engine/dist/processor ./
+COPY --from=builder /screeps/packages/vm-runtime/dist/index.js ./vm-runtime.js
 
 ENTRYPOINT [ "node", "index.js" ]

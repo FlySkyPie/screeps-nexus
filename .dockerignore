@@ -31,6 +31,7 @@ kubernetes
 
 packages/backend/dist
 packages/backend/node_modules
+packages/common/dist
 packages/common/node_modules
 packages/driver/native/build
 packages/driver/node_modules
