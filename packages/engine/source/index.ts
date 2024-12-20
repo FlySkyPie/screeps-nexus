@@ -1,4 +1,4 @@
 import * as utils from './utils';
-import * as console from './game/console';
+// import * as console from './game/console';
 
-export { utils, console };
+export { utils, };

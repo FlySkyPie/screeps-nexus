@@ -2,8 +2,7 @@ import _ from 'lodash';
 
 import { makeGameObject } from "./make-game-object";
 import { requireFn } from "./require-fn";
-
-const runCodeCache: Record<string, any> = {};
+import { runCodeCache } from './run-code-cache';
 
 export const init = (
     _globals: any,

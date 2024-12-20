@@ -1,8 +1,7 @@
 import _ from 'lodash';
 
-import * as driver from './runtime-driver';
-
-const runCodeCache: Record<string, any> = {};
+import { evalCode } from './runtime-driver';
+import { runCodeCache } from './game/run-code-cache';
 
 export const run = (userId: any) => {
 
@@ -13,7 +12,7 @@ export const run = (userId: any) => {
             _.forEach(runCodeCache[userId].globals.require.initGlobals, (i) => i());
         }
 
-        driver.evalCode({
+        evalCode({
             exports: mainExports,
             user: runCodeCache[userId].runtimeData.user._id,
             timestamp: runCodeCache[userId].runtimeData.userCodeTimestamp,
@@ -24,7 +23,7 @@ export const run = (userId: any) => {
 
     if (runCodeCache[userId].consoleCommands) {
         for (let i = 0; i < runCodeCache[userId].consoleCommands.length; i++) {
-            const result = driver.evalCode({
+            const result = evalCode({
                 exports: {},
                 user: runCodeCache[userId].runtimeData.user._id,
                 name: '_console' + new Date().getTime() + '_' + i,

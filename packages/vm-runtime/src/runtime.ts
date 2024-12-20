@@ -1,12 +1,10 @@
 import _ from 'lodash';
 
-import {
-    getCommandResults, getMessages, getVisual, makeConsole
-} from '@screeps/engine/source/game/console';
 import { storeIntents } from '@screeps/engine/source/utilities/store-intents';
 
-import * as game from './game';
 import WorldMapGrid from './mapgrid';
+import { getCommandResults, getMessages, getVisual, makeConsole } from './console';
+import { run } from './run';
 import { init } from './game/init';
 
 global._init = (() => {
@@ -219,7 +217,7 @@ global._init = (() => {
             startTime = nowCpuTime();
 
             try {
-                game.run(data.user._id);
+                run(data.user._id);
                 outMessage.type = 'done';
             }
             catch (e: any) {
