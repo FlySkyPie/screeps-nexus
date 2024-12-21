@@ -1,7 +1,7 @@
 import q from 'q';
 import _ from 'lodash';
 
-import * as driver from '@screeps/driver/src/index';
+import { clearMarketIntents } from '@screeps/driver/src';
 
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { POWER_INFO } from '@screeps/common/src/tables/power-info';
@@ -619,6 +619,6 @@ export default ({
         bulkUsersMoney.execute(),
         bulkTransactions.execute(),
         bulkUsersResources.execute(),
-        driver.clearMarketIntents()
+        clearMarketIntents()
     ]);
 };

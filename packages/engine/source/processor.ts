@@ -3,7 +3,22 @@ import q from 'q';
 import _ from 'lodash';
 
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
-import * as driver from '@screeps/driver/src/index';
+import { ConfigManager } from '@screeps/common/src/config-manager';
+import {
+    history,
+    bulkFlagsWrite, bulkObjectsWrite, bulkUsersPowerCreeps, bulkUsersWrite,
+    getRoomStatsUpdater, mapViewSave, pathFinder, roomsStatsSave,
+    saveRoomEventLog, saveRoomInfo,
+    connect,
+    queue,
+    getRoomIntents,
+    getRoomObjects,
+    getRoomTerrain,
+    getGameTime,
+    getRoomInfo,
+    getRoomFlags,
+    clearRoomIntents
+} from '@screeps/driver/src';
 
 import * as movement from './processor/intents/movement';
 import * as fakeRuntime from './processor/common/fake-runtime';
@@ -57,6 +72,7 @@ import processor_intents_nukes_tick from './processor/intents/nukes/tick'
 import processor_intents_storages_tick from './processor/intents/storages/tick'
 import { logger } from './logger';
 
+
 let roomsQueue: any,
     // _usersQueue: any,
     lastRoomsStatsSaveTime = 0,
@@ -70,13 +86,13 @@ function processRoom(
     { intents, roomObjects, users, roomTerrain, gameTime, roomInfo, flags }: any) {
 
     return q.when().then(() => {
-        const bulk = driver.bulkObjectsWrite();
-        const bulkUsers = driver.bulkUsersWrite();
-        const bulkFlags = driver.bulkFlagsWrite();
-        const bulkUsersPowerCreeps = driver.bulkUsersPowerCreeps();
+        const bulk = bulkObjectsWrite();
+        const bulkUsers = bulkUsersWrite();
+        const bulkFlags = bulkFlagsWrite();
+        const _bulkUsersPowerCreeps = bulkUsersPowerCreeps();
         // const _oldObjects = {};
         // let _hasNewbieWalls = false;
-        const stats = driver.getRoomStatsUpdater(roomId);
+        const stats = getRoomStatsUpdater(roomId);
         const objectsToHistory: Record<string, any> = {};
         const roomSpawns: any[] = [];
         const roomExtensions: any[] = [];
@@ -96,7 +112,7 @@ function processRoom(
         let eventLog: any[] = [];
 
         let scope: Record<string, any> = {
-            roomObjects, roomTerrain, bulk, bulkUsers, bulkUsersPowerCreeps, stats, flags,
+            roomObjects, roomTerrain, bulk, bulkUsers, bulkUsersPowerCreeps: _bulkUsersPowerCreeps, stats, flags,
             bulkFlags, gameTime, roomInfo, users, eventLog
         };
 
@@ -225,12 +241,12 @@ function processRoom(
                 };
             }
 
-            driver.config.emit('processObject', object, roomObjects, roomTerrain, gameTime, roomInfo, bulk, bulkUsers);
+            ConfigManager.config.engine!.emit('processObject', object, roomObjects, roomTerrain, gameTime, roomInfo, bulk, bulkUsers);
 
         });
 
         intents = intents || { users: {} };
-        driver.pathFinder.make({ RoomPosition: fakeRuntime.RoomPosition });
+        pathFinder.make({ RoomPosition: fakeRuntime.RoomPosition });
 
         for (let nuke of roomNukes) {
             processor_intents_nukes_pretick(nuke, intents, scope);
@@ -371,7 +387,7 @@ function processRoom(
                     }
 
 
-                    driver.config.emit('processObjectIntents', object, userId, objectIntents, roomObjects, roomTerrain,
+                    ConfigManager.config.engine!.emit('processObjectIntents', object, userId, objectIntents, roomObjects, roomTerrain,
                         gameTime, roomInfo, bulk, bulkUsers);
                 }
             });
@@ -540,19 +556,19 @@ function processRoom(
             resultPromises.push(core.setUserRoomVisibility(user, roomId));
         }*/
 
-        driver.config.emit('processRoom', roomId, roomInfo);
+        ConfigManager.config.engine!.emit('processRoom', roomId, roomInfo);
 
-        driver.config.emit('processorLoopStage', 'saveRoom', roomId);
+        ConfigManager.config.engine!.emit('processorLoopStage', 'saveRoom', roomId);
 
-        resultPromises.push(driver.mapViewSave(roomId, mapView));
+        resultPromises.push(mapViewSave(roomId, mapView));
         resultPromises.push(bulk.execute());
         resultPromises.push(bulkUsers.execute());
         resultPromises.push(bulkFlags.execute());
-        resultPromises.push(driver.saveRoomEventLog(roomId, eventLog));
+        resultPromises.push(saveRoomEventLog(roomId, eventLog));
 
 
         if (!_.isEqual(roomInfo, oldRoomInfo)) {
-            resultPromises.push(driver.saveRoomInfo(roomId, roomInfo));
+            resultPromises.push(saveRoomInfo(roomId, roomInfo));
         }
 
         if (roomInfo.active) {
@@ -560,7 +576,7 @@ function processRoom(
         }
 
         if (Date.now() > lastRoomsStatsSaveTime + 30 * 1000) {
-            driver.roomsStatsSave();
+            roomsStatsSave();
             lastRoomsStatsSaveTime = Date.now();
         }
 
@@ -573,20 +589,20 @@ function saveRoomHistory(roomId: any, objects: any, gameTime: any) {
     return currentHistoryPromise.then(() => {
         let promise = q.when();
 
-        if (!(gameTime % driver.config.historyChunkSize)) {
-            const baseTime = Math.floor((gameTime - 1) / driver.config.historyChunkSize) * driver.config.historyChunkSize;
-            promise = driver.history.upload(roomId, baseTime);
+        if (!(gameTime % ConfigManager.config.engine!.historyChunkSize)) {
+            const baseTime = Math.floor((gameTime - 1) / ConfigManager.config.engine!.historyChunkSize) * ConfigManager.config.engine!.historyChunkSize;
+            promise = history.upload(roomId, baseTime);
         }
 
         const data = JSON.stringify(objects);
-        currentHistoryPromise = promise.then(() => driver.history.saveTick(roomId, gameTime, data));
+        currentHistoryPromise = promise.then(() => history.saveTick(roomId, gameTime, data));
         return currentHistoryPromise;
     });
 }
 
 
-driver.connect('processor')
-    .then(() => driver.queue.create('rooms', 'read'))
+connect('processor')
+    .then(() => queue.create('rooms', 'read'))
     .catch((error: any) => {
         console.error('Error connecting to driver:', error);
         process.exit(1);
@@ -599,23 +615,23 @@ driver.connect('processor')
 
             let roomId: any;
 
-            driver.config.emit('processorLoopStage', 'start');
+            ConfigManager.config.engine!.emit('processorLoopStage', 'start');
 
             roomsQueue.fetch()
                 .then((_roomId: any) => {
-                    driver.config.emit('processorLoopStage', 'getRoomData', _roomId);
+                    ConfigManager.config.engine!.emit('processorLoopStage', 'getRoomData', _roomId);
                     roomId = _roomId;
                     return q.all([
-                        driver.getRoomIntents(_roomId),
-                        driver.getRoomObjects(_roomId),
-                        driver.getRoomTerrain(_roomId),
-                        driver.getGameTime(),
-                        driver.getRoomInfo(_roomId),
-                        driver.getRoomFlags(_roomId),
+                        getRoomIntents(_roomId),
+                        getRoomObjects(_roomId),
+                        getRoomTerrain(_roomId),
+                        getGameTime(),
+                        getRoomInfo(_roomId),
+                        getRoomFlags(_roomId),
                     ])
                 })
                 .then((result: any) => {
-                    driver.config.emit('processorLoopStage', 'processRoom', roomId);
+                    ConfigManager.config.engine!.emit('processorLoopStage', 'processRoom', roomId);
                     processRoom(roomId, {
                         intents: result[0],
                         roomObjects: result[1].objects,
@@ -627,13 +643,13 @@ driver.connect('processor')
                     })
                         .catch((error) => logger.info('Error processing room ' + roomId + ':', _.isObject(error) ? (error.stack || error) : error))
                         .then(() => {
-                            return driver.clearRoomIntents(roomId);
+                            return clearRoomIntents(roomId);
                         })
                         .then(() => roomsQueue.markDone(roomId));
                 })
                 .catch((error: any) => console.error('Error in processor loop:', _.isObject(error) && error.stack || error))
                 .then(() => {
-                    driver.config.emit('processorLoopStage', 'finish', roomId);
+                    ConfigManager.config.engine!.emit('processorLoopStage', 'finish', roomId);
                     setTimeout(loop, 0)
                 });
         }

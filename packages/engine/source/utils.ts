@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { getWorldSize, sendNotification } from '@screeps/driver/src/index';
+import { getWorldSize, sendNotification } from '@screeps/driver/src';
 
 import { Direction } from '@screeps/common/src/constants/direction';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';

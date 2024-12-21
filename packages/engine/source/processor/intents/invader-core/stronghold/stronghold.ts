@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import * as driver from '@screeps/driver/src/index';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { BodyParts } from '@screeps/common/src/constants/body-parts';
 import { POWER_INFO } from '@screeps/common/src/tables/power-info';
@@ -16,8 +16,6 @@ import * as defence from './defence';
 import creeps from './creeps';
 import fortifier from './fortifier';
 import simpleMelee from './simple-melee';
-
-const strongholds = driver.strongholds;
 
 const range = (a: any, b: any) => {
     if (
@@ -54,7 +52,7 @@ const deployStronghold = function deployStronghold(context: any) {
 
         _.forEach(ramparts, rampart => { bulk.remove(rampart._id); delete roomObjects[rampart._id] });
 
-        const template = strongholds.templates[core.templateName];
+        const template = ConfigManager.config.common.strongholds.templates[core.templateName];
         const containerAmounts = [0, 500, 4000, 10000, 50000, 360000];
 
         const objectOptions: Record<string, any> = {};
@@ -115,7 +113,9 @@ const deployStronghold = function deployStronghold(context: any) {
             delete s.dy;
 
             if (i.type == StructureEnum.STRUCTURE_CONTAINER) {
-                s.store = utils.calcReward(strongholds.containerRewards, containerAmounts[template.rewardLevel], 3);
+                s.store = utils.calcReward(
+                    ConfigManager.config.common.strongholds.containerRewards,
+                    containerAmounts[template.rewardLevel], 3);
             }
 
             bulk.insert(s);

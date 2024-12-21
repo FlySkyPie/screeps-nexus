@@ -1,13 +1,11 @@
 import _ from 'lodash';
 
-import * as driver from '@screeps/driver/src/index';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 
 import * as utils from '../../../utils';
 
-const strongholds = driver.strongholds;
-
 export default (object: any, scope: any) => {
-    const { templates, coreRewards } = strongholds;
+    const { templates, coreRewards } = ConfigManager.config.common.strongholds;
     const { bulk, roomController } = scope;
 
     if (roomController) {

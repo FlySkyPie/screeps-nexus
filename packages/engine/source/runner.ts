@@ -1,54 +1,61 @@
 import q from 'q';
 import _ from 'lodash';
 
-import * as driver from '@screeps/driver/src/index';
+import { ConfigManager } from '@screeps/common/src/config-manager';
+import {
+    connect, makeRuntime, queue, saveUserIntents,
+    saveUserMemory, saveUserMemoryInterShardSegment,
+    saveUserMemorySegments, sendConsoleError,
+    sendConsoleMessages,
+    startLoop
+} from '@screeps/driver/src';
 
 function runUser(userId: any) {
 
-    driver.config.emit('runnerLoopStage', 'runUser', userId);
+    ConfigManager.config.engine!.emit('runnerLoopStage', 'runUser', userId);
 
     //driver.influxAccumulator.resetTime();
 
-    return driver.makeRuntime(userId)
+    return makeRuntime(userId)
         .then(saveResult, saveResult);
 
     function saveResult(runResult: any) {
 
-        driver.config.emit('runnerLoopStage', 'saveResultStart', runResult);
+        ConfigManager.config.engine!.emit('runnerLoopStage', 'saveResultStart', runResult);
 
         //driver.influxAccumulator.mark('endMakeRuntime');
         if (runResult.console) {
-            driver.sendConsoleMessages(userId, runResult.console);
+            sendConsoleMessages(userId, runResult.console);
         }
         if (runResult.error) {
-            driver.sendConsoleError(userId, runResult.error);
+            sendConsoleError(userId, runResult.error);
         }
 
         //driver.resetUserRoomVisibility(userId);
 
         const promises = [];
         if (runResult.memory) {
-            promises.push(driver.saveUserMemory(userId, runResult.memory));
+            promises.push(saveUserMemory(userId, runResult.memory));
         }
         if (runResult.memorySegments) {
-            promises.push(driver.saveUserMemorySegments(userId, runResult.memorySegments));
+            promises.push(saveUserMemorySegments(userId, runResult.memorySegments));
         }
         if (runResult.interShardSegment) {
-            promises.push(driver.saveUserMemoryInterShardSegment(userId, runResult.interShardSegment));
+            promises.push(saveUserMemoryInterShardSegment(userId, runResult.interShardSegment));
         }
         if (runResult.intents) {
-            promises.push(driver.saveUserIntents(userId, runResult.intents));
+            promises.push(saveUserIntents(userId, runResult.intents));
         }
         return q.all(promises)
             .then(() => {
-                driver.config.emit('runnerLoopStage', 'saveResultFinish', runResult);
+                ConfigManager.config.engine!.emit('runnerLoopStage', 'saveResultFinish', runResult);
                 //driver.influxAccumulator.mark('saveUser');
             })
     }
 }
 
-driver.connect('runner')
-    .then(() => driver.queue.create('users', 'read'))
+connect('runner')
+    .then(() => queue.create('users', 'read'))
     .catch((error: any) => {
         console.error('Error connecting to driver:', error);
         process.exit(1);
@@ -57,10 +64,10 @@ driver.connect('runner')
 
         const usersQueue = _usersQueue;
 
-        driver.startLoop('runner', () => {
+        startLoop('runner', () => {
             let userId: any, fetchedUserId: any;
 
-            driver.config.emit('runnerLoopStage', 'start');
+            ConfigManager.config.engine!.emit('runnerLoopStage', 'start');
 
             return usersQueue.fetch()
                 .then((_userId: any) => {
@@ -69,7 +76,7 @@ driver.connect('runner')
                 })
                 .catch((error: any) => console.error('Error in runner loop:', _.isObject(error) && error.stack || error))
                 .then(() => usersQueue.markDone(fetchedUserId))
-                .finally(() => driver.config.emit('runnerLoopStage', 'finish', userId));
+                .finally(() => ConfigManager.config.engine!.emit('runnerLoopStage', 'finish', userId));
         });
 
     });

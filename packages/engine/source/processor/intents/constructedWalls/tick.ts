@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import * as driver from '@screeps/driver/src/index';
+import { sendNotification } from '@screeps/driver/src';
 
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
@@ -36,7 +36,7 @@ export default (object: any, { roomObjects, bulk, roomController, gameTime }: an
         }
 
         if (object.user && gameTime == object.decayTime - 5000) {
-            driver.sendNotification(object.user, "Attention! Your room protection will be removed soon.\nLearn how to defend your room against intruders from <a href='http://support.screeps.com/hc/en-us/articles/203339002-Defending-your-room'>this article</a>.");
+            sendNotification(object.user, "Attention! Your room protection will be removed soon.\nLearn how to defend your room against intruders from <a href='http://support.screeps.com/hc/en-us/articles/203339002-Defending-your-room'>this article</a>.");
         }
     }
 

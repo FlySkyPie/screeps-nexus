@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import * as driver from '@screeps/driver/src/index';
+import { sendNotification } from '@screeps/driver/src';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { EventCode } from '@screeps/common/src/constants/event-code';
 import { BodyParts } from '@screeps/common/src/constants/body-parts';
@@ -75,7 +75,7 @@ export default (object: any, intent: any, { roomObjects, bulk, bulkUsers, stats,
             target.progress = target.progress + boostedEffect - nextLevelProgress;
             target.level++;
             target.downgradeTime = gameTime + ScreepsConstants.CONTROLLER_DOWNGRADE[target.level] / 2;
-            driver.sendNotification(target.user, `Your Controller in room ${target.room} has been upgraded to level ${target.level}.`);
+            sendNotification(target.user, `Your Controller in room ${target.room} has been upgraded to level ${target.level}.`);
             if (target.level == 8) {
                 target.progress = 0;
             }

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import * as driver from '@screeps/driver/src/index';
+import { addRoomToUser } from '@screeps/driver/src';
 import { BodyParts } from '@screeps/common/src/constants/body-parts';
 
 import * as utils from '../../../utils';
@@ -27,7 +27,7 @@ export default (object: any, intent: any, { roomObjects, bulk, bulkUsers, users 
     if (target.level > 0) {
         return;
     }
-    if ((_.filter(object.body, (i:any) => i.hits > 0 && i.type == BodyParts.CLAIM).length) === 0) {
+    if ((_.filter(object.body, (i: any) => i.hits > 0 && i.type == BodyParts.CLAIM).length) === 0) {
         return;
     }
     if (target.reservation && target.reservation.user != object.user) {
@@ -50,5 +50,5 @@ export default (object: any, intent: any, { roomObjects, bulk, bulkUsers, users 
         reservation: null
     });
 
-    driver.addRoomToUser(object.room, users[object.user], bulkUsers);
+    addRoomToUser(object.room, users[object.user], bulkUsers);
 };

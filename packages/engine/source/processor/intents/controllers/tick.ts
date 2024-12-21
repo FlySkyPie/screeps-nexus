@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import * as driver from '@screeps/driver/src/index';
+import { addRoomToUser, removeRoomFromUser, sendNotification } from '@screeps/driver/src';
 
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
@@ -16,7 +16,7 @@ export default (object: any, { bulk, bulkUsers, gameTime, roomInfo, users }: any
         return;
     }
 
-    driver.addRoomToUser(object.room, users[object.user], bulkUsers);
+    addRoomToUser(object.room, users[object.user], bulkUsers);
 
     if (object._upgradeBlocked) {
         bulk.update(object, { upgradeBlocked: object._upgradeBlocked });
@@ -38,14 +38,14 @@ export default (object: any, { bulk, bulkUsers, gameTime, roomInfo, users }: any
     }
 
     if (gameTime == object.downgradeTime - 3000) {
-        driver.sendNotification(object.user, `Attention! Your Controller in room ${object.room} will be downgraded to level ${object.level - 1} in 3000 ticks (~2 hours)! Upgrade it to prevent losing of this room. <a href='http://support.screeps.com/hc/en-us/articles/203086021-Territory-control'>Learn more</a>`);
+        sendNotification(object.user, `Attention! Your Controller in room ${object.room} will be downgraded to level ${object.level - 1} in 3000 ticks (~2 hours)! Upgrade it to prevent losing of this room. <a href='http://support.screeps.com/hc/en-us/articles/203086021-Territory-control'>Learn more</a>`);
     }
 
     while ((gameTime >= object.downgradeTime - 1) && (object.level > 0)) {
         object.level--;
-        driver.sendNotification(object.user, `Your Controller in room ${object.room} has been downgraded to level ${object.level} due to absence of upgrading activity!`);
+        sendNotification(object.user, `Your Controller in room ${object.room} has been downgraded to level ${object.level} due to absence of upgrading activity!`);
         if (object.level == 0) {
-            driver.removeRoomFromUser(object.room, users[object.user], bulkUsers);
+            removeRoomFromUser(object.room, users[object.user], bulkUsers);
 
             object.progress = 0;
             object.user = null;

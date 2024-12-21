@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import * as driver from '@screeps/driver/src/index';
+import { pathFinder } from '@screeps/driver/src';
 
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { StructureEnum } from '@screeps/common/src/constants/structure-enum';
@@ -183,7 +183,7 @@ const findPath = function findPath(source: any, target: any, opts: any, scope: a
 
     const fromPos = new RoomPosition(source.x, source.y, source.room);
 
-    const ret = driver.pathFinder.search(
+    const ret = pathFinder.search(
         fromPos,
         target,
         searchOpts

@@ -2,7 +2,14 @@
 import q from 'q';
 import _ from 'lodash';
 
-import * as driver from '@screeps/driver/src/index';
+import { ConfigManager } from '@screeps/common/src/config-manager';
+import {
+    commitDbBulk, connect,
+    getAllRooms, getAllUsers,
+    incrementGameTime, notifyRoomsDone,
+    notifyTickStarted, queue,
+    updateAccessibleRoomsList
+} from '@screeps/driver/src';
 
 import global from './processor/global';
 import { logger } from './logger';
@@ -15,82 +22,81 @@ function loop() {
     const startLoopTime: any = process.hrtime ? process.hrtime() : Date.now();
     let stage = 'start';
 
-    driver.config.emit('mainLoopStage', stage);
-
+    ConfigManager.config.engine!.emit('mainLoopStage', stage);
 
     if (typeof self == 'undefined') {
         resetInterval = setInterval(() => {
             console.error('Main loop reset! Stage:', stage);
-            driver.queue.resetAll();
-        }, driver.config.mainLoopResetInterval);
+            queue.resetAll();
+        }, ConfigManager.config.engine!.mainLoopResetInterval);
     }
 
-    driver.notifyTickStarted()
+    notifyTickStarted()
         .then(() => {
             stage = 'getUsers';
-            driver.config.emit('mainLoopStage', stage);
-            return driver.getAllUsers();
+            ConfigManager.config.engine!.emit('mainLoopStage', stage);
+            return getAllUsers();
         })
         .then((users: any) => {
             stage = 'addUsersToQueue';
-            driver.config.emit('mainLoopStage', stage, users);
+            ConfigManager.config.engine!.emit('mainLoopStage', stage, users);
             return usersQueue.addMulti(users.map((user: any) => user._id.toString()));
         })
         .then(() => {
             stage = 'waitForUsers';
-            driver.config.emit('mainLoopStage', stage);
+            ConfigManager.config.engine!.emit('mainLoopStage', stage);
             return usersQueue.whenAllDone();
         })
         .then(() => {
             stage = 'getRooms';
-            driver.config.emit('mainLoopStage', stage);
-            return driver.getAllRooms();
+            ConfigManager.config.engine!.emit('mainLoopStage', stage);
+            return getAllRooms();
         })
         .then((rooms: any) => {
             stage = 'addRoomsToQueue';
-            driver.config.emit('mainLoopStage', stage, rooms);
+            ConfigManager.config.engine!.emit('mainLoopStage', stage, rooms);
             return roomsQueue.addMulti(_.map(rooms, (room: any) => room._id.toString()))
         })
         .then(() => {
             stage = 'waitForRooms';
-            driver.config.emit('mainLoopStage', stage);
+            ConfigManager.config.engine!.emit('mainLoopStage', stage);
             return roomsQueue.whenAllDone();
         })
         .then(() => {
             stage = 'commit1';
-            driver.config.emit('mainLoopStage', stage);
-            return driver.commitDbBulk();
+            ConfigManager.config.engine!.emit('mainLoopStage', stage);
+            return commitDbBulk();
         })
         .then(() => {
             stage = 'global';
-            driver.config.emit('mainLoopStage', stage);
+            ConfigManager.config.engine!.emit('mainLoopStage', stage);
             return global();
         })
         .then(() => {
             stage = 'commit2';
-            driver.config.emit('mainLoopStage', stage);
-            return driver.commitDbBulk();
+            ConfigManager.config.engine!.emit('mainLoopStage', stage);
+            return commitDbBulk();
         })
         .then(() => {
             stage = 'incrementGameTime';
-            driver.config.emit('mainLoopStage', stage);
-            return driver.incrementGameTime()
+            ConfigManager.config.engine!.emit('mainLoopStage', stage);
+            return incrementGameTime()
         })
         .then((gameTime: any) => {
             logger.debug(`Game time set to ${gameTime}`);
             if (+gameTime > lastAccessibleRoomsUpdate + 20) {
-                driver.updateAccessibleRoomsList();
+                updateAccessibleRoomsList();
                 lastAccessibleRoomsUpdate = +gameTime;
             }
 
             stage = 'notifyRoomsDone';
-            driver.config.emit('mainLoopStage', stage);
-            return driver.notifyRoomsDone(gameTime);
+            ConfigManager.config.engine!.emit('mainLoopStage', stage);
+            return notifyRoomsDone(gameTime);
         })
         .then(() => {
             stage = 'custom';
-            driver.config.emit('mainLoopStage', stage);
-            return driver.config.mainLoopCustomStage();
+            ConfigManager.config.engine!.emit('mainLoopStage', stage);
+            return ConfigManager.config.engine!.mainLoopCustomStage();
         })
         .catch((error: any) => {
             if (error == 'Simulation paused') {
@@ -113,19 +119,19 @@ function loop() {
                 usedTime = Date.now() - startLoopTime;
             }
 
-            driver.config.emit('mainLoopStage', 'finish');
+            ConfigManager.config.engine!.emit('mainLoopStage', 'finish');
 
-            setTimeout(loop, Math.max(driver.config.mainLoopMinDuration - usedTime, 0));
+            setTimeout(loop, Math.max(ConfigManager.config.engine!.mainLoopMinDuration - usedTime, 0));
         })
         .catch((error: any) => {
             console.error(`'Error while main loop (final):`, _.isObject(error) && error.stack ? error.stack : error);
         });
 }
 
-driver.connect('main')
+connect('main')
     .then(() => q.all([
-        driver.queue.create('rooms', 'write'),
-        driver.queue.create('users', 'write'),
+        queue.create('rooms', 'write'),
+        queue.create('users', 'write'),
     ]))
     .catch((error: any) => {
         console.error('Error connecting to driver:', error);

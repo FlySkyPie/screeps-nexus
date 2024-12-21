@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import * as driver from '@screeps/driver/src/index';
+import { removeRoomFromUser } from '@screeps/driver/src/index';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 
 export default (object: any, _intent: any, { bulk, bulkUsers, gameTime, roomInfo, users }: any) => {
@@ -13,7 +13,7 @@ export default (object: any, _intent: any, { bulk, bulkUsers, gameTime, roomInfo
         return;
     }
 
-    driver.removeRoomFromUser(object.room, users[object.user], bulkUsers);
+    removeRoomFromUser(object.room, users[object.user], bulkUsers);
 
     bulk.update(object, {
         user: null,
