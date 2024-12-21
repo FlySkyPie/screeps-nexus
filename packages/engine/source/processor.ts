@@ -394,7 +394,9 @@ function processRoom(
 
         movement.check(scope.roomController && scope.roomController.safeMode > gameTime ? scope.roomController.user : false);
 
-        scope.energyAvailable = _(roomObjects).filter((i: any) => !i.off && (i.type == 'spawn' || i.type == 'extension')).sum('store.energy');
+        const _d = _.filter(roomObjects, (i: any) => !i.off && (i.type == 'spawn' || i.type == 'extension'));
+        const _c = _.sum(_d, 'store.energy')
+        scope.energyAvailable = _c;
 
         const mapView: Record<string, any> = {
             w: [],
@@ -481,7 +483,8 @@ function processRoom(
             }
 
             if (object.effects) {
-                const collapseEffect: any = _.find(object.effects, { effect: ScreepsConstants.EFFECT_COLLAPSE_TIMER });
+                const collapseEffect: any = _.find(object.effects, (e) => e.effect === ScreepsConstants.EFFECT_COLLAPSE_TIMER);
+                // const collapseEffect: any = _.find(object.effects, { effect: ScreepsConstants.EFFECT_COLLAPSE_TIMER });
                 if (collapseEffect && collapseEffect.endTime <= gameTime) {
                     bulk.remove(object._id);
                     delete roomObjects[object._id];

@@ -261,7 +261,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
 
                 var path = _.isString(_move.path) ? utils.deserializePath(_move.path) : _move.path;
 
-                const idx = _.findIndex(path, { x: this.pos.x, y: this.pos.y });
+                const idx = _.findIndex(path, _.matches({ x: this.pos.x, y: this.pos.y }));
                 if (idx != -1) {
                     const oldMove = _.cloneDeep(_move);
                     path.splice(0, idx + 1);
@@ -384,7 +384,9 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
             if (!target.pos.isNearTo(this.pos)) {
                 return ErrorCode.ERR_NOT_IN_RANGE;
             }
-            const extractor: any = _.find(target.pos.lookFor('structure'), { structureType: StructureEnum.STRUCTURE_EXTRACTOR });
+            const extractor: any = _.find(
+                target.pos.lookFor('structure'),
+                _.matches({ structureType: StructureEnum.STRUCTURE_EXTRACTOR }));
             if (!extractor) {
                 return ErrorCode.ERR_NOT_FOUND;
             }
@@ -520,7 +522,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
         }
 
         if (target.structureType == 'terminal') {
-            const effect: any = _.find(target.effects, { power: PWRCode.PWR_DISRUPT_TERMINAL });
+            const effect: any = _.find(target.effects, _.matches({ power: PWRCode.PWR_DISRUPT_TERMINAL }));
             if (effect && effect.ticksRemaining > 0) {
                 return ErrorCode.ERR_INVALID_TARGET;
             }

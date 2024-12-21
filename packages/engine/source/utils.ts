@@ -165,14 +165,15 @@ export function checkConstructionSite(objects: any, structureType: any, x: any, 
         return true;
     }
 
-    if (_.any(objects, { x, y, type: structureType })) {
+    if (_.any(objects, _.matches({ x, y, type: structureType }))) {
         return false;
     }
-    if (_.any(objects, { x, y, type: 'constructionSite' })) {
+    if (_.any(objects, _.matches({ x, y, type: 'constructionSite' }))) {
         return false;
     }
     if (structureType == 'extractor') {
-        return _.any(objects, { x, y, type: 'mineral' }) && !_.any(objects, { x, y, type: 'extractor' });
+        return _.any(objects, _.matches({ x, y, type: 'mineral' })) &&
+            !_.any(objects, _.matches({ x, y, type: 'extractor' }));
     }
     if (structureType != 'rampart' && structureType != 'road' &&
         _.any(objects, (i: any) =>
@@ -264,12 +265,12 @@ export function encodeTerrain(terrain: any) {
     let result = '';
     for (let y = 0; y < 50; y++) {
         for (let x = 0; x < 50; x++) {
-            const objects = _.filter(terrain, { x, y });
+            const objects = _.filter(terrain, _.matches({ x, y }));
             let code = 0;
-            if (_.any(objects, { type: 'wall' })) {
+            if (_.any(objects, _.matches({ type: 'wall' }))) {
                 code = code | ScreepsConstants.TERRAIN_MASK_WALL;
             }
-            if (_.any(objects, { type: 'swamp' })) {
+            if (_.any(objects, _.matches({ type: 'swamp' }))) {
                 code = code | ScreepsConstants.TERRAIN_MASK_SWAMP;
             }
             result = result + code;
@@ -352,7 +353,11 @@ export function checkControllerAvailability(
 
     offset = offset || 0;
 
-    const structuresCnt = _(roomObjects).filter((i: any) => i.type == type || i.type == 'constructionSite' && i.structureType == type).size();
+    const structuresCnt = _.size(
+        _.filter(roomObjects, (i: any) =>
+            i.type == type ||
+            i.type == 'constructionSite' &&
+            i.structureType == type));
     const availableCnt = ScreepsConstants.CONTROLLER_STRUCTURES[type][rcl] + offset;
 
     return structuresCnt < availableCnt;
@@ -1221,7 +1226,7 @@ export function calcReward(resourceDensities: any, targetDensity: any, itemsLimi
     if (itemsLimit) {
         order = order.slice(0, itemsLimit);
     }
-    let result = _.times<any>(order.length, (0 as any));
+    let result = _.times(order.length, (0 as any));
     let currentDensity = 0;
     for (let i = 0; i < order.length - 1; i++) {
         result[i] = Math.round(Math.random() * (targetDensity - currentDensity) / densities[order[i]]);
@@ -1229,5 +1234,5 @@ export function calcReward(resourceDensities: any, targetDensity: any, itemsLimi
     }
     result[order.length - 1] = Math.round((targetDensity - currentDensity) / densities[order.length - 1]);
 
-    return _.object(order.map(i => resources[i]), result);
+    return _.object(order.map((i: any) => resources[i]), result);
 }
