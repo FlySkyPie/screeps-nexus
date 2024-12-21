@@ -4,12 +4,13 @@ import _ from 'lodash';
 
 import { ConfigManager } from '@screeps/common/src/config-manager';
 import {
-    commitDbBulk, connect,
+    commitDbBulk,
     getAllRooms, getAllUsers,
     incrementGameTime, notifyRoomsDone,
     notifyTickStarted, queue,
     updateAccessibleRoomsList
 } from '@screeps/driver/src';
+import { connect } from '@screeps/driver/src/main-connect';
 
 import global from './processor/global';
 import { logger } from './logger';
@@ -128,7 +129,7 @@ function loop() {
         });
 }
 
-connect('main')
+connect()
     .then(() => q.all([
         queue.create('rooms', 'write'),
         queue.create('users', 'write'),

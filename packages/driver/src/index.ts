@@ -16,13 +16,13 @@ import * as runtimeUserVm from './runtime/user-vm';
 import * as pathFinderFactory from './path-finder';
 import makeRuntime from './runtime/make';
 import * as history from './history';
+import { WorldSizeContainer } from './variables/world-size';
 
 const db = StorageInstance.db;
 const env = StorageInstance.env;
 const pubsub = StorageInstance.pubsub;
 const _config = Object.assign(ConfigManager.config, { engine: new EventEmitter() });
 const roomStatsUpdates: Record<string, any> = {};
-let worldSize: any;
 
 export var customObjectPrototypes: any[] = [];
 
@@ -130,7 +130,7 @@ export function connect(processType: any) {
         })
         .then(() => db.rooms.find({}, { _id: true }))
         .then(common.calcWorldSize)
-        .then((_worldSize: any) => worldSize = _worldSize)
+        .then((_worldSize: any) => WorldSizeContainer.worldSize = _worldSize)
         .then(() => {
             _config.engine.emit('init', processType);
             return true;
@@ -499,7 +499,7 @@ export function commitDbBulk() {
 }
 
 export function getWorldSize() {
-    return worldSize;
+    return WorldSizeContainer.worldSize;
 }
 
 export function addRoomToUser(roomId: any, user: any, bulk: any) {
