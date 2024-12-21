@@ -9,7 +9,6 @@ import {
     bulkFlagsWrite, bulkObjectsWrite, bulkUsersPowerCreeps, bulkUsersWrite,
     getRoomStatsUpdater, mapViewSave, pathFinder, roomsStatsSave,
     saveRoomEventLog, saveRoomInfo,
-    connect,
     queue,
     getRoomIntents,
     getRoomObjects,
@@ -19,6 +18,7 @@ import {
     getRoomFlags,
     clearRoomIntents
 } from '@screeps/driver/src';
+import { connect } from '@screeps/driver/src/processor-connect';
 
 import * as movement from './processor/intents/movement';
 import * as fakeRuntime from './processor/common/fake-runtime';
@@ -601,7 +601,7 @@ function saveRoomHistory(roomId: any, objects: any, gameTime: any) {
 }
 
 
-connect('processor')
+connect()
     .then(() => queue.create('rooms', 'read'))
     .catch((error: any) => {
         console.error('Error connecting to driver:', error);
