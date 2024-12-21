@@ -4,7 +4,6 @@ import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 import { ConfigManager } from '@screeps/common/src/config-manager';
 
-const config = ConfigManager.config;
 const env = StorageInstance.env;
 
 export function saveTick(roomId: any, gameTime: any, data: any) {
@@ -39,7 +38,7 @@ export function upload(roomId: any, baseTime: any) {
                 curTick++;
             }
 
-            config.engine.emit('saveRoomHistory', roomId, baseTime, result);
+            ConfigManager.config.engine.emit('saveRoomHistory', roomId, baseTime, result);
 
             return env.del(env.keys.ROOM_HISTORY + roomId);
         });

@@ -9,7 +9,6 @@ import * as driver from '../index';
 
 const db = StorageInstance.db;
 const env = StorageInstance.env;
-const config = ConfigManager.config;
 
 const accessibleRoomsCache: Record<string, any> = {
     timestamp: 0
@@ -142,8 +141,8 @@ export function get(userId: any) {
                     cpuBucket = 0;
                 }
                 cpu = cpuBucket + result[0].cpu;
-                if (cpu > config.engine.cpuMaxPerTick) {
-                    cpu = config.engine.cpuMaxPerTick;
+                if (cpu > ConfigManager.config.engine.cpuMaxPerTick) {
+                    cpu = ConfigManager.config.engine.cpuMaxPerTick;
                 }
             }
             else {

@@ -15,7 +15,6 @@ import * as runtimeUserVm from './user-vm';
 const db = StorageInstance.db;
 const env = StorageInstance.env;
 const pubsub = StorageInstance.pubsub;
-const config = ConfigManager.config;
 let staticTerrainData: any;
 let staticTerrainDataSize = 0;
 
@@ -88,8 +87,8 @@ function getUserData(userId: any) {
                     });
                 }
                 cpu += user.cpu;
-                if (cpu > config.engine.cpuMaxPerTick) {
-                    cpu = config.engine.cpuMaxPerTick;
+                if (cpu > ConfigManager.config.engine.cpuMaxPerTick) {
+                    cpu = ConfigManager.config.engine.cpuMaxPerTick;
                 }
             }
             else {
@@ -154,7 +153,7 @@ async function make(scope: any, userId: any) {
             throw 'aborted';
         }
 
-        config.engine.emit('playerSandbox', {
+        ConfigManager.config.engine.emit('playerSandbox', {
             run(code: any) {
                 return vm.isolate.compileScriptSync(code).runSync(vm.context);
             },
@@ -192,8 +191,8 @@ async function make(scope: any, userId: any) {
         }
         if (userData.cpu < Infinity) {
             let newCpuAvailable = userData.user.cpuAvailable + userData.user.cpu - runResult.usedTime;
-            if (newCpuAvailable > config.engine.cpuBucketSize) {
-                newCpuAvailable = config.engine.cpuBucketSize;
+            if (newCpuAvailable > ConfigManager.config.engine.cpuBucketSize) {
+                newCpuAvailable = ConfigManager.config.engine.cpuBucketSize;
             }
             $set.cpuAvailable = newCpuAvailable;
         }
@@ -245,7 +244,7 @@ async function make(scope: any, userId: any) {
             for (const roomName in runResult.visual) {
                 env.setex(
                     env.keys.ROOM_VISUAL + userData.user._id + ',' + roomName + ',' + data.time,
-                    config.engine.mainLoopResetInterval / 1000,
+                    ConfigManager.config.engine.mainLoopResetInterval / 1000,
                     runResult.visual[roomName]);
             }
         }
@@ -295,7 +294,7 @@ export default (userId: any) => {
             runtimeUserVm.clear(userId);
             console.error('isolated-vm timeout', userId);
             pubsub.publish(`user:${userId}/cpu`, JSON.stringify({ cpu: 'error' }));
-        }, Math.max(5000, config.engine.mainLoopResetInterval));
+        }, Math.max(5000, ConfigManager.config.engine.mainLoopResetInterval));
         make(scope, userId).then(resolve).catch(reject);
     })
         .then(result => {
