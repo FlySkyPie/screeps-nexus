@@ -3,12 +3,13 @@ import _ from 'lodash';
 
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 
 import * as driver from '../index';
 
 const db = StorageInstance.db;
 const env = StorageInstance.env;
-const config = common.configManager.config;
+const config = ConfigManager.config;
 
 const accessibleRoomsCache: Record<string, any> = {
     timestamp: 0

@@ -1,7 +1,7 @@
 import net from 'node:net';
 import _ from 'lodash';
 
-import * as common from '@screeps/common/src/index';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 
 import * as pubsub from './pubsub';
 import databaseMethods from './db';
@@ -10,9 +10,7 @@ import { StorageConstants } from './constants';
 import { logger } from './logger';
 import { RpcServer } from './rpc';
 
-const { config } = common.configManager;
-
-Object.assign(config.storage, {
+Object.assign(ConfigManager.config.storage, {
     socketListener(socket: net.Socket) {
         const connectionDesc = `${socket.remoteAddress}:${socket.remotePort}`;
 
@@ -40,13 +38,13 @@ export function start() {
         throw new Error('DB_PATH environment variable is not set!');
     }
 
-    common.configManager.load();
+    ConfigManager.load();
 
-    config.storage.loadDb().then(() => {
+    ConfigManager.config.storage.loadDb().then(() => {
 
         logger.info(`Starting storage server`);
 
-        const server = net.createServer(config.storage.socketListener);
+        const server = net.createServer(ConfigManager.config.storage.socketListener);
 
         server.on('listening', () => {
             logger.info('Storage listening on', StorageConstants.STORAGE_PORT);

@@ -7,7 +7,7 @@ import * as strongholds from './strongholds';
 import * as system from './system';
 import { ProjectConfig } from './constants/project-config';
 
-const config: any = {
+export const config: any = {
     common: {
         // constants: require('./constants'),
         strongholds: strongholds,
@@ -68,4 +68,10 @@ export function load() {
     }
 }
 
-export { config };
+export abstract class ConfigManager {
+    public static config = config;
+
+    public static load = load;
+}
+
+// export { config };

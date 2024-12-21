@@ -2,8 +2,8 @@ import q from 'q';
 import _ from 'lodash';
 import ivm from 'isolated-vm';
 
-import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 
 import { native } from '../native';
 import * as driver from '../index';
@@ -15,7 +15,7 @@ import * as runtimeUserVm from './user-vm';
 const db = StorageInstance.db;
 const env = StorageInstance.env;
 const pubsub = StorageInstance.pubsub;
-const config = common.configManager.config;
+const config = ConfigManager.config;
 let staticTerrainData: any;
 let staticTerrainDataSize = 0;
 

@@ -7,8 +7,9 @@ import path from 'path';
 import * as common from '@screeps/common/src/index';
 import StorageInstance from '@screeps/common/src/storage';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 
-const config = common.configManager.config;
+const config = ConfigManager.config;
 const db = StorageInstance.db;
 
 export function roomNameFromXY(_x: number, _y: number) {

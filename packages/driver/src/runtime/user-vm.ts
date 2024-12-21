@@ -4,12 +4,12 @@ import v8 from 'node:v8';
 import _ from 'lodash';
 import ivm from 'isolated-vm';
 
-import * as common from '@screeps/common/src';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 
 import * as index from '../index';
 
 const nativeMod = new ivm.NativeModule(path.resolve(__dirname, "./native.node"));
-const config = common.configManager.config;
+const config = ConfigManager.config;
 let vms: Record<string, any> = {};
 let snapshot: any;
 

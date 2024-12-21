@@ -1,8 +1,8 @@
 import vm from 'vm';
 import util from 'util';
 
-import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 
 import type { ISandboxObject } from '../interfaces/sandbox-object';
 import { logger } from '../logger';
@@ -13,7 +13,7 @@ import * as strongholds from './strongholds';
 import * as system from './system';
 import help from './help';
 
-const config = common.configManager.config;
+const config = ConfigManager.config;
 
 Object.assign(config.cli, {
     createSandbox(outputCallback: any) {

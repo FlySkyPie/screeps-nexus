@@ -4,12 +4,13 @@ import _ from 'lodash';
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 
 import * as  utils from './utils';
 import * as strongholds from './strongholds';
 import { logger } from './logger';
 
-const config = common.configManager.config;
+const config = ConfigManager.config;
 const db = StorageInstance.db;
 
 config.cronjobs = {

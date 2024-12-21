@@ -6,8 +6,8 @@ import jsonResponse from 'q-json-response';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 
-import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 
 import { ProjectConfig } from '../constansts/project-config';
 import { logger } from '../logger';
@@ -15,7 +15,7 @@ import { logger } from '../logger';
 import socketServer from './socket/server';
 import * as auth from './api/auth';
 
-const config = common.configManager.config;
+const config = ConfigManager.config;
 const db = StorageInstance.db;
 
 const PROTOCOL = 14;

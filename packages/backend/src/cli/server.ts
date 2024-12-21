@@ -2,14 +2,14 @@ import _ from 'lodash';
 import net from 'net';
 import readline from 'readline';
 
-import * as common from '@screeps/common/src';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 
 import { ProjectConfig } from '../constansts/project-config';
 import { logger } from '../logger';
 
 import * as  cliSandbox from './sandbox';
 
-const config = common.configManager.config;
+const config = ConfigManager.config;
 
 Object.assign(config.cli, {
     greeting: 'Screeps server {build} running on port 21025.\r\nThis CLI interface contains a virtual JavaScript machine which you can use to invoke internal server commands. Any valid JavaScript code is allowed. Type "help()" to learn more about commands.\r\n',

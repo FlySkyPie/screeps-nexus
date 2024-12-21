@@ -1,11 +1,11 @@
 import _ from 'lodash';
 
-import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 
 import * as utils from '../../utils';
 
-const config = common.configManager.config.backend;
+const config = ConfigManager.config.backend;
 const db = StorageInstance.db;
 const env = StorageInstance.env;
 

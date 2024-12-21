@@ -3,14 +3,14 @@ import q from 'q';
 import fs from 'fs';
 import _ from 'lodash';
 
-import * as common from '@screeps/common/src/index';
 import { Resource } from '@screeps/common/src/constants/resource';
 import { ListItems } from '@screeps/common/src/tables/list-items';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 
 import { StorageConstants } from './constants';
 import { logger } from './logger';
 
-const config = common.configManager.config;
+const config = ConfigManager.config;
 
 /**
  * @type Loki

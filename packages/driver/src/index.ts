@@ -7,6 +7,7 @@ import genericPool from 'generic-pool';
 
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 
 import './native';
 import bulk from './bulk';
@@ -19,7 +20,7 @@ import * as history from './history';
 const db = StorageInstance.db;
 const env = StorageInstance.env;
 const pubsub = StorageInstance.pubsub;
-const _config = Object.assign(common.configManager.config, { engine: new EventEmitter() });
+const _config = Object.assign(ConfigManager.config, { engine: new EventEmitter() });
 const roomStatsUpdates: Record<string, any> = {};
 let worldSize: any;
 
@@ -93,7 +94,7 @@ export var pathFinder = pathFinderFactory.create(require('../native/build/Releas
 
 export function connect(processType: any) {
 
-    common.configManager.load();
+    ConfigManager.load();
 
     return StorageInstance._connect()
         .then(() => {
@@ -542,6 +543,6 @@ export { queue };
 
 export var constants = _config.common.constants;
 
-export var strongholds = common.configManager.config.common.strongholds;
+export var strongholds = ConfigManager.config.common.strongholds;
 
 process.on('disconnect', () => process.exit());

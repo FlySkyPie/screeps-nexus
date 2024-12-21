@@ -3,8 +3,8 @@ import _ from 'lodash';
 import sockjs from 'sockjs';
 import zlib from 'zlib';
 
-import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 
 import * as authlib from '../../authlib';
 import { logger } from '../../logger';
@@ -14,7 +14,7 @@ import rooms from './rooms';
 import user from './user';
 import map from './map';
 
-const config = common.configManager.config;
+const config = ConfigManager.config;
 
 const env = StorageInstance.env;
 const pubsub = StorageInstance.pubsub;

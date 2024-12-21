@@ -2,12 +2,11 @@ import q from 'q';
 import net from 'net';
 import _ from 'lodash';
 
-import * as configManager from './config-manager';
 import * as storage from './storage';
 import StorageInstance from './storage';
 import * as rpc from './rpc';
 
-export { configManager, storage, rpc };
+export {  storage, rpc };
 
 // export var configManager = require('./config-manager');
 // export var storage = require('./storage');

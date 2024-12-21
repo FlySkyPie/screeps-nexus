@@ -4,10 +4,11 @@ import _ from 'lodash';
 import * as  common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { ConfigManager } from '@screeps/common/src/config-manager';
 
 import * as  utils from '../utils';
 
-const bots = common.configManager.config.common.bots;
+const bots = ConfigManager.config.common.bots;
 const db = StorageInstance.db;
 const env = StorageInstance.env;
 
