@@ -13,7 +13,7 @@ global._init = (() => {
     const ivm: any = _ivm;
     const cpuHalt: any = _halt;
     let mapGrid: any;
-    let staticTerrainData: any = {};
+    let staticTerrainData: Record<string, any> = {};
     // let _scope: any;
 
     function nowCpuTime() {
@@ -23,13 +23,13 @@ global._init = (() => {
     // module.exports.isolate = isolate;
     // module.exports.context = context;
 
-    global._setStaticTerrainData = (buffer: any, roomOffsets: any) => {
+    global._setStaticTerrainData = (buffer: ArrayBufferLike, roomOffsets: Record<string, any>) => {
         for (let room in roomOffsets) {
             staticTerrainData[room] = new Uint8Array(buffer, roomOffsets[room], 2500);
         }
     };
 
-    global._evalFn = (fnString: any) => {
+    global._evalFn = (fnString: string) => {
         eval('(' + fnString + ')(scope)');
     };
 

@@ -70,7 +70,9 @@ export function makeGameObject({
     };
 
     register.assertTargetObject = (obj: any) => {
-        if (obj && _.isPlainObject(obj) && _.isString(obj.id) && obj.id.length == 24) {
+        if (obj && _.isPlainObject(obj) &&
+            (typeof obj.id === 'string') &&
+            obj.id.length == 24) {
             throw new Error("It seems you're trying to use a serialized game object stored in Memory which is not allowed. Please use `Game.getObjectById` to retrieve a live object reference instead.");
         }
     };

@@ -1,15 +1,23 @@
-declare var _init: (() => void) | undefined;
+import ivm from 'isolated-vm';
+import type { Isolate, Context, Reference } from 'isolated-vm';
 
-declare var _isolate: any;
+declare global {
+    var _worldSize: number;
 
-declare var _context: any;
+    var _init: (() => void) | undefined;
 
-declare var _ivm: any;
+    var _isolate: Isolate;
 
-declare var _halt: any;
+    var _context: Context;
 
-declare var _setStaticTerrainData: any;
+    var _ivm: ivm;
 
-declare var _evalFn: any;
+    var _halt: Reference;
 
-declare var _start: any;
+
+    var _setStaticTerrainData: any;
+
+    var _evalFn: any;
+
+    var _start: any;
+}

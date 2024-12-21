@@ -71,6 +71,8 @@ RUN apt-get update && \
 COPY --from=builder /screeps/packages/engine/dist/main ./
 COPY --from=builder /screeps/packages/vm-runtime/dist/index.js ./vm-runtime.js
 
+RUN sed -i 's/__dirname/""/g' vm-runtime.js
+
 ENTRYPOINT [ "node", "index.js" ]
 
 
@@ -88,6 +90,8 @@ RUN apt-get update && \
 COPY --from=builder /screeps/packages/engine/dist/runner ./
 COPY --from=builder /screeps/packages/vm-runtime/dist/index.js ./vm-runtime.js
 
+RUN sed -i 's/__dirname/""/g' vm-runtime.js
+
 ENTRYPOINT [ "node", "index.js" ]
 
 FROM node:18.20.4-bookworm AS processor
@@ -103,5 +107,7 @@ RUN apt-get update && \
 
 COPY --from=builder /screeps/packages/engine/dist/processor ./
 COPY --from=builder /screeps/packages/vm-runtime/dist/index.js ./vm-runtime.js
+
+RUN sed -i 's/__dirname/""/g' vm-runtime.js
 
 ENTRYPOINT [ "node", "index.js" ]

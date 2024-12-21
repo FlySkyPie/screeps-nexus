@@ -3,10 +3,10 @@
     "version": "5.0.0",
     "description": "",
     "author": "Artem Chivchalov <contact@screeps.com>",
-    "license": "ISC",
+    "license": "MIT",
     "scripts": {
         "build": "ncc build src/runtime.ts -o dist -s",
-        "build:vm-context": "ncc build src/runtime.ts -o dist -s"
+        "build:vm-context": "ncc build src/runtime.ts -o dist"
     },
     "dependencies": {
         "@screeps/common": "workspace:*",

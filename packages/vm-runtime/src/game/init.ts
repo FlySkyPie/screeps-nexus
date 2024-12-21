@@ -1,4 +1,4 @@
-import _ from 'lodash';
+// import _ from 'lodash';
 
 import { makeGameObject } from "./make-game-object";
 import { requireFn } from "./require-fn";
@@ -37,13 +37,13 @@ export const init = (
     runCodeCache[userId].cpuHalt = _cpuHalt;
     runCodeCache[userId].sandboxedFunctionWrapper = _sandboxedFunctionWrapper;
 
-    _.extend(runCodeCache[userId].globals, {
+    Object.assign(runCodeCache[userId].globals, {
         RawMemory: runCodeCache[userId].memory,
         console: runCodeCache[userId].fakeConsole
     });
 
     if (!runCodeCache[userId].globals._) {
-        runCodeCache[userId].globals._ = _.runInContext();
+        // runCodeCache[userId].globals._ = _.runInContext();
     }
 
     Object.defineProperty(runCodeCache[userId].globals, 'Memory', {
@@ -73,8 +73,9 @@ export const init = (
 
     if (!runCodeCache[userId].globals.require ||
         runCodeCache[userId].runtimeData.userCodeTimestamp != runCodeCache[userId].globals.require.timestamp ||
-        !_.isObject(runCodeCache[userId].globals.require.cache.main) || !_.isFunction(
-            runCodeCache[userId].globals.require.cache.main.loop)) {
+        !(typeof runCodeCache[userId].globals.require.cache.main === 'object' &&
+            runCodeCache[userId].globals.require.cache.main !== null) || !(
+                typeof runCodeCache[userId].globals.require.cache.main.loop === 'function')) {
 
         runCodeCache[userId].globals.require = requireFn.bind(runCodeCache[userId]);
         runCodeCache[userId].globals.require.cache = { lodash: runCodeCache[userId].globals._ };

@@ -9,9 +9,9 @@ class EvalCodeError extends Error {
 }
 
 const runtimeCache: Record<string, any> = {};
-const worldSize = (global as any)._worldSize;
+const worldSize: number = (global)._worldSize;
 
-export function bufferFromBase64(base64: any) {
+export function bufferFromBase64(base64: string) {
     return Buffer.from(base64, 'base64');
 }
 
