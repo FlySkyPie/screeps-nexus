@@ -12,12 +12,11 @@
         "@screeps/common": "workspace:*",
         "@screeps/driver": "workspace:*",
         "@screeps/engine": "workspace:*",
+        "lodash": "workspace:*",
         "@screeps/pathfinding": "workspace:*",
-        "isolated-vm": "^5.0.1",
-        "lodash": "^3.10.1"
+        "isolated-vm": "^5.0.1"
     },
     "devDependencies": {
-        "@types/lodash": "^3.10.1",
         "@types/node": "^22.10.1",
         "@vercel/ncc": "^0.38.3",
         "typescript": "^5.7.2"

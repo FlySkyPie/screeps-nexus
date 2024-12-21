@@ -19,7 +19,7 @@ export function makeConsole(id: any, sandboxedFunctionWrapper: any) {
                 }
 
                 messages[id].push(
-                    _.map(arguments, (i) => {
+                    _.map((arguments as any), (i) => {
                         if (i && i.toString) return i.toString();
                         if (typeof i === 'undefined') return 'undefined';
                         return JSON.stringify(i);

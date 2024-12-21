@@ -378,6 +378,8 @@ importers:
         specifier: ^0.38.3
         version: 0.38.3
 
+  packages/lodash: {}
+
   packages/storage:
     dependencies:
       '@screeps/common':
@@ -439,12 +441,9 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
       lodash:
-        specifier: ^3.10.1
-        version: 3.10.1
+        specifier: workspace:*
+        version: link:../lodash
     devDependencies:
-      '@types/lodash':
-        specifier: ^3.10.1
-        version: 3.10.9
       '@types/node':
         specifier: ^22.10.1
         version: 22.10.1
