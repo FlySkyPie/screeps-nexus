@@ -3,15 +3,14 @@ import _ from 'lodash';
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 import { ConfigManager } from '@screeps/common/src/config-manager';
-
-const env = StorageInstance.env;
+import { StorageEnvKey } from '@screeps/common/src/constants/storage-env-key';
 
 export function saveTick(roomId: any, gameTime: any, data: any) {
-    return env.hmset(env.keys.ROOM_HISTORY + roomId, { [gameTime]: data });
+    return StorageInstance.env.hmset(StorageEnvKey.ROOM_HISTORY + roomId, { [gameTime]: data });
 }
 
 export function upload(roomId: any, baseTime: any) {
-    return env.get(env.keys.ROOM_HISTORY + roomId)
+    return StorageInstance.env.get(StorageEnvKey.ROOM_HISTORY + roomId)
         .then((data: any) => {
             if (!data || !data["" + baseTime]) {
                 return;
@@ -40,6 +39,6 @@ export function upload(roomId: any, baseTime: any) {
 
             ConfigManager.config.engine!.emit('saveRoomHistory', roomId, baseTime, result);
 
-            return env.del(env.keys.ROOM_HISTORY + roomId);
+            return StorageInstance.env.del(StorageEnvKey.ROOM_HISTORY + roomId);
         });
 }

@@ -4,32 +4,30 @@ import ivm from 'isolated-vm';
 
 import StorageInstance from '@screeps/common/src/storage';
 import { ConfigManager } from '@screeps/common/src/config-manager';
+import { StorageEnvKey } from '@screeps/common/src/constants/storage-env-key';
 
 import { native } from '../native';
-import * as driver from '../index';
-import * as pathfinderFactory from '../path-finder';
+import { getAllTerrainData } from '../index';
+import { init } from '../path-finder';
 
 import * as runtimeData from './data';
 import * as runtimeUserVm from './user-vm';
 
-const db = StorageInstance.db;
-const env = StorageInstance.env;
-const pubsub = StorageInstance.pubsub;
 let staticTerrainData: any;
 let staticTerrainDataSize = 0;
 
-function getAllTerrainData() {
+function _getAllTerrainData() {
     if (staticTerrainData) {
         return;
     }
-    return driver.getAllTerrainData()
+    return getAllTerrainData()
         .then((result: any) => {
 
             if (staticTerrainData) {
                 return;
             }
 
-            pathfinderFactory.init(native, result);
+            init(native, result);
 
             staticTerrainDataSize = result.length * 2500;
             let bufferConstructor = typeof SharedArrayBuffer === 'undefined' ? ArrayBuffer : SharedArrayBuffer;
@@ -53,7 +51,7 @@ function getAllTerrainData() {
 
 
 function getUserData(userId: any) {
-    return db.users.findOne({ _id: userId })
+    return StorageInstance.db.users.findOne({ _id: userId })
         .then((user: any) => {
 
             let cpu;
@@ -61,7 +59,7 @@ function getUserData(userId: any) {
                 cpu = user.cpuAvailable || 0;
                 if (user.skipTicksPenalty > 0) {
                     console.log(`Skip user execution ${user.username} (penalty ${user.skipTicksPenalty})`);
-                    db.users.update({ _id: user._id }, {
+                    StorageInstance.db.users.update({ _id: user._id }, {
                         $set: {
                             lastUsedCpu: 0,
                             lastUsedDirtyTime: 0
@@ -74,7 +72,7 @@ function getUserData(userId: any) {
                 }
                 if (user.cpuAvailable < 0) {
                     console.log(`Skip user execution ${user.username} (${user.cpuAvailable})`);
-                    db.users.update({ _id: user._id }, {
+                    StorageInstance.db.users.update({ _id: user._id }, {
                         $set: {
                             lastUsedCpu: 0,
                             lastUsedDirtyTime: 0,
@@ -106,7 +104,7 @@ async function make(scope: any, userId: any) {
 
     try {
 
-        await getAllTerrainData();
+        await _getAllTerrainData();
 
         if (scope.abort) {
             throw 'aborted';
@@ -197,11 +195,11 @@ async function make(scope: any, userId: any) {
             $set.cpuAvailable = newCpuAvailable;
         }
 
-        db.users.update({ _id: userData.user._id }, { $set });
+        StorageInstance.db.users.update({ _id: userData.user._id }, { $set });
 
         if (runResult.activeForeignSegment !== undefined) {
             if (runResult.activeForeignSegment === null) {
-                db.users.update({ _id: userData.user._id }, {
+                StorageInstance.db.users.update({ _id: userData.user._id }, {
                     $unset: {
                         activeForeignSegment: true
                     }
@@ -211,14 +209,14 @@ async function make(scope: any, userId: any) {
                 if (userData.user.activeForeignSegment &&
                     runResult.activeForeignSegment.username == userData.user.activeForeignSegment.username &&
                     runResult.activeForeignSegment.id) {
-                    db.users.update({ _id: userData.user._id }, {
+                    StorageInstance.db.users.update({ _id: userData.user._id }, {
                         $merge: {
                             activeForeignSegment: { id: runResult.activeForeignSegment.id }
                         }
                     });
                 }
                 else {
-                    db.users.findOne({ username: runResult.activeForeignSegment.username }, { defaultPublicSegment: true })
+                    StorageInstance.db.users.findOne({ username: runResult.activeForeignSegment.username }, { defaultPublicSegment: true })
                         .then((user: any) => {
                             runResult.activeForeignSegment.user_id = user._id;
                             if (!runResult.activeForeignSegment.id && user.defaultPublicSegment) {
@@ -226,7 +224,7 @@ async function make(scope: any, userId: any) {
                             }
                         })
                         .finally(() => {
-                            db.users.update({ _id: userData.user._id }, {
+                            StorageInstance.db.users.update({ _id: userData.user._id }, {
                                 $set: {
                                     activeForeignSegment: runResult.activeForeignSegment
                                 }
@@ -237,26 +235,28 @@ async function make(scope: any, userId: any) {
         }
 
         if (runResult.publicSegments) {
-            env.set(env.keys.PUBLIC_MEMORY_SEGMENTS + userData.user._id, runResult.publicSegments);
+            StorageInstance.env.set(
+                StorageEnvKey.PUBLIC_MEMORY_SEGMENTS + userData.user._id,
+                runResult.publicSegments);
         }
 
         if (runResult.visual) {
             for (const roomName in runResult.visual) {
-                env.setex(
-                    env.keys.ROOM_VISUAL + userData.user._id + ',' + roomName + ',' + data.time,
+                StorageInstance.env.setex(
+                    StorageEnvKey.ROOM_VISUAL + userData.user._id + ',' + roomName + ',' + data.time,
                     ConfigManager.config.engine!.mainLoopResetInterval / 1000,
                     runResult.visual[roomName]);
             }
         }
 
         if (/CPU limit reached/.test(runResult.error)) {
-            pubsub.publish(`user:${userData.user._id}/cpu`, JSON.stringify({
+            StorageInstance.pubsub.publish(`user:${userData.user._id}/cpu`, JSON.stringify({
                 cpu: 'error',
                 memory: runResult.memory.data.length
             }));
         }
         else {
-            pubsub.publish(`user:${userData.user._id}/cpu`, JSON.stringify({
+            StorageInstance.pubsub.publish(`user:${userData.user._id}/cpu`, JSON.stringify({
                 cpu: runResult.usedTime,
                 memory: runResult.memory.data.length
             }));
@@ -284,7 +284,7 @@ async function make(scope: any, userId: any) {
     }
 }
 
-export default (userId: any) => {
+export const makeRuntime = async (userId: any) => {
     const scope = { abort: false };
     let timeout: any;
     return new Promise((resolve, reject) => {
@@ -293,7 +293,7 @@ export default (userId: any) => {
             reject({ error: 'Script execution timed out ungracefully, restarting virtual machine' });
             runtimeUserVm.clear(userId);
             console.error('isolated-vm timeout', userId);
-            pubsub.publish(`user:${userId}/cpu`, JSON.stringify({ cpu: 'error' }));
+            StorageInstance.pubsub.publish(`user:${userId}/cpu`, JSON.stringify({ cpu: 'error' }));
         }, Math.max(5000, ConfigManager.config.engine!.mainLoopResetInterval));
         make(scope, userId).then(resolve).catch(reject);
     })
@@ -306,3 +306,5 @@ export default (userId: any) => {
             return Promise.reject(error);
         })
 };
+
+export default makeRuntime;

@@ -4,13 +4,13 @@ import _ from 'lodash';
 import jsonResponse from 'q-json-response';
 
 import StorageInstance from '@screeps/common/src/storage';
+import { StorageEnvKey } from '@screeps/common/src/constants/storage-env-key';
 
 import * as  auth from './auth';
 
 const router = express.Router();
 
 const db = StorageInstance.db;
-const env = StorageInstance.env;
 const pubsub = StorageInstance.pubsub;
 
 function sendMessageNotification(userId: any, message: any) {
@@ -20,7 +20,7 @@ function sendMessageNotification(userId: any, message: any) {
                 return q.reject();
             }
             if (!user.notifyPrefs || !user.notifyPrefs.sendOnline) {
-                return env.get(env.keys.USER_ONLINE + userId).then((data: any) => parseInt(data) > Date.now() - 10 * 60 * 1000 ? q.reject() : true);
+                return StorageInstance.env.get(StorageEnvKey.USER_ONLINE + userId).then((data: any) => parseInt(data) > Date.now() - 10 * 60 * 1000 ? q.reject() : true);
             }
         })
         .then((_data: any) => db['users.notifications'].update({

@@ -4,11 +4,9 @@ import _ from 'lodash';
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 import { ConfigManager } from '@screeps/common/src/config-manager';
+import { StorageEnvKey } from '@screeps/common/src/constants/storage-env-key';
 
 import * as driver from '../index';
-
-const db = StorageInstance.db;
-const env = StorageInstance.env;
 
 const accessibleRoomsCache: Record<string, any> = {
     timestamp: 0
@@ -28,7 +26,7 @@ function getCachedMarketOrders(gameTime: any) {
     if (gameTime == cachedMarketOrders.gameTime) {
         return q.when(cachedMarketOrders.orders);
     }
-    return db['market.orders'].find({ active: true })
+    return StorageInstance.db['market.orders'].find({ active: true })
         .then((orders: any) => {
             const result: Record<string, any> = { all: {} };
             orders.forEach((i: any) => {
@@ -51,7 +49,7 @@ function getCachedMarketHistory() {
         return q.when(cachedMarketHistory.history);
     }
 
-    return db['market.stats'].find({})
+    return StorageInstance.db['market.stats'].find({})
         .then((history: any) => {
             const result: Record<string, any> = { all: [] };
 
@@ -73,10 +71,11 @@ function getCachedMarketHistory() {
 function getAccessibleRooms() {
     if (Date.now() > accessibleRoomsCache.timestamp + 60 * 1000) {
         accessibleRoomsCache.timestamp = Date.now();
-        return env.get(env.keys.ACCESSIBLE_ROOMS).then((data: any) => {
-            accessibleRoomsCache.data = data;
-            return accessibleRoomsCache.data;
-        });
+        return StorageInstance.env.get(
+            StorageEnvKey.ACCESSIBLE_ROOMS).then((data: any) => {
+                accessibleRoomsCache.data = data;
+                return accessibleRoomsCache.data;
+            });
     }
     return q.when(accessibleRoomsCache.data);
 
@@ -87,11 +86,11 @@ export function get(userId: any) {
     let runtimeData: any;
     const userIdsHash = { [userId]: true };
 
-    return db['rooms.objects'].find({ user: userId })
+    return StorageInstance.db['rooms.objects'].find({ user: userId })
         .then((_userObjects: any) => {
 
             if (!_userObjects.length) {
-                db.users.update({ _id: userId }, { $set: { active: 0 } });
+                StorageInstance.db.users.update({ _id: userId }, { $set: { active: 0 } });
                 return q.reject(false);
             }
 
@@ -114,24 +113,24 @@ export function get(userId: any) {
             let roomIds = Object.keys(roomIdsHash);
 
             return q.all([
-                db.users.findOne({ _id: userId }),
-                db['users.code'].findOne({ $and: [{ user: userId }, { activeWorld: true }] }),
-                env.get(env.keys.MEMORY + userId),
-                db['users.console'].find({ user: userId }),
+                StorageInstance.db.users.findOne({ _id: userId }),
+                StorageInstance.db['users.code'].findOne({ $and: [{ user: userId }, { activeWorld: true }] }),
+                StorageInstance.env.get(StorageEnvKey.MEMORY + userId),
+                StorageInstance.db['users.console'].find({ user: userId }),
                 common.getGametime(),
-                db.rooms.find({ _id: { $in: roomIds } }),
-                db['rooms.objects'].find({ $and: [{ room: { $in: roomIds } }, { user: { $ne: userId } }] }),
+                StorageInstance.db.rooms.find({ _id: { $in: roomIds } }),
+                StorageInstance.db['rooms.objects'].find({ $and: [{ room: { $in: roomIds } }, { user: { $ne: userId } }] }),
                 getAccessibleRooms(),
-                db.transactions.findEx({ sender: userId }, { sort: { time: -1 }, limit: 100 }),
-                db.transactions.findEx({ recipient: userId }, { sort: { time: -1 }, limit: 100 }),
-                db['rooms.flags'].find({ user: userId }),
-                env.hmget(env.keys.ROOM_EVENT_LOG, roomIds).then((data: any) => _.zipObject(roomIds, data)),
-                db['users.power_creeps'].find({ user: userId }),
+                StorageInstance.db.transactions.findEx({ sender: userId }, { sort: { time: -1 }, limit: 100 }),
+                StorageInstance.db.transactions.findEx({ recipient: userId }, { sort: { time: -1 }, limit: 100 }),
+                StorageInstance.db['rooms.flags'].find({ user: userId }),
+                StorageInstance.env.hmget(StorageEnvKey.ROOM_EVENT_LOG, roomIds).then((data: any) => _.zipObject(roomIds, data)),
+                StorageInstance.db['users.power_creeps'].find({ user: userId }),
             ]);
         }).then((result: any) => {
             const gameTime = result[4];
 
-            db['users.console'].removeWhere({ _id: { $in: _.map(result[3], (i: any) => i._id) } });
+            StorageInstance.db['users.console'].removeWhere({ _id: { $in: _.map(result[3], (i: any) => i._id) } });
 
             let cpu;
             let cpuBucket;
@@ -206,19 +205,19 @@ export function get(userId: any) {
             };
 
             return q.all([
-                db.users.find({ _id: { $in: userIds } }),
+                StorageInstance.db.users.find({ _id: { $in: userIds } }),
                 getCachedMarketOrders(gameTime),
                 getCachedMarketHistory(),
-                db['market.orders'].find({ user: userId }),
+                StorageInstance.db['market.orders'].find({ user: userId }),
                 result[0].activeSegments && result[0].activeSegments.length > 0 ?
-                    env.hmget(env.keys.MEMORY_SEGMENTS + userId, result[0].activeSegments) :
+                    StorageInstance.env.hmget(StorageEnvKey.MEMORY_SEGMENTS + userId, result[0].activeSegments) :
                     q.when(),
                 result[0].activeForeignSegment && result[0].activeForeignSegment.user_id && result[0].activeForeignSegment.id ?
                     q.all([
-                        env.hget(
-                            env.keys.MEMORY_SEGMENTS + result[0].activeForeignSegment.user_id,
+                        StorageInstance.env.hget(
+                            StorageEnvKey.MEMORY_SEGMENTS + result[0].activeForeignSegment.user_id,
                             result[0].activeForeignSegment.id),
-                        env.get(env.keys.PUBLIC_MEMORY_SEGMENTS + result[0].activeForeignSegment.user_id)
+                        StorageInstance.env.get(StorageEnvKey.PUBLIC_MEMORY_SEGMENTS + result[0].activeForeignSegment.user_id)
                     ]) :
                     q.when(),
             ]);

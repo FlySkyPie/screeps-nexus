@@ -7,12 +7,12 @@ import zlib from 'zlib';
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
+import { StorageEnvKey } from '@screeps/common/src/constants/storage-env-key';
 
 import * as  utils from '../utils';
 import { ProjectConfig } from '../constansts/project-config';
 
 const db = StorageInstance.db;
-const env = StorageInstance.env;
 
 export var generateRoom = utils.withHelp([
     `generateRoom(roomName, [opts]) - Generate a new room at the specified location. 'opts' is an object with the following optional properties:\r
@@ -616,7 +616,7 @@ export var removeRoom = utils.withHelp([
                     db['rooms.terrain'].removeWhere({ room: roomName }),
                     db['rooms.intents'].removeWhere({ room: roomName }),
                     db['market.stats'].removeWhere({ room: roomName }),
-                    env.del(env.keys.MAP_VIEW + roomName)
+                    StorageInstance.env.del(StorageEnvKey.MAP_VIEW + roomName)
                 ])
                     .then(() => updateTerrainData())
                     .then(() => {
@@ -708,7 +708,7 @@ export var updateTerrainData = utils.withHelp([
 
                 return q.ninvoke(zlib, 'deflate', JSON.stringify(terrain));
             })
-            .then((compressed: any) => env.set(env.keys.TERRAIN_DATA, compressed.toString('base64')))
+            .then((compressed: any) => StorageInstance.env.set(StorageEnvKey.TERRAIN_DATA, compressed.toString('base64')))
             .then(() => 'OK');
     }]);
 

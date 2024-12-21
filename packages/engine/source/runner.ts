@@ -3,12 +3,13 @@ import _ from 'lodash';
 
 import { ConfigManager } from '@screeps/common/src/config-manager';
 import {
-    makeRuntime, queue, saveUserIntents,
+    queue, saveUserIntents,
     saveUserMemory, saveUserMemoryInterShardSegment,
     saveUserMemorySegments, sendConsoleError,
     sendConsoleMessages,
     startLoop
 } from '@screeps/driver/src';
+import { makeRuntime } from '@screeps/driver/src/runtime/make';
 import { connect } from '@screeps/driver/src/runner-connect';
 
 function runUser(userId: any) {

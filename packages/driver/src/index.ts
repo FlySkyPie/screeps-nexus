@@ -5,20 +5,18 @@ import os from 'os';
 import zlib from 'zlib';
 import genericPool from 'generic-pool';
 
-import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 import { ConfigManager } from '@screeps/common/src/config-manager';
+import { StorageEnvKey } from '@screeps/common/src/constants/storage-env-key';
+import { getGametime } from '@screeps/common/src';
 
 import './native';
 import bulk from './bulk';
 import * as queue from './queue';
 import * as pathFinderFactory from './path-finder';
-import makeRuntime from './runtime/make';
-import * as history from './history';
 import { WorldSizeContainer } from './variables/world-size';
 
 const db = StorageInstance.db;
-const env = StorageInstance.env;
 const pubsub = StorageInstance.pubsub;
 const _config = Object.assign(ConfigManager.config, { engine: new EventEmitter() });
 const roomStatsUpdates: Record<string, any> = {};
@@ -89,7 +87,7 @@ function checkNotificationOnline(_userId: any) {
 }
 
 function getAllTerrainData() {
-    return env.get(env.keys.TERRAIN_DATA)
+    return StorageInstance.env.get(StorageEnvKey.TERRAIN_DATA)
         .then((compressed: any) => {
             const buf = Buffer.from(compressed, 'base64');
             return q.ninvoke(zlib, 'inflate', buf);
@@ -114,13 +112,13 @@ export function saveUserMemory(userId: any, memory: any) {
         return q.reject('Script execution has been terminated: memory allocation limit reached');
     }
 
-    return env.set(env.keys.MEMORY + userId, memory.data);
+    return StorageInstance.env.set(StorageEnvKey.MEMORY + userId, memory.data);
 }
 
 export function saveUserMemorySegments(userId: any, segments: any) {
 
     if (Object.keys(segments).length > 0) {
-        return env.hmset(env.keys.MEMORY_SEGMENTS + userId, segments);
+        return StorageInstance.env.hmset(StorageEnvKey.MEMORY_SEGMENTS + userId, segments);
     }
     return q.when();
 }
@@ -291,7 +289,7 @@ export function mapById(array: any, fn?: any) {
 }
 
 export function notifyTickStarted() {
-    return env.get(env.keys.MAIN_LOOP_PAUSED)
+    return StorageInstance.env.get(StorageEnvKey.MAIN_LOOP_PAUSED)
         .then((paused: any) => {
             if (+paused) {
                 return q.reject('Simulation paused');
@@ -362,12 +360,12 @@ export function sendConsoleError(userId: any, error: any) {
 }
 
 export function getGameTime() {
-    return common.getGametime();
+    return getGametime();
 }
 
 export function incrementGameTime() {
-    return common.getGametime()
-        .then((gameTime: any) => env.set(env.keys.GAMETIME, gameTime + 1));
+    return getGametime()
+        .then((gameTime: any) => StorageInstance.env.set(StorageEnvKey.GAMETIME, gameTime + 1));
 }
 
 export function getRoomInfo(roomId: any) {
@@ -380,7 +378,7 @@ export function saveRoomInfo(roomId: any, roomInfo: any) {
 
 export function getInterRoom() {
     return q.all([
-        common.getGametime(),
+        getGametime(),
         db['rooms.objects'].find({ $and: [{ type: { $in: ['creep', 'powerCreep'] } }, { interRoom: { $ne: null } }] }),
         db.rooms.find({ status: 'normal' })
             .then((rooms: any) =>
@@ -444,7 +442,7 @@ export function updateAccessibleRoomsList() {
     return db.rooms.find({ status: 'normal' })
         .then((rooms: any) => {
             const list = _(rooms).filter((i: any) => !i.openTime || i.openTime < Date.now()).map('_id').value();
-            return env.set(env.keys.ACCESSIBLE_ROOMS, JSON.stringify(list));
+            return StorageInstance.env.set(StorageEnvKey.ACCESSIBLE_ROOMS, JSON.stringify(list));
         });
 }
 
@@ -453,7 +451,7 @@ export function saveIdleTime(_name: any, _time: any) {
 }
 
 export function mapViewSave(roomId: any, mapView: any) {
-    return env.set(env.keys.MAP_VIEW + roomId, JSON.stringify(mapView));
+    return StorageInstance.env.set(StorageEnvKey.MAP_VIEW + roomId, JSON.stringify(mapView));
 }
 
 export function commitDbBulk() {
@@ -506,10 +504,11 @@ export function startLoop(name: any, fn: any) {
 }
 
 export function saveRoomEventLog(roomId: any, eventLog: any) {
-    return env.hset(env.keys.ROOM_EVENT_LOG, roomId, JSON.stringify(eventLog));
+    return StorageInstance.env.hset(StorageEnvKey.ROOM_EVENT_LOG, roomId, JSON.stringify(eventLog));
 }
 
-export { makeRuntime, history };
+// export { makeRuntime, history };
+// export { history };
 
 export { queue };
 

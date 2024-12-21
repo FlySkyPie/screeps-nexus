@@ -2,12 +2,12 @@ import _ from 'lodash';
 
 import StorageInstance from '@screeps/common/src/storage';
 import { ConfigManager } from '@screeps/common/src/config-manager';
+import { StorageEnvKey } from '@screeps/common/src/constants/storage-env-key';
 
 import * as utils from '../../utils';
 
 const config = ConfigManager.config.backend;
 const db = StorageInstance.db;
-const env = StorageInstance.env;
 
 export default (listen: any, emit: any) => {
 
@@ -55,7 +55,7 @@ export default (listen: any, emit: any) => {
     listen(/^roomsDone$/, _.throttle(() => {
         _.forEach(connectedToMemory, (memoryPaths: any, userId) => {
             // const startTime = Date.now();
-            env.get(env.keys.MEMORY + userId)
+            StorageInstance.env.get(StorageEnvKey.MEMORY + userId)
                 .then((data: any) => {
                     if (data) {
                         const memory = JSON.parse(data);
@@ -127,7 +127,7 @@ export default (listen: any, emit: any) => {
                 const result = user && user._id == m[1];
 
                 if (result && /^user:.+\/cpu$/.test(channel)) {
-                    env.get(env.keys.MEMORY + user._id)
+                    StorageInstance.env.get(StorageEnvKey.MEMORY + user._id)
                         .then((data: any) => {
                             if (data) {
                                 emit(channel, { cpu: 0, memory: data.length });

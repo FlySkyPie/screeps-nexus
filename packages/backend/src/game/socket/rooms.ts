@@ -4,12 +4,12 @@ import _ from 'lodash';
 import * as common from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 import { ConfigManager } from '@screeps/common/src/config-manager';
+import { StorageEnvKey } from '@screeps/common/src/constants/storage-env-key';
 
 import { logger } from '../../logger';
 
 const config = ConfigManager.config.backend;
 const db = StorageInstance.db;
-const env = StorageInstance.env;
 
 const USER_LIMIT = 2;
 
@@ -83,9 +83,9 @@ export default (listen: any, _emit: any) => {
                         };
 
                         let eventResultPromises = [
-                            env.mget([
-                                env.keys.ROOM_VISUAL + `${i.user._id},,${gameTime - 1}`,
-                                env.keys.ROOM_VISUAL + `${i.user._id},${roomName},${gameTime - 1}`
+                            StorageInstance.env.mget([
+                                StorageEnvKey.ROOM_VISUAL + `${i.user._id},,${gameTime - 1}`,
+                                StorageEnvKey.ROOM_VISUAL + `${i.user._id},${roomName},${gameTime - 1}`
                             ]).then((data: any) => {
                                 eventResult.visual = "";
                                 if (data[0]) {

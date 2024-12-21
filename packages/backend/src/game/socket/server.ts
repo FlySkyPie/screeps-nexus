@@ -5,6 +5,7 @@ import zlib from 'zlib';
 
 import StorageInstance from '@screeps/common/src/storage';
 import { ConfigManager } from '@screeps/common/src/config-manager';
+import { StorageEnvKey } from '@screeps/common/src/constants/storage-env-key';
 
 import * as authlib from '../../authlib';
 import { logger } from '../../logger';
@@ -16,7 +17,7 @@ import map from './map';
 
 const config = ConfigManager.config;
 
-const env = StorageInstance.env;
+// const env = StorageInstance.env;
 const pubsub = StorageInstance.pubsub;
 
 Object.assign(config.backend, {
@@ -128,7 +129,7 @@ export default function installSocketServer(server: any, PROTOCOL: any) {
                 authlib.checkToken(m[1])
                     .then((_user: any) => {
                         user = _user;
-                        env.set(env.keys.USER_ONLINE + user._id, Date.now());
+                        StorageInstance.env.set(StorageEnvKey.USER_ONLINE + user._id, Date.now());
                         return authlib.genToken(user._id);
                     })
                     .then((token: any) => {

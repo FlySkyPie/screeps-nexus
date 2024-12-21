@@ -5,7 +5,6 @@ import _ from 'lodash';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import { ConfigManager } from '@screeps/common/src/config-manager';
 import {
-    history,
     bulkFlagsWrite, bulkObjectsWrite, bulkUsersPowerCreeps, bulkUsersWrite,
     getRoomStatsUpdater, mapViewSave, pathFinder, roomsStatsSave,
     saveRoomEventLog, saveRoomInfo,
@@ -19,6 +18,7 @@ import {
     clearRoomIntents
 } from '@screeps/driver/src';
 import { connect } from '@screeps/driver/src/processor-connect';
+import { saveTick, upload } from '@screeps/driver/src/history';
 
 import * as movement from './processor/intents/movement';
 import * as fakeRuntime from './processor/common/fake-runtime';
@@ -71,7 +71,6 @@ import processor_intents_factories_tick from './processor/intents/factories/tick
 import processor_intents_nukes_tick from './processor/intents/nukes/tick'
 import processor_intents_storages_tick from './processor/intents/storages/tick'
 import { logger } from './logger';
-
 
 let roomsQueue: any,
     // _usersQueue: any,
@@ -591,11 +590,11 @@ function saveRoomHistory(roomId: any, objects: any, gameTime: any) {
 
         if (!(gameTime % ConfigManager.config.engine!.historyChunkSize)) {
             const baseTime = Math.floor((gameTime - 1) / ConfigManager.config.engine!.historyChunkSize) * ConfigManager.config.engine!.historyChunkSize;
-            promise = history.upload(roomId, baseTime);
+            promise = upload(roomId, baseTime);
         }
 
         const data = JSON.stringify(objects);
-        currentHistoryPromise = promise.then(() => history.saveTick(roomId, gameTime, data));
+        currentHistoryPromise = promise.then(() => saveTick(roomId, gameTime, data));
         return currentHistoryPromise;
     });
 }

@@ -8,12 +8,12 @@ import * as strongholds from '@screeps/common/src/strongholds';
 import { StructureEnum } from '@screeps/common/src/constants/structure-enum';
 import { ScreepsConstants } from '@screeps/common/src/constants/constants';
 import StorageInstance from '@screeps/common/src/storage';
+import { StorageEnvKey } from '@screeps/common/src/constants/storage-env-key';
 
 import * as  utils from './utils';
 import { logger } from './logger';
 
 const db = StorageInstance.db;
-const env = StorageInstance.env;
 
 const strongholdDeployTime = 5000;
 
@@ -183,12 +183,12 @@ async function selectRoom(sectorCenter: any) {
 
 async function buildMapGrid() {
 
-    const compressedTerrainData = await env.get(env.keys.TERRAIN_DATA);
+    const compressedTerrainData = await StorageInstance.env.get(StorageEnvKey.TERRAIN_DATA);
 
     const buf = Buffer.from(compressedTerrainData, 'base64');
     const terrainData: any = JSON.parse((await util.promisify(zlib.inflate)(buf)).toString());
 
-    const accessibleRooms = JSON.parse(await env.get(env.keys.ACCESSIBLE_ROOMS));
+    const accessibleRooms = JSON.parse(await StorageInstance.env.get(StorageEnvKey.ACCESSIBLE_ROOMS));
 
     if (!accessibleRooms) return {};
     const dirs: any = {

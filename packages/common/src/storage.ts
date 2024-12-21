@@ -33,29 +33,11 @@ class StorageInstance {
 
     public static _connected = false;
 
-    public static db: any = {};
+    public static db: Record<string, any> = {};
 
-    public static queue: any = {};
+    public static queue: Record<string, any> = {};
 
-    public static env: any = {
-        keys: {
-            ACCESSIBLE_ROOMS: 'accessibleRooms',
-            ROOM_STATUS_DATA: 'roomStatusData',
-            MEMORY: 'memory:',
-            GAMETIME: 'gameTime',
-            MAP_VIEW: 'mapView:',
-            TERRAIN_DATA: 'terrainData',
-            SCRIPT_CACHED_DATA: 'scriptCachedData:',
-            USER_ONLINE: 'userOnline:',
-            MAIN_LOOP_PAUSED: 'mainLoopPaused',
-            ROOM_HISTORY: 'roomHistory:',
-            ROOM_VISUAL: 'roomVisual:',
-            MEMORY_SEGMENTS: 'memorySegments:',
-            PUBLIC_MEMORY_SEGMENTS: 'publicMemorySegments:',
-            ROOM_EVENT_LOG: 'roomEventLog:',
-            ACTIVE_ROOMS: 'activeRooms',
-            MAIN_LOOP_MIN_DURATION: 'tickRate'
-        }
+    public static env: Record<string, any> = {
     };
 
     public static pubsub: any = {

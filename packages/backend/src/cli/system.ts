@@ -3,11 +3,11 @@ import _ from 'lodash';
 
 import StorageInstance from '@screeps/common/src/storage';
 import { ConfigManager } from '@screeps/common/src/config-manager';
+import { StorageEnvKey } from '@screeps/common/src/constants/storage-env-key';
 
 import * as utils from '../utils';
 
 const config = ConfigManager.config;
-const env = StorageInstance.env;
 const pubsub = StorageInstance.pubsub;
 
 export var resetAllData = utils.withHelp([
@@ -27,14 +27,14 @@ export var sendServerMessage = utils.withHelp([
 export var pauseSimulation = utils.withHelp([
     'pauseSimulation() - Stop main simulation loop execution.',
     function pauseSimulation() {
-        return env.set(env.keys.MAIN_LOOP_PAUSED, '1').then(() => 'OK');
+        return StorageInstance.env.set(StorageEnvKey.MAIN_LOOP_PAUSED, '1').then(() => 'OK');
     }
 ]);
 
 export var resumeSimulation = utils.withHelp([
     'resumeSimulation() - Resume main simulation loop execution.',
     function resumeSimulation() {
-        return env.set(env.keys.MAIN_LOOP_PAUSED, '0').then(() => 'OK');
+        return StorageInstance.env.set(StorageEnvKey.MAIN_LOOP_PAUSED, '0').then(() => 'OK');
     }
 ]);
 

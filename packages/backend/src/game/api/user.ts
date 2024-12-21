@@ -6,6 +6,7 @@ import _ from 'lodash';
 import jsonResponse from 'q-json-response';
 
 import StorageInstance from '@screeps/common/src/storage';
+import { StorageEnvKey } from '@screeps/common/src/constants/storage-env-key';
 
 import * as utils from '../../utils';
 import { logger } from '../../logger';
@@ -16,7 +17,6 @@ import messageRouter from './user-messages';
 
 const router = express.Router();
 const db = StorageInstance.db;
-const env = StorageInstance.env;
 const pubsub = StorageInstance.pubsub;
 
 
@@ -118,7 +118,7 @@ router.post('/code', auth.tokenAuth, jsonResponse((request: any) => {
             if (!data.modified) {
                 return q.reject('branch does not exist');
             }
-            env.del(`scrScriptCachedData:${request.user._id}`);
+            StorageInstance.env.del(`scrScriptCachedData:${request.user._id}`);
             db['users.code'].findOne(query)
                 .then((code: any) => {
                     pubsub.publish(`user:${request.user._id}/code`, JSON.stringify({ id: "" + code._id, hash: request.body._hash }))
@@ -266,7 +266,7 @@ router.post('/delete-branch', auth.tokenAuth, jsonResponse((request: any) => {
 
 router.get('/memory', auth.tokenAuth, jsonResponse((request: any) => {
 
-    return env.get(env.keys.MEMORY + request.user._id)
+    return StorageInstance.env.get(StorageEnvKey.MEMORY + request.user._id)
         .then((data: any) => {
 
             try {
@@ -332,7 +332,7 @@ router.get('/memory-segment', auth.tokenAuth, jsonResponse((request: any) => {
     if (_.isNaN(id) || id < 0 || id > 99) {
         return q.reject('invalid segment ID');
     }
-    return env.hget(env.keys.MEMORY_SEGMENTS + request.user._id, id)
+    return StorageInstance.env.hget(StorageEnvKey.MEMORY_SEGMENTS + request.user._id, id)
         .then((data: any) => {
             return { data };
         })
@@ -346,7 +346,7 @@ router.post('/memory-segment', auth.tokenAuth, jsonResponse((request: any) => {
     if (("" + request.body.data).length > 100 * 1024) {
         return q.reject("length limit exceeded");
     }
-    return env.hset(env.keys.MEMORY_SEGMENTS + request.user._id, id, request.body.data)
+    return StorageInstance.env.hset(StorageEnvKey.MEMORY_SEGMENTS + request.user._id, id, request.body.data)
         .then(() => ({}));
 }));
 

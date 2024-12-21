@@ -2,9 +2,9 @@ import _ from 'lodash';
 
 import StorageInstance from '@screeps/common/src/storage';
 import { ConfigManager } from '@screeps/common/src/config-manager';
+import { StorageEnvKey } from '@screeps/common/src/constants/storage-env-key';
 
 const config = ConfigManager.config.backend;
-const env = StorageInstance.env;
 
 export default (listen: any, _emit: any) => {
     const connectedToRooms: Record<string, any> = {};
@@ -18,7 +18,7 @@ export default (listen: any, _emit: any) => {
         for (let roomName in connectedToRooms) {
             if (connectedToRooms[roomName].length > 0) {
                 roomsIdx[roomName] = roomsToFetch.length;
-                roomsToFetch.push(env.keys.MAP_VIEW + roomName);
+                roomsToFetch.push(StorageEnvKey.MAP_VIEW + roomName);
             }
         }
 
@@ -26,7 +26,7 @@ export default (listen: any, _emit: any) => {
             return;
         }
 
-        env.mget(roomsToFetch).then((mapViewData: any) => {
+        StorageInstance.env.mget(roomsToFetch).then((mapViewData: any) => {
 
             for (let roomName in connectedToRooms) {
 
@@ -57,7 +57,7 @@ export default (listen: any, _emit: any) => {
 
                 // const startTime = Date.now();
 
-                env.get(env.keys.MAP_VIEW + roomName).then((data: any) => {
+                StorageInstance.env.get(StorageEnvKey.MAP_VIEW + roomName).then((data: any) => {
                     data = data || "{}";
                     conn._writeEventRaw(`["roomMap2:${roomName}",${data}]`);
                 });

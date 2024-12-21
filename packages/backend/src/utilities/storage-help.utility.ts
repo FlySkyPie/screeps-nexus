@@ -1,3 +1,4 @@
+import { StorageEnvKey } from '@screeps/common/src/constants/storage-env-key';
 import StorageInstance from '@screeps/common/src/storage';
 
 export abstract class StorageHelpUtility {
@@ -30,7 +31,7 @@ Example: storage.db.users.findOne({username: 'User1'}).then(print);`
 
     public static get env() {
         return `Keys ('storage.env.keys' object): \r
-        ${Object.keys(StorageInstance.env.keys).map(i => ' - ' + i).join('\r\n')}\r    
+        ${Object.keys(StorageEnvKey).map(i => ' - ' + i).join('\r\n')}\r    
         Available methods:\r
          - get\r
          - mget\r
