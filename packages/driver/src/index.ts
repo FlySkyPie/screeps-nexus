@@ -12,7 +12,6 @@ import { ConfigManager } from '@screeps/common/src/config-manager';
 import './native';
 import bulk from './bulk';
 import * as queue from './queue';
-import * as runtimeUserVm from './runtime/user-vm';
 import * as pathFinderFactory from './path-finder';
 import makeRuntime from './runtime/make';
 import * as history from './history';
@@ -99,43 +98,6 @@ function getAllTerrainData() {
 }
 
 export { getAllTerrainData };
-
-
-
-export function connect(processType: any) {
-
-    ConfigManager.load();
-
-    return StorageInstance._connect()
-        .then(() => {
-
-            if (processType == 'runner') {
-                runtimeUserVm.init();
-                pubsub.subscribe(pubsub.keys.RUNTIME_RESTART, () => {
-                    console.log('runtime restart signal');
-                    runtimeUserVm.clearAll();
-                });
-            }
-
-            if (processType == 'runtime') {
-            }
-
-            if (processType == 'processor') {
-                getAllTerrainData()
-                    .then((rooms: any) => pathFinderFactory.init(require('../native/build/Release/native'), rooms));
-            }
-
-            if (processType == 'main') {
-            }
-        })
-        .then(() => db.rooms.find({}, { _id: true }))
-        .then(common.calcWorldSize)
-        .then((_worldSize: any) => WorldSizeContainer.worldSize = _worldSize)
-        .then(() => {
-            _config.engine.emit('init', processType);
-            return true;
-        });
-}
 
 export function getAllUsers() {
     return db.users.find({ $and: [{ active: { $ne: 0 } }, { cpu: { $gt: 0 } }] })

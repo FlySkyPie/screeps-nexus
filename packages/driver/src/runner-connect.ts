@@ -7,9 +7,8 @@ import { ConfigManager } from '@screeps/common/src/config-manager';
 import { calcWorldSize } from '@screeps/common/src';
 
 import './native';
-import * as pathFinderFactory from './path-finder';
+import * as runtimeUserVm from './runtime/user-vm';
 import { WorldSizeContainer } from './variables/world-size';
-import { getAllTerrainData } from '.';
 
 const _config = Object.assign(ConfigManager.config, { engine: new EventEmitter() });
 
@@ -41,15 +40,19 @@ export async function connect() {
 
     return StorageInstance._connect()
         .then(() => {
-            getAllTerrainData()
-                .then((rooms: any) =>
-                    pathFinderFactory.init(require('../native/build/Release/native'), rooms));
+            runtimeUserVm.init();
+            StorageInstance.pubsub.subscribe(
+                StorageInstance.pubsub.keys.RUNTIME_RESTART,
+                () => {
+                    console.log('runtime restart signal');
+                    runtimeUserVm.clearAll();
+                });
         })
         .then(() => StorageInstance.db.rooms.find({}, { _id: true }))
         .then(calcWorldSize)
         .then((_worldSize: any) => WorldSizeContainer.worldSize = _worldSize)
         .then(() => {
-            _config.engine.emit('init', 'processor');
+            _config.engine.emit('init', 'runner');
             return true;
         });
-};
+}

@@ -3,12 +3,13 @@ import _ from 'lodash';
 
 import { ConfigManager } from '@screeps/common/src/config-manager';
 import {
-    connect, makeRuntime, queue, saveUserIntents,
+    makeRuntime, queue, saveUserIntents,
     saveUserMemory, saveUserMemoryInterShardSegment,
     saveUserMemorySegments, sendConsoleError,
     sendConsoleMessages,
     startLoop
 } from '@screeps/driver/src';
+import { connect } from '@screeps/driver/src/runner-connect';
 
 function runUser(userId: any) {
 
@@ -54,7 +55,7 @@ function runUser(userId: any) {
     }
 }
 
-connect('runner')
+connect()
     .then(() => queue.create('users', 'read'))
     .catch((error: any) => {
         console.error('Error connecting to driver:', error);
