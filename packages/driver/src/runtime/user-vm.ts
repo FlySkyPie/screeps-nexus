@@ -6,7 +6,7 @@ import ivm from 'isolated-vm';
 
 import { ConfigManager } from '@screeps/common/src/config-manager';
 
-import * as index from '../index';
+import { getWorldSize } from '..';
 
 const nativeMod = new ivm.NativeModule(path.resolve(__dirname, "./native.node"));
 let vms: Record<string, any> = {};
@@ -59,7 +59,7 @@ export async function create({ userId, staticTerrainData, staticTerrainDataSize,
             context.global.setIgnored('_ivm', ivm);
             context.global.setIgnored('_isolate', isolate);
             context.global.setIgnored('_context', context);
-            context.global.setIgnored('_worldSize', index.getWorldSize());
+            context.global.setIgnored('_worldSize', getWorldSize());
             context.global.setIgnored('_nativeMod', nativeModInstance.derefInto());
             context.global.setIgnored('_halt', new ivm.Reference(() => {
                 vm.didHaltByUserRequest = true;

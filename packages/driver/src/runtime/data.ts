@@ -1,12 +1,12 @@
 import q from 'q';
 import _ from 'lodash';
 
-import * as common from '@screeps/common/src';
+import { getGametime } from '@screeps/common/src';
 import StorageInstance from '@screeps/common/src/storage';
 import { ConfigManager } from '@screeps/common/src/config-manager';
 import { StorageEnvKey } from '@screeps/common/src/constants/storage-env-key';
 
-import * as driver from '../index';
+import { mapById } from '../index';
 
 const accessibleRoomsCache: Record<string, any> = {
     timestamp: 0
@@ -94,7 +94,7 @@ export function get(userId: any) {
                 return q.reject(false);
             }
 
-            userObjects = driver.mapById(_userObjects);
+            userObjects = mapById(_userObjects);
 
             const roomIdsHash: Record<string, any> = {};
             _userObjects.forEach((i: any) => {
@@ -117,7 +117,7 @@ export function get(userId: any) {
                 StorageInstance.db['users.code'].findOne({ $and: [{ user: userId }, { activeWorld: true }] }),
                 StorageInstance.env.get(StorageEnvKey.MEMORY + userId),
                 StorageInstance.db['users.console'].find({ user: userId }),
-                common.getGametime(),
+                getGametime(),
                 StorageInstance.db.rooms.find({ _id: { $in: roomIds } }),
                 StorageInstance.db['rooms.objects'].find({ $and: [{ room: { $in: roomIds } }, { user: { $ne: userId } }] }),
                 getAccessibleRooms(),
@@ -190,8 +190,8 @@ export function get(userId: any) {
                 userMemory: { data: result[2] || "", userId },
                 consoleCommands: result[3],
                 time: gameTime,
-                rooms: driver.mapById(result[5]),
-                roomObjects: _.extend(driver.mapById(result[6]), userObjects),
+                rooms: mapById(result[5]),
+                roomObjects: _.extend(mapById(result[6]), userObjects),
                 flags: result[10],
                 accessibleRooms: result[7],
                 transactions: {
@@ -222,7 +222,7 @@ export function get(userId: any) {
                     q.when(),
             ]);
         }).then((result: any) => {
-            runtimeData.users = driver.mapById(result[0]);
+            runtimeData.users = mapById(result[0]);
             runtimeData.market = {
                 orders: result[1],
                 history: result[2],

@@ -358,8 +358,11 @@ export function checkControllerAvailability(
     return structuresCnt < availableCnt;
 }
 
-// Note that game/rooms.js will swap this function out for a faster version, but may call back to
-// this function.
+/**
+ * Note that game/rooms.js will swap this function out for a faster version, but may call back to
+ * this function.
+ * @deprecated
+ */
 export function getRoomNameFromXY(x: any, y: any) {
     if (x < 0) {
         x = 'W' + (-x - 1);
@@ -390,6 +393,9 @@ export const getRoomNameFromXYFaster = (xx: any, yy: any) => {
     }
 }
 
+/**
+ * @deprecated
+ */
 export function roomNameToXY(name: any) {
     let xx = parseInt(name.substr(1), 10);
     let verticalPos = 2;
@@ -1165,6 +1171,9 @@ export function dist(a: any, b: any) {
     return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 }
 
+/**
+ * @deprecated
+ */
 export function calcRoomsDistance(room1: any, room2: any, continuous: any) {
     const [x1, y1] = roomNameToXY(room1);
     const [x2, y2] = roomNameToXY(room2);

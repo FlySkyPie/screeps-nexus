@@ -306,5 +306,3 @@ export const makeRuntime = async (userId: any) => {
             return Promise.reject(error);
         })
 };
-
-export default makeRuntime;

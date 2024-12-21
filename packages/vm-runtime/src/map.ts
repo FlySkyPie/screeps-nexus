@@ -5,10 +5,14 @@ import { Direction } from '@screeps/common/src/constants/direction';
 import { ErrorCode } from '@screeps/common/src/constants/error-code';
 import { FindCode } from '@screeps/common/src/constants/find-code';
 
-import { calcRoomsDistance, getRoomNameFromXY, roomNameToXY } from '@screeps/engine/source/utils';
+import { roomNameToXY } from '@screeps/engine/source/utilities/room-name-to-xy';
+import { getRoomNameFromXY } from '@screeps/engine/source/utilities/get-room-name-from-xy';
+import { createCalcRoomsDistance } from '@screeps/engine/source/utilities/calc-rooms-distance';
 import { Heap, OpenClosed } from '@screeps/engine/source/game/path-utils';
 
 import { getWorldSize } from './runtime-driver';
+
+const calcRoomsDistance = createCalcRoomsDistance(getWorldSize);
 
 const kRouteGrid = 30;
 
