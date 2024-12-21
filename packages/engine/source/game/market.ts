@@ -6,7 +6,7 @@ import { ErrorCode } from '@screeps/common/src/constants/error-code';
 import { IntershardResources } from '@screeps/common/src/constants/intershard-resources';
 import { Resource } from '@screeps/common/src/constants/resource';
 
-import * as utils from '../utils';
+import { calcRoomsDistance, calcTerminalEnergyCost } from '../utils';
 
 export function make(runtimeData: any, intents: any, register: any) {
     let ordersCreatedDuringTick = 0;
@@ -35,8 +35,8 @@ export function make(runtimeData: any, intents: any, register: any) {
     const market = {
 
         calcTransactionCost: register.wrapFn((amount: any, roomName1: any, roomName2: any) => {
-            const distance = utils.calcRoomsDistance(roomName1, roomName2, true);
-            return utils.calcTerminalEnergyCost(amount, distance);
+            const distance = calcRoomsDistance(roomName1, roomName2, true);
+            return calcTerminalEnergyCost(amount, distance);
         }),
 
         getAllOrders: register.wrapFn((filter: any) => {

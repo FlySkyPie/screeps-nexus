@@ -66,7 +66,7 @@ export function translateModulesFromDb(modules: any) {
     return modules;
 }
 
-export function translateModulesToDb(modules: any) {
+export function translateModulesToDb(modules: Record<string, any>) {
     modules = modules || {};
 
     for (const key in modules) {
@@ -263,15 +263,16 @@ export function loadBot(name: any) {
         throw new Error(`"${dir}" is not a directory`);
     }
     fs.statSync(path.resolve(dir, 'main.js'));
-    const files = fs.readdirSync(dir), modules: any = {};
+    const files = fs.readdirSync(dir),
+        _modules: any = {};
     files.forEach(file => {
         const m = file.match(/^(.*)\.js$/);
         if (!m) {
             return;
         }
-        modules[m[1]] = fs.readFileSync(path.resolve(dir, file), { encoding: 'utf8' });
+        _modules[m[1]] = fs.readFileSync(path.resolve(dir, file), { encoding: 'utf8' });
     });
-    return translateModulesToDb(modules);
+    return translateModulesToDb(_modules);
 }
 
 export function reloadBotUsers(name: any) {

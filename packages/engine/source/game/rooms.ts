@@ -8,7 +8,11 @@ import { ErrorCode } from '@screeps/common/src/constants/error-code';
 import { ListItems } from '@screeps/common/src/tables/list-items';
 import { ColorCode } from '@screeps/common/src/constants/color-code';
 
-import * as utils from '../utils';
+import {
+    checkConstructionSite, checkControllerAvailability,
+    deserializePath, fetchXYArguments, getDirection,
+    getRoomNameFromXYFaster, roomNameToXY, serializePath
+} from '../utils';
 
 const abs = Math.abs;
 // const min = Math.min;
@@ -300,7 +304,7 @@ function _findPath2(id: any, fromPos: any, toPos: any, opts: any) {
             y: pos.y,
             dx: pos.x - curX,
             dy: pos.y - curY,
-            direction: utils.getDirection(pos.x - curX, pos.y - curY)
+            direction: getDirection(pos.x - curX, pos.y - curY)
         };
 
         curX = result.x;
@@ -309,7 +313,7 @@ function _findPath2(id: any, fromPos: any, toPos: any, opts: any) {
     }
 
     if (opts.serialize) {
-        return utils.serializePath(resultPath);
+        return serializePath(resultPath);
     }
 
     return resultPath;
@@ -532,11 +536,11 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
     });
 
     Room.serializePath = register.wrapFn((path: any) => {
-        return utils.serializePath(path);
+        return serializePath(path);
     });
 
     Room.deserializePath = register.wrapFn((str: any) => {
-        return utils.deserializePath(str);
+        return deserializePath(str);
     });
 
     Room.prototype.toString = register.wrapFn(function (this: any) {
@@ -784,7 +788,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
     }
 
     Room.prototype.lookAt = register.wrapFn(function (this: any, firstArg: any, secondArg: any) {
-        const [x, y] = utils.fetchXYArguments(firstArg, secondArg, globals),
+        const [x, y] = fetchXYArguments(firstArg, secondArg, globals),
             result: any[] = [];
 
         _lookSpatialRegister(this.name, LookEnum.LOOK_CREEPS, x, y, result);
@@ -805,7 +809,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
     });
 
     Room.prototype.lookForAt = register.wrapFn(function (this: any, type: any, firstArg: any, secondArg: any) {
-        const [x, y] = utils.fetchXYArguments(firstArg, secondArg, globals);
+        const [x, y] = fetchXYArguments(firstArg, secondArg, globals);
 
         if (type != 'terrain' && !(type in privateStore[this.name].lookTypeSpatialRegisters)) {
             return ErrorCode.ERR_INVALID_ARGS;
@@ -909,7 +913,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
             var cacheKey = `${fromX},${fromY},${toX},${toY}${cacheKeySuffix}`;
 
             if (privateStore[this.name].pathCache[cacheKey]) {
-                return opts.serialize ? utils.serializePath(privateStore[this.name].pathCache[cacheKey]) : _.cloneDeep(privateStore[this.name].pathCache[cacheKey]);
+                return opts.serialize ? serializePath(privateStore[this.name].pathCache[cacheKey]) : _.cloneDeep(privateStore[this.name].pathCache[cacheKey]);
             }
 
             if (fromX == toX && fromY == toY) {
@@ -926,9 +930,9 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
                     y: toY,
                     dx: toX - fromX,
                     dy: toY - fromY,
-                    direction: utils.getDirection(toX - fromX, toY - fromY)
+                    direction: getDirection(toX - fromX, toY - fromY)
                 }];
-                return opts.serialize ? utils.serializePath(result) : result;
+                return opts.serialize ? serializePath(result) : result;
             }
 
             const grid = getPathfindingGrid(this.name, opts), finder = getPathfinder(this.name, opts);
@@ -947,7 +951,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
                 y: step[1],
                 dx: step[0] - curX,
                 dy: step[1] - curY,
-                direction: utils.getDirection(step[0] - curX, step[1] - curY)
+                direction: getDirection(step[0] - curX, step[1] - curY)
             };
 
             curX = result.x;
@@ -961,7 +965,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
         }
 
         if (opts.serialize) {
-            return utils.serializePath(resultPath);
+            return serializePath(resultPath);
         }
 
         return resultPath;
@@ -976,7 +980,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
 
     Room.prototype.createFlag = register.wrapFn(function (
         this: any, firstArg: any, secondArg: any, name: any, color: any, secondaryColor: any) {
-        const [x, y] = utils.fetchXYArguments(firstArg, secondArg, globals);
+        const [x, y] = fetchXYArguments(firstArg, secondArg, globals);
 
         if (_.isUndefined(x) || _.isUndefined(y) || x < 0 || x > 49 || y < 0 || y > 49) {
             return ErrorCode.ERR_INVALID_ARGS;
@@ -1028,7 +1032,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
 
     Room.prototype.createConstructionSite = register.wrapFn(function (
         this: any, firstArg: any, secondArg: any, structureType: any, name: any) {
-        const [x, y] = utils.fetchXYArguments(firstArg, secondArg, globals);
+        const [x, y] = fetchXYArguments(firstArg, secondArg, globals);
 
         if (_.isUndefined(x) || _.isUndefined(y) || x < 0 || x > 49 || y < 0 || y > 49) {
             return ErrorCode.ERR_INVALID_ARGS;
@@ -1051,11 +1055,11 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
             return ErrorCode.ERR_RCL_NOT_ENOUGH;
         }
         const roomName = "" + this.name;
-        if (!utils.checkControllerAvailability(structureType, register.objectsByRoom[this.name], this.controller)) {
+        if (!checkControllerAvailability(structureType, register.objectsByRoom[this.name], this.controller)) {
             return ErrorCode.ERR_RCL_NOT_ENOUGH;
         }
-        if (!utils.checkConstructionSite(register.objectsByRoom[roomName], structureType, x, y) ||
-            !utils.checkConstructionSite(runtimeData.staticTerrainData[roomName], structureType, x, y)) {
+        if (!checkConstructionSite(register.objectsByRoom[roomName], structureType, x, y) ||
+            !checkConstructionSite(runtimeData.staticTerrainData[roomName], structureType, x, y)) {
             return ErrorCode.ERR_INVALID_TARGET;
         }
 
@@ -1244,25 +1248,10 @@ export function makePos(_register: any, _g?: any) {
     const kMaxWorldSize2 = kMaxWorldSize >> 1;
     const roomNames: any[] = [];
 
-    /**
-     * Fix this WTF later.
-     */
-    (utils as any).getRoomNameFromXY = ((slowFn: any): any => {
-        return (xx: any, yy: any) => {
-            let id = (xx + kMaxWorldSize2) << 8 | (yy + kMaxWorldSize2);
-            let roomName = roomNames[id];
-            if (roomName === undefined) {
-                return roomNames[id] = slowFn(xx, yy);
-            } else {
-                return roomName;
-            }
-        };
-    })(utils.getRoomNameFromXY);
-
     roomNames[0] = 'sim';
 
     let RoomPosition = register.wrapFn(function RoomPosition(this: any, xx: any, yy: any, roomName: any) {
-        let xy = roomName === 'sim' ? [-kMaxWorldSize2, -kMaxWorldSize2] : utils.roomNameToXY(roomName);
+        let xy = roomName === 'sim' ? [-kMaxWorldSize2, -kMaxWorldSize2] : roomNameToXY(roomName);
         xy[0] += kMaxWorldSize2;
         xy[1] += kMaxWorldSize2;
         if (
@@ -1312,7 +1301,7 @@ export function makePos(_register: any, _g?: any) {
             get() {
                 let roomName = roomNames[this.__packedPos >>> 16];
                 if (roomName === undefined) {
-                    return utils.getRoomNameFromXY(
+                    return getRoomNameFromXYFaster(
                         (this.__packedPos >>> 24) - kMaxWorldSize2,
                         (this.__packedPos >>> 16 & 0xff) - kMaxWorldSize2
                     );
@@ -1321,7 +1310,7 @@ export function makePos(_register: any, _g?: any) {
                 }
             },
             set(val) {
-                let xy = val === 'sim' ? [-kMaxWorldSize2, -kMaxWorldSize2] : utils.roomNameToXY(val);
+                let xy = val === 'sim' ? [-kMaxWorldSize2, -kMaxWorldSize2] : roomNameToXY(val);
                 xy[0] += kMaxWorldSize2;
                 xy[1] += kMaxWorldSize2;
                 if (
@@ -1365,25 +1354,25 @@ export function makePos(_register: any, _g?: any) {
     });
 
     RoomPosition.prototype.isNearTo = register.wrapFn(function (this: any, firstArg: any, secondArg: any) {
-        const [x, y, roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
+        const [x, y, roomName] = fetchXYArguments(firstArg, secondArg, globals);
         return abs(x - this.x) <= 1 && abs(y - this.y) <= 1 && (!roomName || roomName == this.roomName);
     });
 
     RoomPosition.prototype.getDirectionTo = register.wrapFn(function (this: any, firstArg: any, secondArg: any) {
-        const [x, y, roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
+        const [x, y, roomName] = fetchXYArguments(firstArg, secondArg, globals);
 
         if (!roomName || roomName == this.roomName) {
-            return utils.getDirection(x - this.x, y - this.y);
+            return getDirection(x - this.x, y - this.y);
         }
 
-        const [thisRoomX, thisRoomY] = utils.roomNameToXY(this.roomName);
-        const [thatRoomX, thatRoomY] = utils.roomNameToXY(roomName);
+        const [thisRoomX, thisRoomY] = roomNameToXY(this.roomName);
+        const [thatRoomX, thatRoomY] = roomNameToXY(roomName);
 
-        return utils.getDirection(thatRoomX * 50 + x - thisRoomX * 50 - this.x, thatRoomY * 50 + y - thisRoomY * 50 - this.y);
+        return getDirection(thatRoomX * 50 + x - thisRoomX * 50 - this.x, thatRoomY * 50 + y - thisRoomY * 50 - this.y);
     });
 
     RoomPosition.prototype.findPathTo = register.wrapFn(function (this: any, firstArg: any, secondArg: any, opts: any) {
-        let [x, y, roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
+        let [x, y, roomName] = fetchXYArguments(firstArg, secondArg, globals);
         const room = register.rooms[this.roomName];
 
         if (_.isObject(secondArg)) {
@@ -1568,12 +1557,12 @@ export function makePos(_register: any, _g?: any) {
         if (firstArg.__packedPos !== undefined) {
             return firstArg.__packedPos === this.__packedPos;
         }
-        const [x, y, roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
+        const [x, y, roomName] = fetchXYArguments(firstArg, secondArg, globals);
         return x == this.x && y == this.y && (!roomName || roomName == this.roomName);
     });
 
     RoomPosition.prototype.getRangeTo = register.wrapFn(function (this: any, firstArg: any, secondArg: any) {
-        const [x, y, roomName] = utils.fetchXYArguments(firstArg, secondArg, globals);
+        const [x, y, roomName] = fetchXYArguments(firstArg, secondArg, globals);
         if (roomName && roomName != this.roomName) {
             return Infinity;
         }

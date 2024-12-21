@@ -1,11 +1,11 @@
 import q from 'q';
 import net from 'net';
 
-import { config } from './config-manager';
+import { ConfigManager } from './config-manager';
 import { RpcClient } from './rpc';
 import { ProjectConfig } from './constants/project-config';
 
-config.common.dbCollections = [
+const dbCollections = [
     'leaderboard.power',
     'leaderboard.seasons',
     'leaderboard.world',
@@ -104,7 +104,7 @@ class StorageInstance {
             return wrap;
         }
 
-        config.common.dbCollections.forEach((i: any) => StorageInstance.db[i] = wrapCollection(i));
+        dbCollections.forEach((i: any) => StorageInstance.db[i] = wrapCollection(i));
 
         StorageInstance.resetAllData = () => rpcClient.request('dbResetAllData');
 
@@ -163,4 +163,4 @@ class StorageInstance {
 
 export default StorageInstance;
 
-config.common.storage = StorageInstance;
+ConfigManager.config.common.storage = StorageInstance;

@@ -376,6 +376,20 @@ export function getRoomNameFromXY(x: any, y: any) {
     return "" + x + y;
 }
 
+const kMaxWorldSize = 256;
+const kMaxWorldSize2 = kMaxWorldSize >> 1;
+const roomNames: any[] = [];
+
+export const getRoomNameFromXYFaster = (xx: any, yy: any) => {
+    let id = (xx + kMaxWorldSize2) << 8 | (yy + kMaxWorldSize2);
+    let roomName = roomNames[id];
+    if (roomName === undefined) {
+        return roomNames[id] = getRoomNameFromXY(xx, yy);
+    } else {
+        return roomName;
+    }
+}
+
 export function roomNameToXY(name: any) {
     let xx = parseInt(name.substr(1), 10);
     let verticalPos = 2;
