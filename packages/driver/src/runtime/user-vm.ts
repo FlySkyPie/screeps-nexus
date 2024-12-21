@@ -28,7 +28,7 @@ export async function create({ userId, staticTerrainData, staticTerrainDataSize,
     }
 
     if (!vms[userId]) {
-        let inspector = ConfigManager.config.engine.enableInspector;
+        let inspector = ConfigManager.config.engine!.enableInspector;
         let isolate = new ivm.Isolate({ inspector, snapshot, memoryLimit: 256 + staticTerrainDataSize / 1024 / 1024 });
         let vm: Record<string, any> = vms[userId] = { isolate, ready: false };
         vm.promise = (async () => {
@@ -161,7 +161,7 @@ export function init() {
         }
     }, 60 * 1000);
 
-    if (ConfigManager.config.engine.reportMemoryUsageInterval) {
+    if (ConfigManager.config.engine!.reportMemoryUsageInterval) {
         setInterval(() => {
             console.log('---');
             let heap = v8.getHeapStatistics();
@@ -172,6 +172,6 @@ export function init() {
                 console.log(`# User ${user.userId} heap: ${user.heap.total_heap_size + user.heap.externally_allocated_size}`);
             });
             console.log('---');
-        }, ConfigManager.config.engine.reportMemoryUsageInterval);
+        }, ConfigManager.config.engine!.reportMemoryUsageInterval);
     }
 };

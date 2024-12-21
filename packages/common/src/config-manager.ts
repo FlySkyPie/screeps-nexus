@@ -3,13 +3,43 @@ import fs from 'fs';
 import path from 'path';
 import { EventEmitter } from 'node:events';
 
+import type { Resource } from './constants/resource';
 import * as strongholds from './strongholds';
 import * as system from './system';
 import { ProjectConfig } from './constants/project-config';
 
-export const config: any = {
+interface IStrongholds {
+    templates: any;
+    coreRewards: Record<string, Resource[]>;
+    coreAmounts: number[];
+    coreDensities: number[];
+    containerRewards: Record<string, number>;
+    containerAmounts: number[];
+}
+
+interface ISystem {
+    sanitizeUserIntents(input: any, customIntentTypes?: any): any;
+    sanitizeUserRoomIntents(input: any, result: any, customIntentTypes?: {}, groupingField?: string): void;
+}
+
+interface IConfig {
     common: {
-        // constants: require('./constants'),
+        strongholds: IStrongholds;
+        system: ISystem;
+        bots: Record<string, any>;
+        [key: string]: any;
+    };
+    storage: EventEmitter & Record<string, any>;
+    backend: EventEmitter & Record<string, any>;
+    cli: EventEmitter & Record<string, any>;
+
+    engine?: EventEmitter & Record<string, any>;
+
+    [key: string]: any;
+}
+
+export const config: IConfig = {
+    common: {
         strongholds: strongholds,
         system: system,
         bots: {}
@@ -72,6 +102,4 @@ export abstract class ConfigManager {
     public static config = config;
 
     public static load = load;
-}
-
-// export { config };
+};

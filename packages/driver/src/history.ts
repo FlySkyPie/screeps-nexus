@@ -38,7 +38,7 @@ export function upload(roomId: any, baseTime: any) {
                 curTick++;
             }
 
-            ConfigManager.config.engine.emit('saveRoomHistory', roomId, baseTime, result);
+            ConfigManager.config.engine!.emit('saveRoomHistory', roomId, baseTime, result);
 
             return env.del(env.keys.ROOM_HISTORY + roomId);
         });

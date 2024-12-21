@@ -141,8 +141,8 @@ export function get(userId: any) {
                     cpuBucket = 0;
                 }
                 cpu = cpuBucket + result[0].cpu;
-                if (cpu > ConfigManager.config.engine.cpuMaxPerTick) {
-                    cpu = ConfigManager.config.engine.cpuMaxPerTick;
+                if (cpu > ConfigManager.config.engine!.cpuMaxPerTick) {
+                    cpu = ConfigManager.config.engine!.cpuMaxPerTick;
                 }
             }
             else {

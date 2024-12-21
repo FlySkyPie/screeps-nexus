@@ -24,8 +24,18 @@ const _config = Object.assign(ConfigManager.config, { engine: new EventEmitter()
 const roomStatsUpdates: Record<string, any> = {};
 let worldSize: any;
 
+export var customObjectPrototypes: any[] = [];
+
+export var pathFinder = pathFinderFactory.create(require('../native/build/Release/native'));
+
 _.extend(_config.engine, {
     driver: exports,
+    // driver: {
+    //     config: _config.engine,
+    //     customObjectPrototypes,
+    //     getAllTerrainData,
+    //     pathFinder,
+    // },
     mainLoopMinDuration: 200,
     mainLoopResetInterval: 5000,
     mainLoopCustomStage() {
@@ -59,7 +69,7 @@ _config.engine.on('playerSandbox', (sandbox: any) => {
     });`);
 });
 
-export var customObjectPrototypes: any[] = [];
+
 
 Object.defineProperty(_config.engine, 'registerCustomObjectPrototype', {
     value: function (objectType: any, name: any, opts: any) {
@@ -90,7 +100,7 @@ function getAllTerrainData() {
 
 export { getAllTerrainData };
 
-export var pathFinder = pathFinderFactory.create(require('../native/build/Release/native'));
+
 
 export function connect(processType: any) {
 
