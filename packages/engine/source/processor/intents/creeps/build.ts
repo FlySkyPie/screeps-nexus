@@ -177,11 +177,11 @@ export default (
         if (target.structureType == 'road') {
             let hits = ScreepsConstants.ROAD_HITS;
 
-            if (_.any(roomObjects, { x: target.x, y: target.y, type: 'swamp' }) ||
+            if (_.any(roomObjects, _.matches({ x: target.x, y: target.y, type: 'swamp' })) ||
                 utils.checkTerrain(roomTerrain, target.x, target.y, ScreepsConstants.TERRAIN_MASK_SWAMP)) {
                 hits *= ScreepsConstants.CONSTRUCTION_COST_ROAD_SWAMP_RATIO;
             }
-            if (_.any(roomObjects, { x: target.x, y: target.y, type: 'wall' }) ||
+            if (_.any(roomObjects, _.matches({ x: target.x, y: target.y, type: 'wall' })) ||
                 utils.checkTerrain(roomTerrain, target.x, target.y, ScreepsConstants.TERRAIN_MASK_WALL)) {
                 hits *= ScreepsConstants.CONSTRUCTION_COST_ROAD_WALL_RATIO;
             }

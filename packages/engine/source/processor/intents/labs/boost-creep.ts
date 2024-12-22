@@ -12,7 +12,8 @@ export default (object: any, intent: any, { roomObjects, bulk }: any) => {
         return;
     }
 
-    const mineralType = _(object.store).keys().filter(k => k != Resource.RESOURCE_ENERGY && object.store[k]).first();
+    const _a =  _.filter(_.keys(object.store),k => k != Resource.RESOURCE_ENERGY && object.store[k]);
+    const mineralType = _.first(_a);
     if (!mineralType) {
         return;
     }

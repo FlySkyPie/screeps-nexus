@@ -106,7 +106,7 @@ export default (object: any, scope: any) => {
 
         if (!object.tutorial) {
             if (!object.ageTime) {
-                object.ageTime = gameTime + (_.any(object.body, { type: BodyParts.CLAIM }) ? ScreepsConstants.CREEP_CLAIM_LIFE_TIME : ScreepsConstants.CREEP_LIFE_TIME);
+                object.ageTime = gameTime + (_.any(object.body, _.matches({ type: BodyParts.CLAIM })) ? ScreepsConstants.CREEP_CLAIM_LIFE_TIME : ScreepsConstants.CREEP_LIFE_TIME);
                 bulk.update(object, { ageTime: object.ageTime });
             }
 

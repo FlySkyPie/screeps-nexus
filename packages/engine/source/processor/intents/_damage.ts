@@ -22,7 +22,8 @@ export default (object: any, target: any, damage: any, attackType: any, scope: a
     let attackBackPower = 0;
 
     if (target.type == 'creep') {
-        if (attackType == EventAttackType.EVENT_ATTACK_TYPE_MELEE && !_.any(roomObjects, { type: 'rampart', x: object.x, y: object.y })) {
+        if (attackType == EventAttackType.EVENT_ATTACK_TYPE_MELEE &&
+            !_.any(roomObjects, _.matches({ type: 'rampart', x: object.x, y: object.y }))) {
             attackBackPower = utils.calcBodyEffectiveness(target.body, BodyParts.ATTACK, 'attack', ScreepsConstants.ATTACK_POWER);
         }
         target._damageToApply = (target._damageToApply || 0) + damage;

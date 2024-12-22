@@ -18,7 +18,7 @@ export default (intent: any, user: any, { userPowerCreeps, bulkUsersPowerCreeps 
 
     const name = intent.name.substring(0, 50);
 
-    if (_.any(thisUserPowerCreeps, { name })) {
+    if (_.any(thisUserPowerCreeps, _.matches({ name }))) {
         return;
     }
 

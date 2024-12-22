@@ -140,7 +140,7 @@ export function check(roomIsInSafeMode: any) {
                 weight = weight || 1;
                 const key = `${object.x},${object.y}`;
                 let rate1 = affectedCnt[key] || 0;
-                if (matrix[key] && _.any(matrix[key], { x, y })) {
+                if (matrix[key] && _.any(matrix[key], _.matches({ x, y }))) {
                     rate1 = 100;
                 }
 
@@ -220,12 +220,12 @@ export function execute(object: any, scope: any) {
 
     let fatigueRate = 2;
 
-    if (_.any(cellObjects, { type: 'swamp' }) ||
+    if (_.any(cellObjects, _.matches({ type: 'swamp' })) ||
         utils.checkTerrain(roomTerrain, move.x, move.y, ScreepsConstants.TERRAIN_MASK_SWAMP)) {
         fatigueRate = 10;
     }
 
-    const road: any = _.find(cellObjects, { type: 'road' });
+    const road: any = _.find(cellObjects, _.matches({ type: 'road' }));
 
     if (road) {
         fatigueRate = 1;
@@ -251,9 +251,12 @@ export function execute(object: any, scope: any) {
 
     let fatigue;
     if (object.type == 'creep') {
-        fatigue = _(object.body).filter((i: any) =>
+        const _a = _.filter(object.body, (i: any) =>
             i.type != BodyParts.MOVE &&
-            i.type != BodyParts.CARRY).size();
+            i.type != BodyParts.CARRY)
+
+        fatigue = _.size(_a);
+
         fatigue += calcResourcesWeight(object);
         fatigue *= fatigueRate;
     }

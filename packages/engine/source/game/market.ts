@@ -89,7 +89,7 @@ export function make(runtimeData: any, intents: any, register: any) {
                 return ErrorCode.ERR_NOT_ENOUGH_RESOURCES;
             }
             if (!_.contains(ListItems.INTERSHARD_RESOURCES, resourceType) &&
-                (!roomName || !_.any(runtimeData.userObjects, { type: 'terminal', room: roomName }))) {
+                (!roomName || !_.any(runtimeData.userObjects, _.matches({ type: 'terminal', room: roomName })))) {
                 return ErrorCode.ERR_NOT_OWNER;
             }
             if (_.size(this.orders) + ordersCreatedDuringTick >= ScreepsConstants.MARKET_MAX_ORDERS) {
@@ -130,7 +130,10 @@ export function make(runtimeData: any, intents: any, register: any) {
                 if (!targetRoomName) {
                     return ErrorCode.ERR_INVALID_ARGS;
                 }
-                const terminal: any = _.find(runtimeData.userObjects, { type: 'terminal', room: targetRoomName }), transferCost = this.calcTransactionCost(amount, targetRoomName, order.roomName);
+                const terminal: any = _.find(
+                    runtimeData.userObjects,
+                    _.matches({ type: 'terminal', room: targetRoomName })),
+                    transferCost = this.calcTransactionCost(amount, targetRoomName, order.roomName);
                 if (!terminal) {
                     return ErrorCode.ERR_NOT_OWNER;
                 }
@@ -242,13 +245,14 @@ export function make(runtimeData: any, intents: any, register: any) {
             enumerable: true,
             get() {
                 if (!_orders) {
-                    _orders = _(runtimeData.market.myOrders).map((i: any) => {
+                    const _a = _.map(runtimeData.market.myOrders, (i: any) => {
                         i.id = "" + i._id;
                         delete i._id;
                         delete i.user;
                         i.price /= 1000;
                         return i;
-                    }).indexBy('id').value();
+                    });
+                    _orders = _.indexBy(_a, 'id');
                 }
                 return _orders;
             }

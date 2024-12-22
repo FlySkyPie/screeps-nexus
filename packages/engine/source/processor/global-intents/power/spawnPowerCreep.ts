@@ -22,7 +22,7 @@ export default (intent: any,
         return;
     }
 
-    if (_.any(roomObjectsByType.powerCreep, { room: powerSpawn.room, x: powerSpawn.x, y: powerSpawn.y })) {
+    if (_.any(roomObjectsByType.powerCreep, _.matches({ room: powerSpawn.room, x: powerSpawn.x, y: powerSpawn.y }))) {
         return;
     }
 

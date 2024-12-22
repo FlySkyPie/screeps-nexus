@@ -58,8 +58,8 @@ export default (spawn: any, creep: any, scope: any) => {
     // spawn is surrounded, spawnstomp the first hostile we found above, unless...
     if (hostileOccupied) {
         // bail if there's an opening we could spawn to but chose not to
-        for (var direction of otherDirections) {
-            var [dx, dy] = utils.getOffsetsByDirection(direction);
+        for (var _direction of otherDirections) {
+            var [dx, dy] = utils.getOffsetsByDirection(_direction);
 
             newX = spawn.x + dx;
             newY = spawn.y + dy;

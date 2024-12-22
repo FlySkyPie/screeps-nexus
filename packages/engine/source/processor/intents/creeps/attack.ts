@@ -35,7 +35,7 @@ export default (object: any, intent: any, scope: any) => {
     if (roomController && roomController.user != object.user && roomController.safeMode > gameTime) {
         return;
     }
-    const rampart = _.find(roomObjects, { type: 'rampart', x: target.x, y: target.y });
+    const rampart = _.find(roomObjects, _.matches({ type: 'rampart', x: target.x, y: target.y }));
     if (rampart) {
         target = rampart;
     }

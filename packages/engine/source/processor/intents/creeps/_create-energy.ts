@@ -16,7 +16,7 @@ export default (x: any, y: any, room: any, amount: any, resourceType: any, scope
         return;
     }
 
-    const container: any = _.find(roomObjects, { type: 'container', x, y });
+    const container: any = _.find(roomObjects, _.matches({ type: 'container', x, y }));
 
     if (container && container.hits > 0) {
         container.store = container.store || {};
@@ -31,7 +31,7 @@ export default (x: any, y: any, room: any, amount: any, resourceType: any, scope
 
     if (amount > 0) {
 
-        const existingDrop: any = _.find(roomObjects, { type: 'energy', x, y, resourceType });
+        const existingDrop: any = _.find(roomObjects, _.matches({ type: 'energy', x, y, resourceType }));
         if (existingDrop) {
             bulk.update(existingDrop, {
                 [resourceType]: existingDrop[resourceType] + amount

@@ -20,9 +20,10 @@ export default (object: any, intent: any, { roomObjects, bulk, gameTime }: any) 
     }
 
     const lab1 = roomObjects[intent.lab1];
-    const lab1MineralType = _(lab1.store).keys().filter(k =>
+    const _l1 = _.filter(_.keys(lab1.store), k =>
         k != Resource.RESOURCE_ENERGY &&
-        lab1.store[k]).first();
+        lab1.store[k])
+    const lab1MineralType = _.first(_l1);
     if (!lab1 || lab1.type != 'lab' || !lab1MineralType || lab1.store[lab1MineralType] < reactionAmount) {
         return;
     }
@@ -31,9 +32,10 @@ export default (object: any, intent: any, { roomObjects, bulk, gameTime }: any) 
     }
 
     const lab2 = roomObjects[intent.lab2];
-    const lab2MineralType = _(lab2.store).keys().filter(k =>
+    const _l2 = _.filter(_.keys(lab2.store), k =>
         k != Resource.RESOURCE_ENERGY &&
-        lab2.store[k]).first();
+        lab2.store[k]);
+    const lab2MineralType = _.first(_l2);
     if (!lab2 || lab2.type != 'lab' || !lab2MineralType || lab2.store[lab2MineralType] < reactionAmount) {
         return;
     }
@@ -41,7 +43,8 @@ export default (object: any, intent: any, { roomObjects, bulk, gameTime }: any) 
         return;
     }
 
-    const mineralType = _(object.store).keys().filter(k => k != Resource.RESOURCE_ENERGY && object.store[k]).first();
+    const _a = _.filter(_.keys(object.store), k => k != Resource.RESOURCE_ENERGY && object.store[k]);
+    const mineralType = _.first(_a);
     if ((object.store[mineralType] || 0) + reactionAmount > ScreepsConstants.LAB_MINERAL_CAPACITY) {
         return;
     }

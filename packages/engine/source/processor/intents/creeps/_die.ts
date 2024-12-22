@@ -49,10 +49,10 @@ export default (
             store: {}
         };
 
-        let container: any = _.find(roomObjects, { type: 'container', x: object.x, y: object.y });
+        let container: any = _.find(roomObjects, _.matches({ type: 'container', x: object.x, y: object.y }));
 
         if (dropRate > 0 && !object.userSummoned && !object.strongholdId) {
-            const lifeTime = _.any(object.body, { type: BodyParts.CLAIM }) ?
+            const lifeTime = _.any(object.body, _.matches({ type: BodyParts.CLAIM })) ?
                 ScreepsConstants.CREEP_CLAIM_LIFE_TIME :
                 ScreepsConstants.CREEP_LIFE_TIME;
             const lifeRate = dropRate * object._ticksToLive / lifeTime;

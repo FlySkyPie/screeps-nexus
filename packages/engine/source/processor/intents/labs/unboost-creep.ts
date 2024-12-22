@@ -31,7 +31,7 @@ export default (object: any, intent: any, scope: any) => {
             _.filter(target.body, (p: any) => !!p.boost),
             'boost'),
         v => v.length);
-    if (!_.some(boostedParts)) {
+    if (!_.some(Object.values(boostedParts))) {
         return;
     }
 

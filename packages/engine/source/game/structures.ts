@@ -318,7 +318,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
     StructureLab.prototype.constructor = StructureLab;
 
     const labMineralAmountGetter = (o: any) => _.sum(o.store) - (o.store.energy || 0);
-    const labMineralTypeGetter = (o: any) => _(o.store).keys().filter(k => k != Resource.RESOURCE_ENERGY && o.store[k]).first();
+    const labMineralTypeGetter = (o: any) => _.keys(o.store).filter(k => k != Resource.RESOURCE_ENERGY && o.store[k]).at(0)!;
 
     utils.defineGameObjectProperties(StructureLab.prototype, data, {
         energy: (o: any) => o.store ? o.store.energy : 0,
@@ -394,10 +394,12 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
             return ErrorCode.ERR_NOT_ENOUGH_RESOURCES;
         }
         bodyPartsCount = bodyPartsCount || 0;
-        const nonBoostedParts = _(target.body).filter((i: any) =>
+        const _f = (target.body).filter((i: any) =>
             !i.boost &&
             (Boosts as any)[i.type] &&
-            (Boosts as any)[i.type][labMineralTypeGetter(data(this.id))]).size();
+            (Boosts as any)[i.type][labMineralTypeGetter(data(this.id))]);
+
+        const nonBoostedParts = _.size(_f);
 
         if (!nonBoostedParts || bodyPartsCount && bodyPartsCount > nonBoostedParts) {
             return ErrorCode.ERR_NOT_FOUND;
@@ -911,7 +913,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
 
         if (!name) {
             name = names.getUniqueName((i: any) => {
-                return _.any(runtimeData.roomObjects, { type: 'creep', user: data(this.id).user, name: i }) ||
+                return _.any(runtimeData.roomObjects, _.matches({ type: 'creep', user: data(this.id).user, name: i })) ||
                     createdCreepNames.indexOf(i) != -1;
             });
         }
@@ -1032,7 +1034,8 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
             return ErrorCode.ERR_NAME_EXISTS;
         }
 
-        let energyStructures = options.energyStructures && _.uniq(_.map(options.energyStructures, 'id'));
+        let energyStructures = options.energyStructures &&
+            _.uniq(_.map(options.energyStructures, _.property('id')));
 
         let directions = options.directions;
         if (directions !== undefined) {

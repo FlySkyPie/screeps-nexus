@@ -366,7 +366,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
         if (!this.my) {
             return ErrorCode.ERR_NOT_OWNER;
         }
-        if (_.any(runtimeData.userPowerCreeps, { name })) {
+        if (_.any(runtimeData.userPowerCreeps, _.matches({ name }))) {
             return ErrorCode.ERR_NAME_EXISTS;
         }
 
@@ -399,7 +399,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
         if (calcFreePowerLevels() <= 0) {
             return ErrorCode.ERR_NOT_ENOUGH_RESOURCES;
         }
-        if (_.any(runtimeData.userPowerCreeps, { name })) {
+        if (_.any(runtimeData.userPowerCreeps, _.matches({ name }))) {
             return ErrorCode.ERR_NAME_EXISTS;
         }
         if (Object.values(ScreepsConstants.POWER_CLASS).indexOf(className) === -1) {

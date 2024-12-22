@@ -29,7 +29,7 @@ export default (object: any, { roomObjects, bulkObjects, bulkUsersPowerCreeps, g
                 undefined,
     };
 
-    let container: any = _.find(roomObjects, { type: 'container', x: object.x, y: object.y });
+    let container: any = _.find(roomObjects, _.matches({ type: 'container', x: object.x, y: object.y }));
     if (container) {
         container.store = container.store || {};
     }

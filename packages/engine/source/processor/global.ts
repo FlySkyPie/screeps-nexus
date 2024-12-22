@@ -32,7 +32,7 @@ export default () => {
             _bulkMarketIntershardOrders = bulkMarketIntershardOrders(),
             activateRooms: Record<string, any> = {},
             usersById = _.indexBy(users, '_id'),
-            roomObjectsByType = _.groupBy(roomObjects, 'type');
+            roomObjectsByType = _.groupBy(roomObjects, _.property('type'));
 
         // creeps
 

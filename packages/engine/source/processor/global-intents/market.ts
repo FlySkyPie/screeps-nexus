@@ -58,7 +58,7 @@ export default ({
         const range = utils.calcRoomsDistance(fromTerminal.room, toTerminal.room, true);
         let transferCost = utils.calcTerminalEnergyCost(amount, range);
 
-        const effect: any = _.find(transferFeeTerminal.effects, { power: PWRCode.PWR_OPERATE_TERMINAL });
+        const effect: any = _.find(transferFeeTerminal.effects, _.matches({ power: PWRCode.PWR_OPERATE_TERMINAL }));
         if (effect && effect.endTime > gameTime) {
             transferCost = Math.ceil(transferCost * POWER_INFO[PWRCode.PWR_OPERATE_TERMINAL].effect[effect.level - 1]);
         }
@@ -107,7 +107,7 @@ export default ({
         }
 
         let cooldown = ScreepsConstants.TERMINAL_COOLDOWN;
-        const effect: any = _.find(terminal.effects, { power: PWRCode.PWR_OPERATE_TERMINAL });
+        const effect: any = _.find(terminal.effects, _.matches({ power: PWRCode.PWR_OPERATE_TERMINAL }));
         if (effect && effect.endTime > gameTime) {
             cooldown = Math.round(cooldown * POWER_INFO[PWRCode.PWR_OPERATE_TERMINAL].effect[effect.level - 1]);
         }
@@ -415,7 +415,7 @@ export default ({
                 remainingAmount: order.remainingAmount - amount
             });
             let cooldown = ScreepsConstants.TERMINAL_COOLDOWN;
-            const effect: any = _.find(targetTerminal.effects, { power: PWRCode.PWR_OPERATE_TERMINAL });
+            const effect: any = _.find(targetTerminal.effects, _.matches({ power: PWRCode.PWR_OPERATE_TERMINAL }));
             if (effect && effect.endTime > gameTime) {
                 cooldown = Math.round(cooldown * POWER_INFO[PWRCode.PWR_OPERATE_TERMINAL].effect[effect.level - 1]);
             }

@@ -273,7 +273,13 @@ const walkTo = (creep: any, target: any, opts: any, context: any) => {
     }
 
     const offsets = utils.getOffsetsByDirection(direction);
-    const creepAhead: any = _.find(roomObjects, { type: 'creep', user: creep.user, x: creep.x + offsets[0], y: creep.y + offsets[1] });
+    const creepAhead: any = _.find(roomObjects,
+        _.matches({
+            type: 'creep',
+            user: creep.user,
+            x: creep.x + offsets[0],
+            y: creep.y + offsets[1]
+        }));
     if (creepAhead &&
         (!creepAhead['memory_move'] || (creepAhead['memory_move']['lastMove'] &&
             (creepAhead['memory_move']['lastMove'] + 1 < gameTime)))) {

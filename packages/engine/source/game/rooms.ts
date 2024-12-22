@@ -1011,9 +1011,9 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
                 name = 'Flag' + cnt;
                 cnt++;
             }
-            while (_.any(register.flags, { name }) || createdFlagNames.indexOf(name) != -1);
+            while (_.any(register.flags, _.matches({ name })) || createdFlagNames.indexOf(name) != -1);
         }
-        if (_.any(register.flags, { name }) || createdFlagNames.indexOf(name) != -1) {
+        if (_.any(register.flags, _.matches({ name })) || createdFlagNames.indexOf(name) != -1) {
             return ErrorCode.ERR_NAME_EXISTS;
         }
         if (name.length > 60) {
@@ -1047,7 +1047,8 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
             if (createdSpawnNames.indexOf(name) != -1) {
                 return ErrorCode.ERR_INVALID_ARGS;
             }
-            if (_.any(register.spawns, { name }) || _.any(register.constructionSites, { structureType: 'spawn', name })) {
+            if (_.any(register.spawns, _.matches({ name })) ||
+                _.any(register.constructionSites, _.matches({ structureType: 'spawn', name }))) {
                 return ErrorCode.ERR_INVALID_ARGS;
             }
         }
@@ -1063,7 +1064,10 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
             return ErrorCode.ERR_INVALID_TARGET;
         }
 
-        if (_(runtimeData.userObjects).filter({ type: 'constructionSite' }).size() + createdConstructionSites >= ScreepsConstants.MAX_CONSTRUCTION_SITES) {
+        const _a = _.filter(runtimeData.userObjects, _.matches({ type: 'constructionSite' }));
+
+        if (_.size(_a) +
+            createdConstructionSites >= ScreepsConstants.MAX_CONSTRUCTION_SITES) {
             return ErrorCode.ERR_FULL;
         }
 
@@ -1076,8 +1080,8 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
                     name = "Spawn" + cnt;
                     cnt++;
                 }
-                while (_.any(register.spawns, { name }) ||
-                _.any(register.constructionSites, { structureType: 'spawn', name }) ||
+                while (_.any(register.spawns, _.matches({ name })) ||
+                _.any(register.constructionSites, _.matches({ structureType: 'spawn', name })) ||
                     createdSpawnNames.indexOf(name) != -1);
             }
             createdSpawnNames.push(name);
@@ -1628,12 +1632,12 @@ export function makePos(_register: any, _g?: any) {
         this.room = register.rooms[room];
         this.pos = new globals.RoomPosition(x, y, room);
         if (effects) {
-            this.effects = _(effects).map((i: any) => ({
+            this.effects = effects.map((i: any) => ({
                 power: i.power,
                 effect: i.effect,
                 level: i.level,
                 ticksRemaining: i.endTime - runtimeData.time
-            })).filter(i => i.ticksRemaining > 0).value();
+            })).filter((i: any) => i.ticksRemaining > 0);
         }
     });
 
