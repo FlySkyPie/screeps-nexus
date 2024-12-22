@@ -1,10 +1,13 @@
 import deepEqual from 'deep-equal';
 import extract from "object-property-extractor"
 
-const map = <T = any, K = any>(
-    array1: T[],
-    callbackfn: (value: T, index: number, array: T[]) => K) => {
-    return array1.map(callbackfn);
+const map = (
+    array1: any[],
+    predicate: ((value: any, index: number, array: any[]) => any) | string) => {
+    if (typeof predicate === 'string') {
+        return array1.map(property(predicate));
+    }
+    return array1.map(predicate);
 }
 
 const isObject = (a: any): a is Object => a instanceof Object;
@@ -347,6 +350,10 @@ const remove = (
 
 const difference = (arr1: any[], arr2: any[]) => arr1.filter(x => !arr2.includes(x))
 
+const flatten = (array: any[]) => {
+    return array.flat();
+};
+
 export default {
     map,
     isObject,
@@ -400,4 +407,5 @@ export default {
     unique: uniq,
     remove,
     difference,
+    flatten,
 };

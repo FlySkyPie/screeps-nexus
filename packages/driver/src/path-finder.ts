@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 
 import type { INativeMod } from './interfaces/native-mod';

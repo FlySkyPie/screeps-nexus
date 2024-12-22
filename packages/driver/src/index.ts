@@ -441,7 +441,8 @@ export function roomsStatsSave() {
 export function updateAccessibleRoomsList() {
     return db.rooms.find({ status: 'normal' })
         .then((rooms: any) => {
-            const list = _(rooms).filter((i: any) => !i.openTime || i.openTime < Date.now()).map('_id').value();
+            const _a = _.filter(rooms, (i: any) => !i.openTime || i.openTime < Date.now());
+            const list = _.map(_a, '_id');
             return StorageInstance.env.set(StorageEnvKey.ACCESSIBLE_ROOMS, JSON.stringify(list));
         });
 }
