@@ -444,13 +444,22 @@ importers:
       '@screeps/pathfinding':
         specifier: workspace:*
         version: link:../PathFinding.js
+      deep-equal:
+        specifier: ^2.2.3
+        version: 2.2.3
       isolated-vm:
         specifier: ^5.0.1
         version: 5.0.1
       lodash:
         specifier: workspace:*
         version: link:../lodash
+      object-property-extractor:
+        specifier: ^1.0.13
+        version: 1.0.13
     devDependencies:
+      '@types/deep-equal':
+        specifier: ^1.0.4
+        version: 1.0.4
       '@types/node':
         specifier: ^22.10.1
         version: 22.10.1
