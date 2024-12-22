@@ -643,7 +643,11 @@ connect()
                         roomInfo: result[4],
                         flags: result[5]
                     })
-                        .catch((error) => logger.info('Error processing room ' + roomId + ':', _.isObject(error) ? (error.stack || error) : error))
+                        .catch((error) =>
+                            logger.info(
+                                'Error processing room ' + roomId + ':', {
+                                error: _.isObject(error) ? (error.stack || error) : error,
+                            }))
                         .then(() => {
                             return clearRoomIntents(roomId);
                         })

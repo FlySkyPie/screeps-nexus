@@ -22,7 +22,7 @@ if (process.env.NODE_ENV === 'development') {
         level: 'debug',
         format: winston.format.combine(
             winston.format.colorize(),
-            winston.format.simple()
+            winston.format.json(),
         ),
     }));
 } else {

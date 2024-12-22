@@ -66,10 +66,22 @@ const extend = (target: any, ...sources: any[]) => {
 const filter = <T = any>(
     array1: T[],
     predicate: ((value: T, index: number, array: T[]) => boolean) | Record<string, any>) => {
-    if (typeof predicate === 'object') {
-        return array1.filter(matches(predicate));
+    if (!array1) {
+        return [];
     }
-    return array1.filter(predicate);
+    if (Array.isArray(filter)) {
+        if (typeof predicate === 'object') {
+            return array1.filter(matches(predicate));
+        }
+        return array1.filter(predicate);
+    }
+
+    const arr = Object.values(filter);
+    if (typeof predicate === 'object') {
+        return arr.filter(matches(predicate));
+    }
+    return arr.filter(predicate);
+
 }
 
 const merge = (target: any, ...sources: any[]) => {
@@ -212,6 +224,9 @@ const cloneDeep = (v: any) => structuredClone(v);
 const isBoolean = (arg: any) => arg === !!arg;
 
 const indexBy = (array: any[], iteratee: string) => {
+    if (!array) {
+        return {};
+    }
     const m = new Map();
     for (let index = 0; index < array.length; index++) {
         const element = array[index];
