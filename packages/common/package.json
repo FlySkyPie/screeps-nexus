@@ -13,12 +13,11 @@
   },
   "dependencies": {
     "eslint": "^5.12.1",
-    "lodash": "^3.10.1",
+    "lodash": "workspace:*",
     "q": "^1.4.1"
   },
   "devDependencies": {
     "@types/node": "^16.0.0",
-    "@types/lodash": "^3.0.0",
     "@types/q": "^1.0.0",
     "@vercel/ncc": "^0.38.3"
   }
