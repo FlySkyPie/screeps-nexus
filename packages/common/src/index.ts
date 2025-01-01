@@ -1,5 +1,4 @@
 import q from 'q';
-import net from 'net';
 import _ from 'lodash';
 
 import * as storage from './storage';
@@ -12,21 +11,6 @@ export {  storage, rpc };
 // export var configManager = require('./config-manager');
 // export var storage = require('./storage');
 // export var rpc = require('./rpc');
-
-export function findPort(port: any): any {
-    const defer = q.defer();
-    const server = net.createServer(socket => socket.end());
-    server.listen(port, () => {
-        server.once('close', () => {
-            defer.resolve(port);
-        });
-        server.close();
-    });
-    server.on('error', (_err) => {
-        defer.resolve(findPort(port + 1));
-    });
-    return defer.promise;
-}
 
 export function encodeTerrain(terrain: any) {
     let result = '';

@@ -6,6 +6,7 @@ import fs from 'fs';
 import { readFile, writeFile, mkdir, stat, rename, } from 'fs/promises';
 
 import * as common from '@screeps/common/src/index';
+import { findPort } from '@screeps/common/src/network';
 
 const DEFAULTS = {
     modfile: 'mods.json',
@@ -81,12 +82,12 @@ export default async function start(_opts: IOptions, output: any) {
     if (opts.port) {
         result.gamePort = +opts.port;
     } else {
-        result.gamePort = await common.findPort(21025);
+        result.gamePort = await findPort(21025);
     }
     if (opts.cli_port) {
         result.cliPort = +opts.cli_port;
     } else {
-        result.cliPort = await common.findPort(result.gamePort! + 1);
+        result.cliPort = await findPort(result.gamePort! + 1);
     }
     if (opts.storage_port) {
         result.storagePort = +opts.storage_port;
@@ -99,7 +100,7 @@ export default async function start(_opts: IOptions, output: any) {
             result.storagePort = 'storage.sock';
         }
         else {
-            result.storagePort = await common.findPort(result.cliPort! + 1);
+            result.storagePort = await findPort(result.cliPort! + 1);
         }
     }
 
