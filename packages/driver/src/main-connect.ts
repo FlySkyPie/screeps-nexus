@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 import q from 'q';
 
 import StorageInstance from '@screeps/common/src/storage';
+import { StorageClient } from '@screeps/common/src/client';
 import { ConfigManager } from '@screeps/common/src/config-manager';
 import { calcWorldSize } from '@screeps/common/src';
 
@@ -35,7 +36,7 @@ _.extend(_config.engine, {
 export async function connect() {
     ConfigManager.load();
 
-    return StorageInstance._connect()
+    return StorageClient._connect()
         .then(() => StorageInstance.db.rooms.find({}, { _id: true }))
         .then(calcWorldSize)
         .then((_worldSize: any) => WorldSizeContainer.worldSize = _worldSize)

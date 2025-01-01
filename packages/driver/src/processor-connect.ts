@@ -3,6 +3,7 @@ import q from 'q';
 import _ from 'lodash';
 
 import StorageInstance from '@screeps/common/src/storage';
+import { StorageClient } from '@screeps/common/src/client';
 import { ConfigManager } from '@screeps/common/src/config-manager';
 import { calcWorldSize } from '@screeps/common/src';
 
@@ -39,7 +40,7 @@ export async function connect() {
 
     ConfigManager.load();
 
-    return StorageInstance._connect()
+    return StorageClient._connect()
         .then(() => {
             getAllTerrainData()
                 .then((rooms: any) =>

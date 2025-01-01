@@ -86,7 +86,7 @@ function checkNotificationOnline(_userId: any) {
     return q.when(true); // TODO
 }
 
-function getAllTerrainData() {
+export function getAllTerrainData() {
     return StorageInstance.env.get(StorageEnvKey.TERRAIN_DATA)
         .then((compressed: any) => {
             const buf = Buffer.from(compressed, 'base64');
@@ -94,8 +94,6 @@ function getAllTerrainData() {
         })
         .then((data: any) => JSON.parse(data));
 }
-
-export { getAllTerrainData };
 
 export function getAllUsers() {
     return db.users.find({ $and: [{ active: { $ne: 0 } }, { cpu: { $gt: 0 } }] })

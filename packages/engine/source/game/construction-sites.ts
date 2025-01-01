@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import { ErrorCode } from '@screeps/common/src/constants/error-code';
 
-import * as utils from './../utils';
+import { defineGameObjectProperties } from '../utils';
 
 let runtimeData: any,
     intents: any,
@@ -36,7 +36,7 @@ export function make(_runtimeData: any, _intents: any, _register: any, _globals:
     ConstructionSite.prototype = Object.create(globals.RoomObject.prototype);
     ConstructionSite.prototype.constructor = ConstructionSite;
 
-    utils.defineGameObjectProperties(ConstructionSite.prototype, data, {
+    defineGameObjectProperties(ConstructionSite.prototype, data, {
         progress: (o: any) => o.progress,
         progressTotal: (o: any) => o.progressTotal,
         structureType: (o: any) => o.structureType,

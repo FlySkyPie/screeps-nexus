@@ -1,7 +1,7 @@
 import q from 'q';
 import _ from 'lodash';
 
-import StorageInstance from '@screeps/common/src/storage';
+import { StorageClient } from '@screeps/common/src/client';
 import { ConfigManager } from '@screeps/common/src/config-manager';
 
 import * as cliServer from './cli/server';
@@ -14,7 +14,7 @@ export function start() {
 
     ConfigManager.load();
 
-    StorageInstance._connect()
+    StorageClient._connect()
         .then(() => cliServer.startServer())
         .then(() => gameServer.startServer())
         .then(() => {
